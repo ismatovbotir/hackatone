@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Client;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class AccessTest extends TestCase
@@ -96,5 +97,19 @@ class AccessTest extends TestCase
         // A language picked with the switch is kept.
         $this->get(route('locale', 'en'));
         $this->get('/')->assertSee('<html lang="en">', false);
+    }
+
+    public static function publicPages(): array
+    {
+        return ['landing' => ['/'], 'login' => ['/login'], 'register' => ['/register']];
+    }
+
+    /** One request per test: Livewire remembers printed scripts for the life of the app. */
+    #[DataProvider('publicPages')]
+    public function test_every_page_loads_livewire_so_the_assistant_button_works(string $url): void
+    {
+        // The landing page has no Livewire component, so the script must be loaded explicitly (Alpine runs the AI button).
+        $html = $this->get($url)->assertOk()->assertSee(t('ai.soon'))->getContent();
+        $this->assertSame(1, preg_match_all('/livewire(\\.min)?\\.js/', $html));
     }
 }

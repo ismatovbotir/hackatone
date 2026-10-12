@@ -28,6 +28,7 @@
     <title>{{ isset($title) && $title ? $title.' · ' : '' }}HackaTone Health</title>
     @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" defer></script>
 </head>
 <body class="min-h-dvh" data-theme="{{ \App\Support\Theme::current() }}">
@@ -90,5 +91,6 @@
     </div>
     @stack('scripts')
     <x-ai-agent />
+    @livewireScripts
 </body>
 </html>
