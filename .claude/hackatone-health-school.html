@@ -1,0 +1,1091 @@
+<title>HackaTone School</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Patrick+Hand&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one-column app shell. Registration first, then a profile strip, level switch and four tabs. */
+:root{
+  --bg:#FBF8F0;--surface:#FFFFFF;--surface2:#F1ECDD;--ink:#1F2A24;--muted:#5C665F;--line:#DCD5C2;
+  --accent:#2E6B4F;--on-accent:#FFFFFF;
+  --easy:#2F7FC4;--mid:#C58A0F;--strong:#C2412D;
+  --easy-bg:#E2EEF9;--mid-bg:#FBEFD6;--strong-bg:#F8E1DB;
+  --good:#17724B;--good-bg:#DCF0E5;--warn:#85560A;--warn-bg:#FAEBC9;--bad:#A02D1D;--bad-bg:#F7DCD6;
+  --band:#DCEBDF;
+  --rule:#D6E4F0;--margin:#F0B8B0;--bus:#F2B705;--brick:#C8553D;--roof:#2E6B4F;--sky:#DCEFFA;--cloud:#FFFFFF;--chalk:#FFFFFF;
+  --f-display:'Fredoka',system-ui,sans-serif;--f-body:'Public Sans',system-ui,sans-serif;--f-mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141A17;--surface:#1B2420;--surface2:#222D28;--ink:#EAF0EC;--muted:#A0AEA6;--line:#2E3B35;
+  --accent:#6FD3A4;--on-accent:#0B2419;
+  --easy:#6DB1F1;--mid:#E5B24D;--strong:#EE8070;
+  --easy-bg:#16293A;--mid-bg:#33290F;--strong-bg:#3A1F1A;
+  --good:#6EDBA6;--good-bg:#173A2A;--warn:#EBC066;--warn-bg:#3A2E10;--bad:#F29A8C;--bad-bg:#42201B;
+  --band:#1F3529;
+  --rule:#1E2A30;--margin:#4A2A28;--bus:#E5B24D;--brick:#B5533F;--roof:#3E8E68;--sky:#1A2A33;--cloud:#2C3B44;--chalk:#E6EFEA;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141A17;--surface:#1B2420;--surface2:#222D28;--ink:#EAF0EC;--muted:#A0AEA6;--line:#2E3B35;
+  --accent:#6FD3A4;--on-accent:#0B2419;
+  --easy:#6DB1F1;--mid:#E5B24D;--strong:#EE8070;
+  --easy-bg:#16293A;--mid-bg:#33290F;--strong-bg:#3A1F1A;
+  --good:#6EDBA6;--good-bg:#173A2A;--warn:#EBC066;--warn-bg:#3A2E10;--bad:#F29A8C;--bad-bg:#42201B;
+  --band:#1F3529;
+  --rule:#1E2A30;--margin:#4A2A28;--bus:#E5B24D;--brick:#B5533F;--roof:#3E8E68;--sky:#1A2A33;--cloud:#2C3B44;--chalk:#E6EFEA;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:1040px;margin-inline:auto}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(28px,5vw,42px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:22px;font-weight:600}
+h3{font-size:17px;font-weight:600}
+p{margin:0}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.small{font-size:13px}
+.label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px;flex-wrap:wrap}
+.brand{font-family:var(--f-display);font-weight:700;font-size:20px;display:flex;align-items:center;gap:10px}
+.brand i{display:inline-block;width:22px;height:22px;border-radius:6px;background:var(--accent);position:relative}
+.brand i::after{content:"";position:absolute;left:5px;right:5px;bottom:5px;height:3px;background:var(--on-accent);box-shadow:0 -6px 0 var(--on-accent),0 -12px 0 var(--on-accent)}
+.tag{font-size:12px;border:1px solid var(--line);border-radius:99px;padding:3px 10px;color:var(--muted)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{background:var(--accent);color:var(--on-accent);border:0;border-radius:8px;padding:11px 18px;font-weight:600}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:6px 12px;font-size:13px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;min-width:0}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr))}
+.stack{display:flex;flex-direction:column;gap:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+/* registration */
+.reg{display:grid;grid-template-columns:1.05fr 1fr;gap:36px;align-items:start;padding-block:12px 8px}
+.reg .intro{display:flex;flex-direction:column;gap:20px;min-width:0}
+.levels{display:flex;flex-direction:column;gap:10px}
+.lv{display:grid;grid-template-columns:14px 1fr;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.dot{width:12px;height:12px;border-radius:50%;margin-top:5px}
+.dot.easy,.d-easy{background:var(--easy)}.dot.mid,.d-mid{background:var(--mid)}.dot.strong,.d-strong{background:var(--strong)}
+form .fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+form .full{grid-column:1/-1}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;min-width:0}
+input[type=text],input[type=tel],input[type=date],input[type=number]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:100%;min-width:0}
+.radios{display:flex;gap:10px}
+.radios label{flex:1;display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--bg);font-weight:500;cursor:pointer}
+.err{color:var(--bad);font-size:13px;min-height:18px}
+@media(max-width:760px){.reg{grid-template-columns:1fr}form .fields{grid-template-columns:1fr}}
+/* dashboard */
+.profile{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end;padding-block:8px 18px}
+.facts{display:flex;gap:22px;flex-wrap:wrap}
+.fact b{display:block;font-family:var(--f-mono);font-size:20px;font-weight:500}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:9px 16px;font-weight:600}
+.seg button[aria-pressed=true]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+nav.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-block:18px 18px;overflow-x:auto}
+nav.tabs button{background:none;border:0;padding:10px 14px;color:var(--muted);font-weight:600;border-bottom:3px solid transparent;white-space:nowrap}
+nav.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
+.big{font-family:var(--f-mono);font-size:32px;font-weight:500;line-height:1.1}
+.pill{display:inline-block;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:600}
+.pill.good{background:var(--good-bg);color:var(--good)}.pill.warn{background:var(--warn-bg);color:var(--warn)}.pill.bad{background:var(--bad-bg);color:var(--bad)}.pill.neutral{background:var(--surface2);color:var(--muted)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin-top:12px;font-size:14px}
+.kv dt{color:var(--muted)}.kv dd{margin:0;text-align:right;font-family:var(--f-mono)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+th,td{padding:11px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--surface2)}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.lv-easy.sel{background:var(--easy-bg)}td.lv-mid.sel{background:var(--mid-bg)}td.lv-strong.sel{background:var(--strong-bg)}
+th .dot{display:inline-block;margin:0 6px 0 0;vertical-align:middle}
+.cell b{font-family:var(--f-mono);font-weight:500;font-size:15px}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.badge{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--surface);display:flex;flex-direction:column;gap:6px}
+.badge .medal{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-mono);font-size:12px;font-weight:600;background:var(--surface2);color:var(--muted);border:2px dashed var(--line)}
+.badge.on{border-color:var(--accent)}
+.badge.on .medal{background:var(--accent);color:var(--on-accent);border:2px solid var(--accent)}
+.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font-size:11px;font-family:var(--f-mono)}
+.chart .ax{stroke:var(--line)}
+.chart .med{stroke:var(--accent);fill:none;stroke-width:2}
+.chart .edge{stroke:var(--muted);fill:none;stroke-width:1;stroke-dasharray:4 4}
+.chart .band{fill:var(--band)}
+.chart .pt{fill:var(--ink)}
+.chart .pt.last{fill:var(--strong);stroke:var(--surface);stroke-width:2}
+ul.plain{margin:10px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.note{border:1px solid var(--line);background:var(--surface2);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--muted)}
+.hist{display:flex;flex-direction:column;gap:6px;margin-top:12px;font-size:14px}
+.hist div{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:6px}
+footer.disc{margin-top:28px}
+@media (prefers-reduced-motion:no-preference){.card,.badge{transition:border-color .15s}}
+/* landing */
+.langs{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.langs button{background:none;border:0;padding:6px 10px;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em}
+.langs button+button{border-left:1px solid var(--line)}
+.langs button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.hero{display:grid;grid-template-columns:1.05fr 1fr;gap:36px;align-items:center;padding-block:28px 40px}
+.hero-h{font-size:clamp(32px,6vw,54px);letter-spacing:-.02em}
+.lead{font-size:17px;max-width:54ch}
+.sec{padding-block:28px}
+.how{display:flex;flex-direction:column;gap:10px}
+.num-chip{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--bg);font-family:var(--f-mono);font-size:13px;font-weight:500;flex:none}
+.lvcard{display:flex;flex-direction:column;gap:8px}
+.feat{grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:28px}
+.cta{margin-block:28px;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:32px 24px;display:flex;flex-direction:column;align-items:flex-start;gap:16px}
+@media(max-width:820px){.hero{grid-template-columns:1fr}}
+/* wizard */
+.wz{display:grid;grid-template-columns:1.1fr .9fr;gap:20px;align-items:start}
+@media(max-width:860px){.wz{grid-template-columns:1fr}}
+.stepper{display:flex;gap:6px;flex-wrap:wrap}
+.stp{display:flex;align-items:center;gap:8px;background:none;border:1px solid var(--line);border-radius:99px;padding:4px 12px 4px 4px;color:var(--muted);font-weight:600;font-size:13px}
+.stp .num-chip{background:var(--surface2);color:var(--muted);width:24px;height:24px;font-size:12px}
+.stp.cur{border-color:var(--ink);color:var(--ink)}
+.stp.cur .num-chip{background:var(--ink);color:var(--bg)}
+.stp.done .num-chip{background:var(--accent);color:var(--on-accent)}
+.stp:disabled{opacity:.5;cursor:not-allowed}
+.pv{position:sticky;top:env(safe-area-inset-top,0px)}
+@media(max-width:860px){.pv{position:static}}
+.sep{border:0;border-top:1px solid var(--line);margin:16px 0}
+.review dd{text-align:right}
+/* telegram */
+.tg-grid{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:start;margin-top:20px}
+@media(max-width:700px){.tg-grid{grid-template-columns:1fr}}
+.codebig{font-size:clamp(34px,8vw,48px);font-weight:500;letter-spacing:.12em;margin:6px 0 0;line-height:1.1}
+.qrbox{display:flex;flex-direction:column;align-items:flex-start;min-width:0;max-width:100%}
+.qr{background:#FFFFFF;padding:14px;border-radius:10px;width:min(240px,100%);border:1px solid var(--line)}
+.qr svg{display:block;width:100%;height:auto}
+.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:14px}
+.chks{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px;margin-top:12px}
+.chk{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--bg);font-weight:500;cursor:pointer}
+input[type=time]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:100%;min-width:0}
+.payload{margin:12px 0 0;padding:14px;background:var(--bg);border:1px solid var(--line);border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.5}
+
+/* ===== School theme ===== */
+body{background-color:var(--bg);background-image:linear-gradient(90deg,transparent 46px,var(--margin) 46px,var(--margin) 48px,transparent 48px),repeating-linear-gradient(to bottom,transparent 0 31px,var(--rule) 31px 32px);background-attachment:fixed}
+@media(max-width:600px){body{background-image:repeating-linear-gradient(to bottom,transparent 0 31px,var(--rule) 31px 32px)}}
+.wrap{position:relative;z-index:1}
+.brand i{background:none;width:26px;height:26px;border-radius:0}
+.brand i::after{display:none}
+.brand svg{width:26px;height:26px;display:block}
+.btn{border-radius:12px;box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.18)}
+.btn.ghost{box-shadow:none;background:var(--surface)}
+.card{border-radius:14px}
+.hero-h{font-weight:700}
+.hand{font-family:'Patrick Hand',var(--f-body);font-size:20px;color:var(--accent)}
+/* school scene */
+.scene{margin-top:4px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--sky)}
+.scene svg{display:block;width:100%;height:auto}
+.scene .ground{fill:var(--good-bg)}.scene .road{fill:var(--surface2)}.scene .dash{stroke:var(--line);stroke-width:4;stroke-dasharray:22 18}
+.scene .wall{fill:var(--brick)}.scene .roof{fill:var(--roof)}.scene .win{fill:var(--sky);stroke:var(--surface);stroke-width:3}
+.scene .door{fill:var(--roof)}.scene .clock{fill:var(--surface);stroke:var(--ink);stroke-width:2}.scene .hand-l{stroke:var(--ink);stroke-width:2;stroke-linecap:round}
+.scene .pole{stroke:var(--muted);stroke-width:3}.scene .flag1{fill:var(--easy)}.scene .flag2{fill:var(--surface)}.scene .flag3{fill:var(--good)}
+.scene .cloud{fill:var(--cloud)}.scene .sun{fill:var(--bus)}
+.scene .bus{fill:var(--bus)}.scene .bwin{fill:var(--sky)}.scene .wheel{fill:var(--ink)}.scene .hub{fill:var(--muted)}.scene .stripe{fill:var(--ink);opacity:.8}
+.scene .tree{fill:var(--good)}.scene .trunk{fill:var(--warn)}
+.scene .board{fill:var(--accent)}.scene .chalk{fill:var(--chalk);font-family:'Patrick Hand',sans-serif;font-size:20px}
+/* floating doodles */
+.doodles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.doodles span{position:absolute;opacity:.22;color:var(--accent)}
+.doodles svg{width:100%;height:100%;display:block}
+@media(max-width:700px){.doodles span:nth-child(n+4){display:none}}
+@media (prefers-reduced-motion:no-preference){
+  .scene .busg{animation:drive 14s linear infinite}
+  .scene .wheel-r{transform-box:fill-box;transform-origin:center;animation:spin .8s linear infinite}
+  .scene .flagg{transform-box:fill-box;transform-origin:left center;animation:wave 2.4s ease-in-out infinite}
+  .scene .c1{animation:drift 40s linear infinite}.scene .c2{animation:drift 55s linear infinite -20s}
+  .scene .sun{transform-box:fill-box;transform-origin:center;animation:pulse 4s ease-in-out infinite}
+  .scene .mh{transform-box:view-box;transform-origin:520px 62px;animation:spin 12s linear infinite}
+  .scene .chalk-w{stroke-dasharray:240;stroke-dashoffset:240;animation:write 3s ease-out .4s forwards}
+  .doodles span{animation:float 9s ease-in-out infinite}
+  .doodles span:nth-child(2n){animation-duration:12s;animation-delay:-3s}
+  .doodles span:nth-child(3n){animation-duration:15s;animation-delay:-6s}
+  .stp.cur .num-chip{animation:bob 1.6s ease-in-out infinite}
+  .badge.on .medal{animation:pop .5s ease-out}
+  .badge:hover .medal,.lvcard:hover .dot{animation:wiggle .5s ease-in-out}
+  .card.how{transition:transform .2s}.card.how:hover{transform:translateY(-3px) rotate(-.4deg)}
+}
+@keyframes drive{from{transform:translateX(-220px)}to{transform:translateX(1020px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes wave{0%,100%{transform:skewY(0) scaleX(1)}50%{transform:skewY(-6deg) scaleX(.92)}}
+@keyframes drift{from{transform:translateX(-160px)}to{transform:translateX(960px)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes write{to{stroke-dashoffset:0}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-18px) rotate(8deg)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-12deg)}75%{transform:rotate(12deg)}}
+</style>
+
+<div class="doodles" aria-hidden="true"><span style="left:6%;top:14%;width:44px;height:44px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/></svg></span><span style="left:90%;top:20%;width:48px;height:48px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2z"/><path d="M4 19V5"/><path d="M9 7h6"/></svg></span><span style="left:4%;top:62%;width:40px;height:40px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7c-2-2-7-1-7 4s3 9 5 9c1 0 1.5-.6 2-.6s1 .6 2 .6c2 0 5-4 5-9s-5-6-7-4z"/><path d="M12 7c0-2 1-4 3-4"/></svg></span><span style="left:92%;top:70%;width:50px;height:50px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="9" width="20" height="6" rx="1" transform="rotate(-30 12 12)"/><path d="M8 13l1 1.6M11 11.3l1 1.6M14 9.6l1 1.6"/></svg></span><span style="left:48%;top:4%;width:30px;height:30px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></span><span style="left:84%;top:44%;width:52px;height:52px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><text x="1" y="17" font-size="12" font-family="Patrick Hand,sans-serif" fill="currentColor" stroke="none">ABC</text></svg></span><span style="left:10%;top:88%;width:38px;height:38px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c3 3 3 13 0 16M12 4c-3 3-3 13 0 16"/></svg></span><span style="left:70%;top:90%;width:40px;height:40px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h2M12 12h2M16 12h0M8 16h2M12 16h2"/></svg></span></div>
+<div class="wrap" id="app"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+(window.LANG=window.LANG||{}).en={
+'locale':'en-GB','plural':'n==1?0:1',
+'nav.start':'Start','nav.home':'Home','btn.reset':'Start over','btn.reset2':'Click again to erase data',
+'land.eyebrow':'Health programme built on WHO references',
+'land.h1':'Know your numbers. Train and eat at your level.',
+'land.sub':'Register in five short steps. We compare your height and weight with WHO ranges for your age, then give you a training week and a feeding menu at Easy, Mid or Strong level.',
+'land.cta':'Start registration','land.cta2':'See how it works',
+'land.chartcap':'Example: a 14-year-old boy against the WHO height band. The line in the middle is the median.',
+'how.title':'How it works',
+'how.1.t':'Register','how.1.d':'Phone, name, date of birth, gender, weight and height. It takes about a minute.',
+'how.2.t':'Compare with WHO','how.2.d':'See your expected height range, healthy weight range and whether you are still growing.',
+'how.3.t':'Pick a level','how.3.d':'Easy, Mid or Strong. Each level has its own weekly training plan and daily menu.',
+'how.4.t':'Earn achievements','how.4.d':'Log your height each month. Unlock badges and see how long each goal takes at every level.',
+'lvl.title':'Three levels, one programme',
+'lv.easy':'Easy','lv.mid':'Mid','lv.strong':'Strong',
+'lvb.easy':'About 150 min a week. Meets the WHO minimum.','lvb.mid':'About 285 min a week. Moderate effort, 5 to 6 active days.','lvb.strong':'About 375 min a week. Structured training, 6 to 7 active days.',
+'lvtag.easy':'Build the habit','lvtag.mid':'Steady progress','lvtag.strong':'Full commitment',
+'feat.title':'What you get',
+'feat.1.t':'WHO-based measures','feat.1.d':'Expected height at your age, healthy weight range, BMI status and a growth chart.',
+'feat.2.t':'Height achievements','feat.2.d':'Badges for centimetres gained and a table with the expected period for each goal at all three levels.',
+'feat.3.t':'Feeding menus','feat.3.d':'Calories, protein and calcium targets, with daily menus built from foods common in Uzbekistan.',
+'land.final':'Ready to see your plan?',
+'disc':'This is an educational prototype, not medical advice. For children and teenagers a parent or guardian should register and review the plan with a doctor.',
+'foot':'HackaTone Health. Data stays in your browser.',
+'wz.title':'Registration playground','wz.sub':'Move through the steps and watch the panel on the right update. Click a finished step to go back. Nothing leaves your browser.',
+'wz.step':'Step {0} of {1}','wz.back':'Back','wz.next':'Next','wz.create':'Create my plan','wz.sample':'Fill example','wz.clear':'Clear steps',
+'st.phone':'Phone','st.name':'Name','st.about':'About you','st.body':'Body','st.review':'Review',
+'st.phone.d':'Your phone number is your account ID.','st.name.d':'How should we address you?','st.about.d':'Age and gender decide which WHO reference applies.','st.body.d':'Used for BMI and calorie targets.','st.review.d':'Check the details, then create your plan.',
+'fl.phone':'Phone number','fl.first':'First name','fl.last':'Surname','fl.dob':'Date of birth','fl.sex':'Gender','fl.male':'Male','fl.female':'Female','fl.weight':'Weight (kg)','fl.height':'Height (cm)',
+'e.phone':'Enter a valid phone number, for example +998 90 123 45 67.','e.name':'Enter your first name and surname.','e.dob':'Enter your date of birth.','e.young':'Programmes start at age 5. For younger children use the WHO Child Growth Standards with a paediatrician.','e.old':'Check the date of birth.','e.sex':'Choose a gender.','e.weight':'Enter a weight between 10 and 300 kg.','e.height':'Enter a height between 80 and 250 cm.',
+'pv.title':'Live preview','pv.empty':'Fill in your date of birth and gender to see the expected WHO range for your age.',
+'pv.expect':'Expected height at age {0}','pv.grow':'Growth window open until about age {0}.','pv.done':'Growth is mostly complete.','pv.need':'Add weight and height to see your BMI and level.',
+'pv.you':'Your height','pv.bmi':'BMI','pv.suggest':'Suggested starting level','pv.healthy':'Healthy weight',
+'prof.age':'Age','prof.height':'Height','prof.weight':'Weight','prof.bmi':'BMI','prof.level':'Your level','prof.suggest':'Suggested start: {0}. Switch any time.',
+'tab.overview':'Overview','tab.training':'Training','tab.feeding':'Feeding','tab.ach':'Achievements',
+'ov.height':'Height','hs.low2':'Below the WHO range','hs.low1':'Low end of typical','hs.typ':'Typical for age','hs.high1':'High end of typical','hs.high2':'Above the WHO range',
+'ov.median':'WHO median at {0} y','ov.range':'Expected range (±2 SD)','ov.pct':'Approx. percentile','ov.doctor':'Outside the WHO range. Please show these measurements to a doctor.',
+'ov.weight':'Weight and BMI','bs.under':'Underweight','bs.ok':'Healthy weight','bs.over':'Overweight','bs.obese':'Obesity range',
+'ov.bmirange':'Healthy BMI range','ov.hw':'Healthy weight at {0} cm','ov.yourw':'Your weight','ov.plus':'+{0} kg to reach range','ov.minus':'-{0} kg to reach range','ov.inrange':'inside range',
+'ov.bminote.y':'Range from WHO BMI-for-age: -2 SD to +1 SD.','ov.bminote.a':'WHO adult BMI categories: 18.5 to 24.9 is healthy.',
+'gr.title':'Growth outlook','gr.still':'Still growing','gr.proj':'Projected adult height, usually within ±5 cm.','gr.rem':'Remaining growth','gr.remv':'about {0} cm','gr.vel':'Typical growth now','gr.velv':'{0} cm per year','gr.end':'Growth window ends','gr.endv':'around age {0}',
+'gr.genes':'Height is mostly set by genes. Sleep, protein, calcium and activity help you reach your own potential.',
+'gr.complete':'Complete','gr.near':'Near the end','gr.adult':'Adult','gr.closed':'Growth plates have most likely closed, so height will not increase.',
+'gr.posture':'Posture work and core strength can recover 1 to 2 cm that slouching hides. Measure at the same time of day, because you are about 1 cm taller in the morning.',
+'ch.title':'Height against WHO reference','ch.sub':'Band shows -2 to +2 SD. The red dot is your latest measurement.','ch.age':'age (years)','ch.aria':'Height compared with the WHO reference by age','ch.median':'median',
+'dt.title':'Daily targets for your age','dt.sleep':'Sleep','dt.act':'Physical activity','dt.ca':'Calcium','dt.water':'Water','dt.actv.y':'60 min a day (WHO)','dt.actv.a':'150 to 300 min a week (WHO)',
+'u.h':'h','u.l':'L','u.min':'min','u.mg':'mg','u.kg':'kg','u.cm':'cm','u.kcal':'kcal','u.kcalday':'kcal per day','u.gday':'g per day','u.mgday':'mg per day','u.lday':'litres per day',
+'ov.note':'Reference curves are approximations of the WHO 2007 growth reference (ages 5 to 19) and WHO adult BMI categories. Check them against the official WHO tables before any clinical use.',
+'tr.title':'{0} weekly programme','tr.min':'{0} min a week','tr.sessions':'{0} sessions','tr.who':'WHO check',
+'tr.whoy':'WHO asks for an average of 60 min a day. Add about {0} min of free play or walking each day to reach it.',
+'tr.who.low':'Below the WHO minimum of 150 min.','tr.who.ok':'Inside the WHO range of 150 to 300 min a week, plus strength work on 2 or more days.','tr.who.high':'Above the WHO 300 min range. Protect your recovery days and sleep.',
+'tr.day':'Day','tr.session':'Session','tr.mins':'Min','tr.todo':'What to do',
+'d.0':'Monday','d.1':'Tuesday','d.2':'Wednesday','d.3':'Thursday','d.4':'Friday','d.5':'Saturday','d.6':'Sunday',
+'ty.cardio':'Cardio','ty.strength':'Strength','ty.stretch':'Stretch and posture','ty.sport':'Sport','ty.recover':'Active recovery','ty.rest':'Rest',
+'dx.cardio.y.easy':'Brisk walk, light jogging or playground games.','dx.cardio.y.mid':'Jogging, tag games, jump rope at a pace where you can still talk.','dx.cardio.y.strong':'Running games and jump rope in intervals: 1 min fast, 1 min easy.',
+'dx.cardio.a.easy':'Brisk walk or easy cycling.','dx.cardio.a.mid':'Jog or ride at a steady pace where you can still talk.','dx.cardio.a.strong':'Intervals: 6 rounds of 2 min hard, 2 min easy, after a 10 min warm-up.',
+'sets.easy':'2 sets','sets.mid':'3 sets','sets.strong':'4 sets',
+'dx.strength.y':'Bodyweight circuit, {0} of 8 to 12: squats, push-ups, lunges, plank.','dx.strength.y.strong':'Bodyweight circuit, {0} of 8 to 12: squats, push-ups, lunges, plank, pull-ups, box jumps. Technique first, no maximal lifts.','dx.strength.a':'Full body, {0} of 8 to 12: squat, push, row, hip hinge, plank.',
+'dx.stretch.g':'Stretching, hanging from a bar, cobra and cat-cow, wall posture drill.','dx.stretch.n':'Mobility and yoga flow, hip and spine stretches, posture drill.',
+'dx.sport.y':'Basketball, volleyball, swimming or football with friends.','dx.sport.a':'Sport of your choice, swimming, or a long ride or hike.','dx.recover':'Easy walk and light stretching.','dx.rest':'Rest day. Gentle movement is fine. Sleep early.',
+'gb.title':'Habits that support growth','gb.1':'Sleep {0} hours. Most growth hormone is released in deep sleep.','gb.2':'Protein at every meal, plus dairy or fortified foods for calcium and vitamin D.','gb.3':'Hang from a bar and stretch daily. It supports posture, not bone length.','gb.4':'Skip energy drinks and smoking. Avoid maximal lifts until a coach confirms good technique.','gb.5':'Measure height once a month, same time of day, and log it in Achievements.',
+'tr.note':'Warm up for 5 minutes before every session. Stop if you feel pain or dizziness. Under-18s should train with an adult or coach nearby.',
+'fd.title':'{0} feeding plan','fd.energy':'Energy','fd.protein':'Protein','fd.carbs':'Carbs','fd.fat':'Fat','fd.calcium':'Calcium','fd.water':'Water',
+'fd.adj.y':'Children and teenagers eat to grow. This plan never cuts calories for under-19s.','fd.adj.y.under':'Children and teenagers eat to grow. This plan never cuts calories for under-19s and adds about 5% because weight is low.',
+'fd.adj.under':'Calories are raised by 10% because BMI is below the healthy range.','fd.adj.over':'Calories are lowered by 10% because BMI is above the healthy range.','fd.adj.obese':'Calories are lowered by 15% because BMI is in the obesity range. Review this with a doctor.','fd.adj.ok':'Calories match your estimated daily energy use.',
+'fd.meal':'Meal','fd.kcal':'kcal','fd.menu':'Menu with portions for you','fd.cmp':'Daily energy by level','fd.cmpline':'{0} kcal, {1} g protein',
+'fd.note':'Energy uses the WHO/FAO Schofield equations multiplied by an activity factor of {0} (Easy), {1} (Mid) and {2} (Strong). Menu amounts are cooked weights and scale with your calories. Menus are examples, so swap foods of a similar type. Tell a doctor about any allergy before using them.',
+'m.breakfast':'Breakfast','m.snack':'Snack','m.lunch':'Lunch','m.dinner':'Dinner',
+'f.oat':'Oat porridge with milk','f.egg':'Boiled egg','f.apple':'Apple','f.kefir':'Kefir or ayran','f.apricot':'Dried apricots','f.lentil':'Lentil soup (mastava or light shurpa)','f.rice':'Rice or buckwheat, cooked','f.cucsalad':'Cucumber and tomato salad','f.nonwg':'Whole-grain non','f.tvorog':'Cottage cheese (tvorog)','f.fruit':'Seasonal fruit','f.chicken':'Baked chicken breast','f.steamveg':'Steamed vegetables','f.potato':'Boiled potatoes',
+'f.omelet':'egg in omelette','f.yogurt':'Plain yogurt','f.walnut':'Walnuts','f.banana':'Banana','f.shurpa':'Beef shurpa with vegetables','f.buckwheat':'Buckwheat, cooked','f.mixsalad':'Mixed salad with olive oil','f.non':'Non','f.nutsfruit':'Nuts and dried fruit','f.fish':'Baked fish or lean beef','f.brownrice':'Brown rice, cooked','f.veg':'Vegetables, roasted or steamed',
+'f.oatnuts':'Oats with milk, banana and nuts','f.honey':'Honey','f.plov':'Lean plov with chicken, less oil','f.vegsalad':'Vegetable salad','f.nuts':'Nuts','f.grill':'Grilled chicken or beef','f.rb':'Buckwheat or rice, cooked',
+'ac.badges':'Badges','ac.unlocked':'{0} of {1} unlocked','ac.gain':'Gain since first measurement',
+'bd.reg':'Registered','bd.regd':'First measurement saved','bd.chk':'Check-in','bd.chkd':'A second measurement logged','bd.who':'WHO range','bd.whod':'Height within ±2 SD for age','bd.med':'At median','bd.medd':'Height at or above the WHO median','bd.bmi':'Healthy BMI','bd.bmid':'BMI inside the healthy range','bd.gaind':'Height gained since your first measurement','bd.on':'Unlocked','bd.off':'Locked',
+'ac.th':'Achievement','ac.ht':'Height achievements and periods','ac.hsub':'Expected time to gain each amount at your age, for each level. The highlighted column is your level.','ac.hgain':'Height gain from today ({0} cm)','ac.by':'by {0}',
+'ac.hnote':'Planning estimate. It takes the typical growth speed for your age and sex (about {0} cm per year now), scales it to your projected adult height, and assumes you follow the level consistently: 90% of that pace on Easy, 100% on Mid, 105% on Strong. Growth comes in spurts and no programme can promise centimetres.',
+'ac.done.t':'Height achievements','ac.done.d':'Growth is complete, so height gain badges are off. Posture and body weight goals are below.',
+'ac.hab':'Habit achievements','ac.habsub':'Streak lengths needed at each level.',
+'hb.cons':'Consistency','hb.consd':'Complete the full weekly plan','hb.sleep':'Sleep keeper','hb.sleepd':'Hit your sleep target','hb.menu':'Menu follower','hb.menud':'Follow your feeding menu','hb.post':'Posture streak','hb.postd':'10 min stretch and posture drill','hb.who':'WHO activity','hb.whod':'Reach the WHO activity target',
+'un.weeks':'{0} weeks','un.nights':'{0} nights','un.days':'{0} days',
+'hb.bmi':'Healthy BMI range','hb.gain':'Gain {0} kg at a safe weekly pace','hb.lose':'Lose {0} kg at a safe weekly pace','hb.rate':'{0} kg a week',
+'mo':'{0} month|{0} months','yr':'{0} years',
+'lg.title':'Log a new measurement','lg.date':'Date','lg.h':'Height (cm)','lg.w':'Weight (kg)','lg.opt':'optional','lg.add':'Add','lg.err':'Enter a date and a height between 80 and 250 cm.','lg.errdob':'The date is before the date of birth.','lg.rm':'Remove','lg.first':'first',
+'tab.tg':'Telegram',
+'tg.title':'Connect to our Telegram bot',
+'tg.sub':'Scan the QR code or send the 6-digit code to the bot. Your reminders will arrive in Telegram.',
+'tg.code':'Your 6-digit code',
+'tg.regen':'New code',
+'tg.copy':'Copy code',
+'tg.copied':'Copied',
+'tg.bot':'Bot username',
+'tg.botph':'your_bot_name',
+'tg.botneed':'Enter the bot username to create the QR code.',
+'tg.open':'Open in Telegram',
+'tg.s1':'Scan the QR code, or open the bot and send the 6-digit code.',
+'tg.s2':'Press Start in Telegram.',
+'tg.s3':'The bot links your phone number to this account and starts your reminders.',
+'tg.rem':'Reminders',
+'tg.r.workout':'Training session of the day',
+'tg.r.meals':'Meal times',
+'tg.r.water':'Drink water',
+'tg.r.measure':'Monthly height measurement',
+'tg.time':'Preferred time',
+'tg.status':'Not connected yet',
+'tg.note':'This page only prepares the code and the QR. Your bot server must save the code with the data below, confirm it when the client sends it, and then send the reminders.',
+'tg.payload':'Data for the bot server'
+};
+
+</script>
+<script>
+(window.LANG=window.LANG||{}).uz={
+'locale':'uz-UZ','plural':'0',
+'nav.start':'Boshlash','nav.home':'Bosh sahifa','btn.reset':'Qaytadan boshlash','btn.reset2':'Ma’lumotlarni o‘chirish uchun yana bosing',
+'land.eyebrow':'JSST me’yorlariga asoslangan salomatlik dasturi',
+'land.h1':'Ko‘rsatkichlaringizni biling. O‘z darajangizda mashq qiling va ovqatlaning.',
+'land.sub':'Besh qisqa qadamda ro‘yxatdan o‘ting. Biz bo‘yingiz va vazningizni yoshingizga mos JSST me’yorlari bilan solishtiramiz va Oson, O‘rta yoki Kuchli darajada haftalik mashg‘ulot hamda ovqatlanish menyusini tuzamiz.',
+'land.cta':'Ro‘yxatdan o‘tishni boshlash','land.cta2':'Qanday ishlaydi',
+'land.chartcap':'Misol: 14 yoshli o‘g‘il bola JSST bo‘y diapazoni fonida. O‘rtadagi chiziq medianani ko‘rsatadi.',
+'how.title':'Qanday ishlaydi',
+'how.1.t':'Ro‘yxatdan o‘tish','how.1.d':'Telefon, ism, tug‘ilgan sana, jins, vazn va bo‘y. Taxminan bir daqiqa oladi.',
+'how.2.t':'JSST bilan solishtirish','how.2.d':'Kutilgan bo‘y diapazoni, sog‘lom vazn oralig‘ini va hali o‘sishda ekaningizni ko‘rasiz.',
+'how.3.t':'Daraja tanlash','how.3.d':'Oson, O‘rta yoki Kuchli. Har bir darajaning o‘z haftalik mashg‘ulot rejasi va kunlik menyusi bor.',
+'how.4.t':'Yutuqlar','how.4.d':'Bo‘yingizni har oy yozib boring. Nishonlarni oching va har bir maqsad har darajada qancha vaqt olishini ko‘ring.',
+'lvl.title':'Uch daraja, bitta dastur',
+'lv.easy':'Oson','lv.mid':'O‘rta','lv.strong':'Kuchli',
+'lvb.easy':'Haftasiga taxminan 150 daqiqa. JSST minimumiga mos.','lvb.mid':'Haftasiga taxminan 285 daqiqa. O‘rtacha yuklama, 5–6 faol kun.','lvb.strong':'Haftasiga taxminan 375 daqiqa. Tizimli mashg‘ulotlar, 6–7 faol kun.',
+'lvtag.easy':'Odat shakllantirish','lvtag.mid':'Barqaror o‘sish','lvtag.strong':'To‘liq berilish',
+'feat.title':'Nimalarga ega bo‘lasiz',
+'feat.1.t':'JSST asosidagi ko‘rsatkichlar','feat.1.d':'Yoshingizga mos kutilgan bo‘y, sog‘lom vazn oralig‘i, TMI holati va o‘sish grafigi.',
+'feat.2.t':'Bo‘y bo‘yicha yutuqlar','feat.2.d':'Qo‘shilgan santimetrlar uchun nishonlar va uchala darajada har bir maqsad uchun kutilgan muddat jadvali.',
+'feat.3.t':'Ovqatlanish menyulari','feat.3.d':'Kaloriya, oqsil va kalsiy me’yorlari hamda O‘zbekistonda keng tarqalgan mahsulotlardan tuzilgan kunlik menyular.',
+'land.final':'Rejangizni ko‘rishga tayyormisiz?',
+'disc':'Bu o‘quv prototipi, tibbiy maslahat emas. Bolalar va o‘smirlar uchun ro‘yxatdan ota-ona yoki vasiy o‘tishi va rejani shifokor bilan ko‘rib chiqishi kerak.',
+'foot':'HackaTone Health. Ma’lumotlar brauzeringizda saqlanadi.',
+'wz.title':'Ro‘yxatdan o‘tish maydoni','wz.sub':'Qadamlarni bosib o‘ting va o‘ngdagi panelni kuzating. Orqaga qaytish uchun tugallangan qadamni bosing. Ma’lumotlar brauzeringizdan chiqmaydi.',
+'wz.step':'{1} dan {0}-qadam','wz.back':'Orqaga','wz.next':'Keyingisi','wz.create':'Rejamni yaratish','wz.sample':'Namuna bilan to‘ldirish','wz.clear':'Qadamlarni tozalash',
+'st.phone':'Telefon','st.name':'Ism','st.about':'Siz haqingizda','st.body':'Tana','st.review':'Tekshirish',
+'st.phone.d':'Telefon raqamingiz hisobingiz identifikatori bo‘ladi.','st.name.d':'Sizga qanday murojaat qilaylik?','st.about.d':'Yosh va jins qaysi JSST me’yori qo‘llanishini belgilaydi.','st.body.d':'TMI va kaloriya me’yorlari uchun kerak.','st.review.d':'Ma’lumotlarni tekshiring va rejangizni yarating.',
+'fl.phone':'Telefon raqami','fl.first':'Ism','fl.last':'Familiya','fl.dob':'Tug‘ilgan sana','fl.sex':'Jins','fl.male':'Erkak','fl.female':'Ayol','fl.weight':'Vazn (kg)','fl.height':'Bo‘y (sm)',
+'e.phone':'To‘g‘ri telefon raqamini kiriting, masalan +998 90 123 45 67.','e.name':'Ism va familiyangizni kiriting.','e.dob':'Tug‘ilgan sanangizni kiriting.','e.young':'Dasturlar 5 yoshdan boshlanadi. Kichikroq bolalar uchun pediatr bilan JSST bolalar o‘sish standartlaridan foydalaning.','e.old':'Tug‘ilgan sanani tekshiring.','e.sex':'Jinsni tanlang.','e.weight':'Vaznni 10 dan 300 kg gacha kiriting.','e.height':'Bo‘yni 80 dan 250 sm gacha kiriting.',
+'pv.title':'Jonli ko‘rinish','pv.empty':'Yoshingizga mos JSST diapazonini ko‘rish uchun tug‘ilgan sana va jinsni kiriting.',
+'pv.expect':'{0} yoshdagi kutilgan bo‘y','pv.grow':'O‘sish davri taxminan {0} yoshgacha ochiq.','pv.done':'O‘sish asosan yakunlangan.','pv.need':'TMI va darajani ko‘rish uchun vazn va bo‘yni kiriting.',
+'pv.you':'Sizning bo‘yingiz','pv.bmi':'TMI','pv.suggest':'Tavsiya etilgan boshlang‘ich daraja','pv.healthy':'Sog‘lom vazn',
+'prof.age':'Yosh','prof.height':'Bo‘y','prof.weight':'Vazn','prof.bmi':'TMI','prof.level':'Darajangiz','prof.suggest':'Tavsiya etilgan boshlanish: {0}. Istalgan payt almashtirishingiz mumkin.',
+'tab.overview':'Umumiy','tab.training':'Mashg‘ulot','tab.feeding':'Ovqatlanish','tab.ach':'Yutuqlar',
+'ov.height':'Bo‘y','hs.low2':'JSST diapazonidan past','hs.low1':'Me’yorning quyi chegarasi','hs.typ':'Yoshga mos me’yor','hs.high1':'Me’yorning yuqori chegarasi','hs.high2':'JSST diapazonidan yuqori',
+'ov.median':'{0} yoshdagi JSST mediani','ov.range':'Kutilgan diapazon (±2 SD)','ov.pct':'Taxminiy persentil','ov.doctor':'JSST diapazonidan tashqarida. Bu o‘lchovlarni shifokorga ko‘rsating.',
+'ov.weight':'Vazn va TMI','bs.under':'Vazn yetishmasligi','bs.ok':'Sog‘lom vazn','bs.over':'Ortiqcha vazn','bs.obese':'Semizlik diapazoni',
+'ov.bmirange':'Sog‘lom TMI oralig‘i','ov.hw':'{0} sm bo‘yda sog‘lom vazn','ov.yourw':'Sizning vazningiz','ov.plus':'Diapazonga yetish uchun +{0} kg','ov.minus':'Diapazonga yetish uchun -{0} kg','ov.inrange':'diapazon ichida',
+'ov.bminote.y':'JSSTning yoshga nisbatan TMI diapazoni: -2 SD dan +1 SD gacha.','ov.bminote.a':'JSSTning kattalar uchun TMI toifalari: 18,5–24,9 sog‘lom hisoblanadi.',
+'gr.title':'O‘sish prognozi','gr.still':'Hali o‘syapsiz','gr.proj':'Kattalikdagi taxminiy bo‘y, odatda ±5 sm aniqlikda.','gr.rem':'Qolgan o‘sish','gr.remv':'taxminan {0} sm','gr.vel':'Hozirgi odatiy o‘sish','gr.velv':'yiliga {0} sm','gr.end':'O‘sish davri tugaydi','gr.endv':'taxminan {0} yoshda',
+'gr.genes':'Bo‘y asosan genlarga bog‘liq. Uyqu, oqsil, kalsiy va harakat o‘z imkoniyatingizga yetishga yordam beradi.',
+'gr.complete':'Yakunlangan','gr.near':'Tugash arafasida','gr.adult':'Katta yosh','gr.closed':'O‘sish zonalari ehtimol yopilgan, shuning uchun bo‘y oshmaydi.',
+'gr.posture':'Qomat ustida ishlash va korsetni mustahkamlash bukchayish yashirgan 1–2 sm ni qaytarishi mumkin. Kunning bir xil vaqtida o‘lchang, chunki ertalab taxminan 1 sm balandroq bo‘lasiz.',
+'ch.title':'JSST me’yorlariga nisbatan bo‘y','ch.sub':'Polosa -2 dan +2 SD gacha oraliqni ko‘rsatadi. Qizil nuqta oxirgi o‘lchovingiz.','ch.age':'yosh (yil)','ch.aria':'Bo‘yning yoshga qarab JSST me’yoriga nisbati','ch.median':'median',
+'dt.title':'Yoshingizga mos kunlik me’yorlar','dt.sleep':'Uyqu','dt.act':'Jismoniy faollik','dt.ca':'Kalsiy','dt.water':'Suv','dt.actv.y':'kuniga 60 daqiqa (JSST)','dt.actv.a':'haftasiga 150–300 daqiqa (JSST)',
+'u.h':'soat','u.l':'l','u.min':'daq','u.mg':'mg','u.kg':'kg','u.cm':'sm','u.kcal':'kkal','u.kcalday':'kuniga kkal','u.gday':'kuniga gramm','u.mgday':'kuniga mg','u.lday':'kuniga litr',
+'ov.note':'Egri chiziqlar JSSTning 2007-yilgi o‘sish me’yorlari (5–19 yosh) va kattalar uchun TMI toifalariga yaqinlashtirilgan. Klinik foydalanishdan oldin ularni rasmiy JSST jadvallari bilan solishtiring.',
+'tr.title':'{0} haftalik dastur','tr.min':'haftasiga {0} daq','tr.sessions':'{0} ta mashg‘ulot','tr.who':'JSST bilan solishtirish',
+'tr.whoy':'JSST o‘rtacha kuniga 60 daqiqa harakatni tavsiya qiladi. Unga yetish uchun har kuni taxminan {0} daqiqa erkin o‘yin yoki piyoda yurish qo‘shing.',
+'tr.who.low':'JSSTning 150 daqiqalik minimumidan past.','tr.who.ok':'JSSTning haftasiga 150–300 daqiqa oralig‘ida, shuningdek haftasiga 2 va undan ortiq kun kuch mashqlari.','tr.who.high':'JSSTning 300 daqiqalik oralig‘idan yuqori. Tiklanish kunlari va uyquni asrang.',
+'tr.day':'Kun','tr.session':'Mashg‘ulot','tr.mins':'Daq','tr.todo':'Nima qilish kerak',
+'d.0':'Dushanba','d.1':'Seshanba','d.2':'Chorshanba','d.3':'Payshanba','d.4':'Juma','d.5':'Shanba','d.6':'Yakshanba',
+'ty.cardio':'Kardio','ty.strength':'Kuch','ty.stretch':'Cho‘zilish va qomat','ty.sport':'Sport','ty.recover':'Faol tiklanish','ty.rest':'Dam olish',
+'dx.cardio.y.easy':'Tez yurish, yengil yugurish yoki maydonchadagi o‘yinlar.','dx.cardio.y.mid':'Yugurish, harakatli o‘yinlar, gaplasha oladigan tezlikda arqon sakrash.','dx.cardio.y.strong':'Intervalli yugurish va arqon sakrash: 1 daqiqa tez, 1 daqiqa sekin.',
+'dx.cardio.a.easy':'Tez yurish yoki yengil velosiped haydash.','dx.cardio.a.mid':'Gaplasha oladigan bir tekis tezlikda yugurish yoki velosiped.','dx.cardio.a.strong':'Intervallar: 10 daqiqalik isinishdan keyin 6 raund, har biri 2 daqiqa tez va 2 daqiqa sekin.',
+'sets.easy':'2 ta yondashuv','sets.mid':'3 ta yondashuv','sets.strong':'4 ta yondashuv',
+'dx.strength.y':'O‘z vazn bilan aylanma mashq, {0} 8–12 martadan: cho‘kkalash, yerdan turtinish, tashlanish, planka.','dx.strength.y.strong':'O‘z vazn bilan aylanma mashq, {0} 8–12 martadan: cho‘kkalash, yerdan turtinish, tashlanish, planka, turnikda tortilish, sakrash. Avval texnika, maksimal og‘irliksiz.','dx.strength.a':'Butun tana, {0} 8–12 martadan: cho‘kkalash, itarish, tortish, son bo‘g‘imidan bukilish, planka.',
+'dx.stretch.g':'Cho‘zilish, turnikda osilish, kobra va mushuk-sigir pozalari, devor yonida qomat mashqi.','dx.stretch.n':'Harakatchanlik va yoga, son va umurtqa cho‘zilishlari, qomat mashqi.',
+'dx.sport.y':'Do‘stlar bilan basketbol, voleybol, suzish yoki futbol.','dx.sport.a':'O‘zingiz yoqtirgan sport, suzish yoki uzoq velosiped sayri yoki piyoda yurish.','dx.recover':'Sokin sayr va yengil cho‘zilish.','dx.rest':'Dam olish kuni. Yengil harakat mumkin. Barvaqt uxlang.',
+'gb.title':'O‘sishni qo‘llab-quvvatlovchi odatlar','gb.1':'{0} soat uxlang. O‘sish gormonining ko‘p qismi chuqur uyquda ajraladi.','gb.2':'Har ovqatda oqsil, kalsiy va D vitamini uchun sut mahsulotlari yoki boyitilgan oziq-ovqat.','gb.3':'Har kuni turnikda osiling va cho‘ziling. Bu qomatga yordam beradi, suyak uzunligiga emas.','gb.4':'Energetik ichimliklar va chekishdan voz keching. Murabbiy to‘g‘ri texnikani tasdiqlamaguncha maksimal og‘irlik ko‘tarmang.','gb.5':'Bo‘yni oyiga bir marta, kunning bir xil vaqtida o‘lchang va «Yutuqlar» bo‘limiga yozing.',
+'tr.note':'Har bir mashg‘ulot oldidan 5 daqiqa isining. Og‘riq yoki bosh aylanganda to‘xtang. 18 yoshgacha bo‘lganlar kattalar yoki murabbiy yonida shug‘ullanishi kerak.',
+'fd.title':'{0} ovqatlanish rejasi','fd.energy':'Energiya','fd.protein':'Oqsil','fd.carbs':'Uglevod','fd.fat':'Yog‘','fd.calcium':'Kalsiy','fd.water':'Suv',
+'fd.adj.y':'Bolalar va o‘smirlar o‘sish uchun ovqatlanadi. Bu reja 19 yoshgacha bo‘lganlar uchun kaloriyani hech qachon kamaytirmaydi.','fd.adj.y.under':'Bolalar va o‘smirlar o‘sish uchun ovqatlanadi. Bu reja 19 yoshgacha bo‘lganlar uchun kaloriyani hech qachon kamaytirmaydi, vazn past bo‘lgani uchun taxminan 5% qo‘shadi.',
+'fd.adj.under':'TMI sog‘lom oraliqdan past bo‘lgani uchun kaloriya 10% oshirildi.','fd.adj.over':'TMI sog‘lom oraliqdan yuqori bo‘lgani uchun kaloriya 10% kamaytirildi.','fd.adj.obese':'TMI semizlik diapazonida bo‘lgani uchun kaloriya 15% kamaytirildi. Buni shifokor bilan ko‘rib chiqing.','fd.adj.ok':'Kaloriya sizning taxminiy kunlik energiya sarfingizga mos.',
+'fd.meal':'Ovqat','fd.kcal':'kkal','fd.menu':'Siz uchun porsiyali menyu','fd.cmp':'Darajalar bo‘yicha kunlik energiya','fd.cmpline':'{0} kkal, {1} g oqsil',
+'fd.note':'Energiya JSST/FAO Shofild tenglamalari yordamida, faollik koeffitsienti {0} (Oson), {1} (O‘rta) va {2} (Kuchli) ga ko‘paytirib hisoblanadi. Menyudagi miqdorlar pishirilgan og‘irlik bo‘lib, kaloriyangizga qarab o‘zgaradi. Menyular namuna, shuning uchun o‘xshash mahsulotlarga almashtiring. Foydalanishdan oldin allergiyangiz haqida shifokorga ayting.',
+'m.breakfast':'Nonushta','m.snack':'Yengil tamaddi','m.lunch':'Tushlik','m.dinner':'Kechki ovqat',
+'f.oat':'Sutli suli bo‘tqasi','f.egg':'Qaynatilgan tuxum','f.apple':'Olma','f.kefir':'Kefir yoki ayron','f.apricot':'Quritilgan o‘rik','f.lentil':'Yasmiq sho‘rva (mastava yoki yengil sho‘rva)','f.rice':'Guruch yoki grechka, pishirilgan','f.cucsalad':'Bodring va pomidor salati','f.nonwg':'To‘liq donli non','f.tvorog':'Tvorog','f.fruit':'Mavsumiy meva','f.chicken':'Pechda pishirilgan tovuq ko‘kragi','f.steamveg':'Bug‘da pishirilgan sabzavotlar','f.potato':'Qaynatilgan kartoshka',
+'f.omelet':'omletdagi tuxum','f.yogurt':'Oddiy yogurt','f.walnut':'Yong‘oq','f.banana':'Banan','f.shurpa':'Sabzavotli mol go‘shti sho‘rvasi','f.buckwheat':'Grechka, pishirilgan','f.mixsalad':'Zaytun moyli aralash salat','f.non':'Non','f.nutsfruit':'Yong‘oq va quruq mevalar','f.fish':'Pechda pishirilgan baliq yoki yog‘siz mol go‘shti','f.brownrice':'Jigarrang guruch, pishirilgan','f.veg':'Pishirilgan yoki bug‘langan sabzavotlar',
+'f.oatnuts':'Sutli suli, banan va yong‘oq','f.honey':'Asal','f.plov':'Tovuq go‘shtli yengil osh, kamroq moy bilan','f.vegsalad':'Sabzavot salati','f.nuts':'Yong‘oq','f.grill':'Panjada pishirilgan tovuq yoki mol go‘shti','f.rb':'Grechka yoki guruch, pishirilgan',
+'ac.badges':'Nishonlar','ac.unlocked':'{1} tadan {0} tasi ochildi','ac.gain':'Birinchi o‘lchovdan beri o‘sish',
+'bd.reg':'Ro‘yxatdan o‘tdi','bd.regd':'Birinchi o‘lchov saqlandi','bd.chk':'Nazorat','bd.chkd':'Ikkinchi o‘lchov yozildi','bd.who':'JSST diapazoni','bd.whod':'Bo‘y yoshga nisbatan ±2 SD ichida','bd.med':'Median','bd.medd':'Bo‘y JSST medianiga teng yoki undan yuqori','bd.bmi':'Sog‘lom TMI','bd.bmid':'TMI sog‘lom oraliqda','bd.gaind':'Birinchi o‘lchovdan beri qo‘shilgan bo‘y','bd.on':'Ochildi','bd.off':'Yopiq',
+'ac.th':'Yutuq','ac.ht':'Bo‘y bo‘yicha yutuqlar va muddatlar','ac.hsub':'Yoshingizda har bir miqdorni qo‘shish uchun kutilgan vaqt, har bir daraja uchun. Ajratilgan ustun sizning darajangiz.','ac.hgain':'Bugundan boshlab bo‘y o‘sishi ({0} sm)','ac.by':'{0} gacha',
+'ac.hnote':'Rejalashtirish bahosi. Yoshingiz va jinsingiz uchun odatiy o‘sish tezligi (hozir yiliga taxminan {0} sm) olinadi, kattalikdagi taxminiy bo‘yingizga moslashtiriladi va darajaga izchil amal qilasiz deb faraz qilinadi: Osonda shu tezlikning 90%, O‘rtada 100%, Kuchlida 105%. O‘sish sakrashlar bilan boradi va hech bir dastur santimetrlarni kafolatlay olmaydi.',
+'ac.done.t':'Bo‘y bo‘yicha yutuqlar','ac.done.d':'O‘sish yakunlangan, shuning uchun bo‘y o‘sishi nishonlari o‘chirilgan. Qomat va vazn maqsadlari quyida.',
+'ac.hab':'Odat bo‘yicha yutuqlar','ac.habsub':'Har bir darajada kerak bo‘lgan seriya uzunligi.',
+'hb.cons':'Izchillik','hb.consd':'Haftalik rejani to‘liq bajarish','hb.sleep':'Uyqu qo‘riqchisi','hb.sleepd':'Uyqu me’yoriga amal qilish','hb.menu':'Menyuga amal qilish','hb.menud':'Ovqatlanish menyusiga rioya qilish','hb.post':'Qomat seriyasi','hb.postd':'10 daqiqa cho‘zilish va qomat mashqi','hb.who':'JSST faolligi','hb.whod':'JSST faollik me’yoriga yetish',
+'un.weeks':'{0} hafta','un.nights':'{0} tun','un.days':'{0} kun',
+'hb.bmi':'Sog‘lom TMI oralig‘i','hb.gain':'Xavfsiz haftalik sur’atda {0} kg ortirish','hb.lose':'Xavfsiz haftalik sur’atda {0} kg yo‘qotish','hb.rate':'haftasiga {0} kg',
+'mo':'{0} oy','yr':'{0} yil',
+'lg.title':'Yangi o‘lchovni yozish','lg.date':'Sana','lg.h':'Bo‘y (sm)','lg.w':'Vazn (kg)','lg.opt':'ixtiyoriy','lg.add':'Qo‘shish','lg.err':'Sana va 80 dan 250 sm gacha bo‘yni kiriting.','lg.errdob':'Sana tug‘ilgan sanadan oldin.','lg.rm':'O‘chirish','lg.first':'birinchi',
+'tab.tg':'Telegram',
+'tg.title':'Telegram botimizga ulanish',
+'tg.sub':'QR kodni skanerlang yoki 6 xonali kodni botga yuboring. Eslatmalar Telegramga keladi.',
+'tg.code':'Sizning 6 xonali kodingiz',
+'tg.regen':'Yangi kod',
+'tg.copy':'Kodni nusxalash',
+'tg.copied':'Nusxalandi',
+'tg.bot':'Bot foydalanuvchi nomi',
+'tg.botph':'bot_nomi',
+'tg.botneed':'QR kodni yaratish uchun bot nomini kiriting.',
+'tg.open':'Telegramda ochish',
+'tg.s1':'QR kodni skanerlang yoki botni oching va 6 xonali kodni yuboring.',
+'tg.s2':'Telegramda Start tugmasini bosing.',
+'tg.s3':'Bot telefon raqamingizni bu hisobga bog‘laydi va eslatmalarni boshlaydi.',
+'tg.rem':'Eslatmalar',
+'tg.r.workout':'Kunlik mashg‘ulot',
+'tg.r.meals':'Ovqat vaqtlari',
+'tg.r.water':'Suv ichish',
+'tg.r.measure':'Oylik bo‘y o‘lchovi',
+'tg.time':'Qulay vaqt',
+'tg.status':'Hali ulanmagan',
+'tg.note':'Bu sahifa faqat kod va QR ni tayyorlaydi. Bot serveringiz kodni quyidagi ma’lumotlar bilan saqlashi, mijoz uni yuborganda tasdiqlashi va keyin eslatmalarni yuborishi kerak.',
+'tg.payload':'Bot serveri uchun ma’lumotlar'
+};
+
+</script>
+<script>
+(window.LANG=window.LANG||{}).ru={
+'locale':'ru-RU','plural':'n%10==1&&n%100!=11?0:(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?1:2',
+'nav.start':'Начать','nav.home':'Главная','btn.reset':'Начать заново','btn.reset2':'Нажмите ещё раз, чтобы стереть данные',
+'land.eyebrow':'Программа здоровья на основе стандартов ВОЗ',
+'land.h1':'Узнайте свои показатели. Тренируйтесь и питайтесь на своём уровне.',
+'land.sub':'Пройдите регистрацию за пять коротких шагов. Мы сравним ваш рост и вес с нормами ВОЗ для вашего возраста и составим неделю тренировок и меню питания на уровне Лёгкий, Средний или Сильный.',
+'land.cta':'Начать регистрацию','land.cta2':'Как это работает',
+'land.chartcap':'Пример: 14-летний мальчик на фоне диапазона роста ВОЗ. Линия посередине показывает медиану.',
+'how.title':'Как это работает',
+'how.1.t':'Регистрация','how.1.d':'Телефон, имя, дата рождения, пол, вес и рост. Это займёт около минуты.',
+'how.2.t':'Сравнение с ВОЗ','how.2.d':'Вы увидите ожидаемый диапазон роста, здоровый диапазон веса и узнаете, продолжаете ли вы расти.',
+'how.3.t':'Выбор уровня','how.3.d':'Лёгкий, Средний или Сильный. У каждого уровня своя недельная программа тренировок и дневное меню.',
+'how.4.t':'Достижения','how.4.d':'Записывайте рост раз в месяц. Получайте значки и смотрите, сколько времени занимает каждая цель на каждом уровне.',
+'lvl.title':'Три уровня, одна программа',
+'lv.easy':'Лёгкий','lv.mid':'Средний','lv.strong':'Сильный',
+'lvb.easy':'Около 150 мин в неделю. Соответствует минимуму ВОЗ.','lvb.mid':'Около 285 мин в неделю. Умеренная нагрузка, 5–6 активных дней.','lvb.strong':'Около 375 мин в неделю. Структурные тренировки, 6–7 активных дней.',
+'lvtag.easy':'Формируем привычку','lvtag.mid':'Уверенный прогресс','lvtag.strong':'Полная отдача',
+'feat.title':'Что вы получите',
+'feat.1.t':'Показатели по ВОЗ','feat.1.d':'Ожидаемый рост для вашего возраста, здоровый диапазон веса, статус ИМТ и график роста.',
+'feat.2.t':'Достижения по росту','feat.2.d':'Значки за набранные сантиметры и таблица со сроками каждой цели на всех трёх уровнях.',
+'feat.3.t':'Меню питания','feat.3.d':'Нормы калорий, белка и кальция и дневные меню из продуктов, привычных в Узбекистане.',
+'land.final':'Готовы увидеть свой план?',
+'disc':'Это учебный прототип, а не медицинская рекомендация. Для детей и подростков регистрацию должен выполнять родитель или опекун, а план нужно согласовать с врачом.',
+'foot':'HackaTone Health. Данные хранятся в вашем браузере.',
+'wz.title':'Песочница регистрации','wz.sub':'Проходите шаги и следите за панелью справа. Нажмите на пройденный шаг, чтобы вернуться. Данные не покидают ваш браузер.',
+'wz.step':'Шаг {0} из {1}','wz.back':'Назад','wz.next':'Далее','wz.create':'Создать мой план','wz.sample':'Заполнить пример','wz.clear':'Очистить шаги',
+'st.phone':'Телефон','st.name':'Имя','st.about':'О вас','st.body':'Тело','st.review':'Проверка',
+'st.phone.d':'Номер телефона служит вашим идентификатором.','st.name.d':'Как к вам обращаться?','st.about.d':'Возраст и пол определяют, какие нормы ВОЗ применять.','st.body.d':'Нужны для расчёта ИМТ и калорий.','st.review.d':'Проверьте данные и создайте план.',
+'fl.phone':'Номер телефона','fl.first':'Имя','fl.last':'Фамилия','fl.dob':'Дата рождения','fl.sex':'Пол','fl.male':'Мужской','fl.female':'Женский','fl.weight':'Вес (кг)','fl.height':'Рост (см)',
+'e.phone':'Введите корректный номер телефона, например +998 90 123 45 67.','e.name':'Введите имя и фамилию.','e.dob':'Введите дату рождения.','e.young':'Программы доступны с 5 лет. Для детей младше используйте стандарты роста ВОЗ вместе с педиатром.','e.old':'Проверьте дату рождения.','e.sex':'Выберите пол.','e.weight':'Введите вес от 10 до 300 кг.','e.height':'Введите рост от 80 до 250 см.',
+'pv.title':'Предпросмотр','pv.empty':'Укажите дату рождения и пол, чтобы увидеть ожидаемый диапазон ВОЗ для вашего возраста.',
+'pv.expect':'Ожидаемый рост в возрасте {0}','pv.grow':'Окно роста открыто примерно до {0} лет.','pv.done':'Рост в основном завершён.','pv.need':'Добавьте вес и рост, чтобы увидеть ИМТ и уровень.',
+'pv.you':'Ваш рост','pv.bmi':'ИМТ','pv.suggest':'Рекомендуемый стартовый уровень','pv.healthy':'Здоровый вес',
+'prof.age':'Возраст','prof.height':'Рост','prof.weight':'Вес','prof.bmi':'ИМТ','prof.level':'Ваш уровень','prof.suggest':'Рекомендуем начать с уровня: {0}. Можно сменить в любой момент.',
+'tab.overview':'Обзор','tab.training':'Тренировки','tab.feeding':'Питание','tab.ach':'Достижения',
+'ov.height':'Рост','hs.low2':'Ниже диапазона ВОЗ','hs.low1':'Нижняя граница нормы','hs.typ':'Норма для возраста','hs.high1':'Верхняя граница нормы','hs.high2':'Выше диапазона ВОЗ',
+'ov.median':'Медиана ВОЗ в {0} лет','ov.range':'Ожидаемый диапазон (±2 SD)','ov.pct':'Примерный перцентиль','ov.doctor':'Вне диапазона ВОЗ. Покажите эти измерения врачу.',
+'ov.weight':'Вес и ИМТ','bs.under':'Недостаточный вес','bs.ok':'Здоровый вес','bs.over':'Избыточный вес','bs.obese':'Ожирение',
+'ov.bmirange':'Здоровый диапазон ИМТ','ov.hw':'Здоровый вес при росте {0} см','ov.yourw':'Ваш вес','ov.plus':'+{0} кг до диапазона','ov.minus':'-{0} кг до диапазона','ov.inrange':'в пределах диапазона',
+'ov.bminote.y':'Диапазон по ИМТ-для-возраста ВОЗ: от -2 SD до +1 SD.','ov.bminote.a':'Категории ИМТ ВОЗ для взрослых: 18,5–24,9 считается здоровым.',
+'gr.title':'Прогноз роста','gr.still':'Ещё растёте','gr.proj':'Прогнозируемый рост взрослого, обычно с точностью ±5 см.','gr.rem':'Осталось вырасти','gr.remv':'около {0} см','gr.vel':'Типичный рост сейчас','gr.velv':'{0} см в год','gr.end':'Окно роста закрывается','gr.endv':'около {0} лет',
+'gr.genes':'Рост в основном определяют гены. Сон, белок, кальций и активность помогают достичь вашего потенциала.',
+'gr.complete':'Завершён','gr.near':'Почти завершён','gr.adult':'Взрослый','gr.closed':'Зоны роста, скорее всего, закрылись, поэтому рост не увеличится.',
+'gr.posture':'Работа над осанкой и сила кора могут вернуть 1–2 см, которые скрывает сутулость. Измеряйтесь в одно и то же время суток: утром вы выше примерно на 1 см.',
+'ch.title':'Рост на фоне норм ВОЗ','ch.sub':'Полоса показывает от -2 до +2 SD. Красная точка — ваше последнее измерение.','ch.age':'возраст (лет)','ch.aria':'Рост по сравнению с нормами ВОЗ по возрасту','ch.median':'медиана',
+'dt.title':'Суточные нормы для вашего возраста','dt.sleep':'Сон','dt.act':'Физическая активность','dt.ca':'Кальций','dt.water':'Вода','dt.actv.y':'60 мин в день (ВОЗ)','dt.actv.a':'150–300 мин в неделю (ВОЗ)',
+'u.h':'ч','u.l':'л','u.min':'мин','u.mg':'мг','u.kg':'кг','u.cm':'см','u.kcal':'ккал','u.kcalday':'ккал в день','u.gday':'г в день','u.mgday':'мг в день','u.lday':'литров в день',
+'ov.note':'Кривые приблизительно соответствуют референсу роста ВОЗ 2007 года (5–19 лет) и категориям ИМТ ВОЗ для взрослых. Перед клиническим использованием сверяйтесь с официальными таблицами ВОЗ.',
+'tr.title':'Недельная программа: {0}','tr.min':'{0} мин в неделю','tr.sessions':'Занятий: {0}','tr.who':'Сверка с ВОЗ',
+'tr.whoy':'ВОЗ рекомендует в среднем 60 мин в день. Добавьте около {0} мин свободных игр или ходьбы ежедневно.',
+'tr.who.low':'Ниже минимума ВОЗ в 150 мин.','tr.who.ok':'В пределах рекомендаций ВОЗ 150–300 мин в неделю, плюс силовые занятия 2 и более дней.','tr.who.high':'Выше рекомендованных ВОЗ 300 мин. Берегите дни восстановления и сон.',
+'tr.day':'День','tr.session':'Занятие','tr.mins':'Мин','tr.todo':'Что делать',
+'d.0':'Понедельник','d.1':'Вторник','d.2':'Среда','d.3':'Четверг','d.4':'Пятница','d.5':'Суббота','d.6':'Воскресенье',
+'ty.cardio':'Кардио','ty.strength':'Силовая','ty.stretch':'Растяжка и осанка','ty.sport':'Спорт','ty.recover':'Активное восстановление','ty.rest':'Отдых',
+'dx.cardio.y.easy':'Быстрая ходьба, лёгкий бег или игры на площадке.','dx.cardio.y.mid':'Бег, подвижные игры, скакалка в темпе, при котором можно разговаривать.','dx.cardio.y.strong':'Бег и скакалка интервалами: 1 мин быстро, 1 мин спокойно.',
+'dx.cardio.a.easy':'Быстрая ходьба или лёгкая езда на велосипеде.','dx.cardio.a.mid':'Бег или велосипед в ровном темпе, при котором можно разговаривать.','dx.cardio.a.strong':'Интервалы: 6 кругов по 2 мин быстро и 2 мин спокойно после 10 мин разминки.',
+'sets.easy':'2 подхода','sets.mid':'3 подхода','sets.strong':'4 подхода',
+'dx.strength.y':'Круговая тренировка с собственным весом, {0} по 8–12: приседания, отжимания, выпады, планка.','dx.strength.y.strong':'Круговая тренировка с собственным весом, {0} по 8–12: приседания, отжимания, выпады, планка, подтягивания, прыжки на тумбу. Сначала техника, без максимальных весов.','dx.strength.a':'Всё тело, {0} по 8–12: приседание, жим, тяга, наклон с отведением таза, планка.',
+'dx.stretch.g':'Растяжка, вис на турнике, поза кобры и «кошка-корова», упражнение для осанки у стены.','dx.stretch.n':'Мобильность и йога, растяжка бёдер и спины, упражнение для осанки.',
+'dx.sport.y':'Баскетбол, волейбол, плавание или футбол с друзьями.','dx.sport.a':'Любимый вид спорта, плавание или длинная поездка на велосипеде или прогулка.','dx.recover':'Спокойная прогулка и лёгкая растяжка.','dx.rest':'День отдыха. Лёгкое движение допустимо. Ложитесь спать пораньше.',
+'gb.title':'Привычки, поддерживающие рост','gb.1':'Спите {0} часов. Большая часть гормона роста вырабатывается во время глубокого сна.','gb.2':'Белок в каждом приёме пищи, а также молочные или обогащённые продукты для кальция и витамина D.','gb.3':'Висите на турнике и растягивайтесь ежедневно. Это улучшает осанку, но не удлиняет кости.','gb.4':'Откажитесь от энергетиков и курения. Не делайте максимальных подъёмов, пока тренер не подтвердит правильную технику.','gb.5':'Измеряйте рост раз в месяц в одно и то же время суток и записывайте в разделе «Достижения».',
+'tr.note':'Перед каждым занятием разминайтесь 5 минут. Остановитесь при боли или головокружении. Лицам младше 18 лет нужно заниматься рядом со взрослым или тренером.',
+'fd.title':'План питания: {0}','fd.energy':'Энергия','fd.protein':'Белки','fd.carbs':'Углеводы','fd.fat':'Жиры','fd.calcium':'Кальций','fd.water':'Вода',
+'fd.adj.y':'Дети и подростки питаются, чтобы расти. Этот план никогда не урезает калории для лиц младше 19 лет.','fd.adj.y.under':'Дети и подростки питаются, чтобы расти. Этот план никогда не урезает калории для лиц младше 19 лет и добавляет около 5%, так как вес низкий.',
+'fd.adj.under':'Калорийность повышена на 10%, так как ИМТ ниже здорового диапазона.','fd.adj.over':'Калорийность снижена на 10%, так как ИМТ выше здорового диапазона.','fd.adj.obese':'Калорийность снижена на 15%, так как ИМТ в диапазоне ожирения. Обсудите это с врачом.','fd.adj.ok':'Калорийность соответствует вашим расчётным суточным энергозатратам.',
+'fd.meal':'Приём пищи','fd.kcal':'ккал','fd.menu':'Меню с порциями для вас','fd.cmp':'Суточная энергия по уровням','fd.cmpline':'{0} ккал, {1} г белка',
+'fd.note':'Энергия считается по уравнениям Шофилда (ВОЗ/ФАО) с коэффициентом активности {0} (Лёгкий), {1} (Средний) и {2} (Сильный). Количества в меню указаны для готовых блюд и масштабируются под вашу калорийность. Меню приведены как пример, заменяйте продукты на аналогичные. Сообщите врачу о любой аллергии, прежде чем пользоваться меню.',
+'m.breakfast':'Завтрак','m.snack':'Перекус','m.lunch':'Обед','m.dinner':'Ужин',
+'f.oat':'Овсяная каша на молоке','f.egg':'Варёное яйцо','f.apple':'Яблоко','f.kefir':'Кефир или айран','f.apricot':'Курага','f.lentil':'Чечевичный суп (мастава или лёгкая шурпа)','f.rice':'Рис или гречка, готовые','f.cucsalad':'Салат из огурцов и помидоров','f.nonwg':'Цельнозерновая лепёшка (нон)','f.tvorog':'Творог','f.fruit':'Сезонные фрукты','f.chicken':'Запечённая куриная грудка','f.steamveg':'Овощи на пару','f.potato':'Отварной картофель',
+'f.omelet':'яйцо в омлете','f.yogurt':'Натуральный йогурт','f.walnut':'Грецкие орехи','f.banana':'Банан','f.shurpa':'Шурпа из говядины с овощами','f.buckwheat':'Гречка, готовая','f.mixsalad':'Овощной салат с оливковым маслом','f.non':'Лепёшка (нон)','f.nutsfruit':'Орехи и сухофрукты','f.fish':'Запечённая рыба или постная говядина','f.brownrice':'Бурый рис, готовый','f.veg':'Овощи, запечённые или на пару',
+'f.oatnuts':'Овсянка на молоке с бананом и орехами','f.honey':'Мёд','f.plov':'Плов с курицей, с меньшим количеством масла','f.vegsalad':'Салат из овощей','f.nuts':'Орехи','f.grill':'Курица или говядина на гриле','f.rb':'Гречка или рис, готовые',
+'ac.badges':'Значки','ac.unlocked':'Открыто {0} из {1}','ac.gain':'Прирост с первого измерения',
+'bd.reg':'Регистрация','bd.regd':'Первое измерение сохранено','bd.chk':'Контроль','bd.chkd':'Записано второе измерение','bd.who':'Диапазон ВОЗ','bd.whod':'Рост в пределах ±2 SD для возраста','bd.med':'Медиана','bd.medd':'Рост на уровне медианы ВОЗ или выше','bd.bmi':'Здоровый ИМТ','bd.bmid':'ИМТ в здоровом диапазоне','bd.gaind':'Прирост роста с первого измерения','bd.on':'Открыт','bd.off':'Закрыт',
+'ac.th':'Достижение','ac.ht':'Достижения по росту и сроки','ac.hsub':'Ожидаемое время набора каждой величины в вашем возрасте для каждого уровня. Выделен столбец вашего уровня.','ac.hgain':'Прирост от сегодняшнего дня ({0} см)','ac.by':'к {0}',
+'ac.hnote':'Плановая оценка. Берётся типичная скорость роста для вашего возраста и пола (сейчас около {0} см в год), приводится к прогнозируемому росту взрослого и предполагается, что вы последовательно выполняете уровень: 90% этого темпа на Лёгком, 100% на Среднем, 105% на Сильном. Рост идёт скачками, и ни одна программа не может обещать сантиметры.',
+'ac.done.t':'Достижения по росту','ac.done.d':'Рост завершён, поэтому значки за прирост отключены. Цели по осанке и весу ниже.',
+'ac.hab':'Достижения по привычкам','ac.habsub':'Необходимая длина серии на каждом уровне.',
+'hb.cons':'Последовательность','hb.consd':'Выполнять недельный план полностью','hb.sleep':'Хранитель сна','hb.sleepd':'Выполнять норму сна','hb.menu':'Следование меню','hb.menud':'Питаться по меню','hb.post':'Серия по осанке','hb.postd':'10 мин растяжки и упражнений для осанки','hb.who':'Активность по ВОЗ','hb.whod':'Достигать нормы активности ВОЗ',
+'un.weeks':'{0} нед.','un.nights':'{0} ночей','un.days':'{0} дн.',
+'hb.bmi':'Здоровый диапазон ИМТ','hb.gain':'Набрать {0} кг безопасным темпом','hb.lose':'Сбросить {0} кг безопасным темпом','hb.rate':'{0} кг в неделю',
+'mo':'{0} месяц|{0} месяца|{0} месяцев','yr':'{0} лет',
+'lg.title':'Записать новое измерение','lg.date':'Дата','lg.h':'Рост (см)','lg.w':'Вес (кг)','lg.opt':'необязательно','lg.add':'Добавить','lg.err':'Введите дату и рост от 80 до 250 см.','lg.errdob':'Дата раньше даты рождения.','lg.rm':'Удалить','lg.first':'первое',
+'tab.tg':'Telegram',
+'tg.title':'Подключение к нашему Telegram-боту',
+'tg.sub':'Отсканируйте QR-код или отправьте боту 6-значный код. Напоминания будут приходить в Telegram.',
+'tg.code':'Ваш 6-значный код',
+'tg.regen':'Новый код',
+'tg.copy':'Копировать код',
+'tg.copied':'Скопировано',
+'tg.bot':'Имя пользователя бота',
+'tg.botph':'bot_name',
+'tg.botneed':'Введите имя бота, чтобы создать QR-код.',
+'tg.open':'Открыть в Telegram',
+'tg.s1':'Отсканируйте QR-код или откройте бота и отправьте 6-значный код.',
+'tg.s2':'Нажмите Start в Telegram.',
+'tg.s3':'Бот привяжет ваш номер телефона к этому аккаунту и запустит напоминания.',
+'tg.rem':'Напоминания',
+'tg.r.workout':'Тренировка дня',
+'tg.r.meals':'Время приёмов пищи',
+'tg.r.water':'Пить воду',
+'tg.r.measure':'Ежемесячное измерение роста',
+'tg.time':'Удобное время',
+'tg.status':'Пока не подключено',
+'tg.note':'Эта страница только готовит код и QR. Сервер вашего бота должен сохранить код вместе с данными ниже, подтвердить его, когда клиент его отправит, и затем присылать напоминания.',
+'tg.payload':'Данные для сервера бота'
+};
+
+</script>
+<script>
+(function(){
+'use strict';
+var H=window.HH={};
+/* Approximate WHO 2007 growth reference, ages 5-19 (median, SD, BMI median, growth velocity cm/yr at ages 5..20) */
+H.WHO={
+  M:{h:[109.2,115.5,121.7,127.3,132.6,137.8,143.1,149.1,156.0,163.2,169.0,172.9,175.2,176.1,176.5],
+     sd:[4.7,5.0,5.3,5.6,5.9,6.2,6.7,7.3,7.9,7.6,7.0,6.6,6.4,6.4,6.4],
+     bmi:[15.3,15.3,15.5,15.8,16.1,16.5,17.0,17.5,18.1,18.8,19.5,20.0,20.5,20.9,21.2],
+     vel:[6.0,5.8,5.6,5.5,5.4,5.5,6.0,7.0,8.2,7.2,4.5,2.5,1.2,0.5,0.2,0]},
+  F:{h:[109.4,115.1,121.0,126.6,132.5,138.6,144.8,151.2,156.7,159.8,161.2,162.0,162.5,162.9,163.1],
+     sd:[4.6,4.9,5.2,5.6,6.0,6.4,6.6,6.4,6.0,5.9,5.8,5.8,5.8,5.9,5.9],
+     bmi:[15.2,15.2,15.4,15.8,16.3,16.9,17.5,18.2,18.9,19.5,20.0,20.4,20.7,20.9,21.0],
+     vel:[6.0,5.8,5.6,5.7,6.0,6.8,7.0,5.2,3.0,1.8,1.0,0.5,0.2,0,0,0]}
+};
+function at(arr,age){var a=Math.min(19,Math.max(5,age));var i=Math.min(13,Math.floor(a-5));var t=a-5-i;return arr[i]+(arr[i+1]-arr[i])*t}
+function velAt(arr,age){if(age>=20)return 0;var a=Math.max(5,age);var i=Math.min(14,Math.floor(a-5));var t=a-5-i;return arr[i]+(arr[i+1]-arr[i])*t}
+function cdf(z){var t=1/(1+0.2316419*Math.abs(z));var d=0.3989423*Math.exp(-z*z/2);var p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return z>0?1-p:p}
+H.at=at;H.velAt=velAt;
+H.LV={easy:{pal:1.45,f:0.9},mid:{pal:1.65,f:1.0},strong:{pal:1.85,f:1.05}};
+H.ORDER=['easy','mid','strong'];
+H.ymd=function(d){var m=d.getMonth()+1,day=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(day<10?'0':'')+day};
+H.ageAt=function(dob,date){return (date-new Date(dob+'T00:00:00'))/(365.25*864e5)};
+H.r1=function(n){return Math.round(n*10)/10};
+
+/* p = {dob, sex}, m = {h, w} */
+H.analyze=function(p,m){
+  var age=H.ageAt(p.dob,new Date()),T=H.WHO[p.sex],youth=age<19;
+  var med=at(T.h,age),sd=at(T.sd,age),z=(m.h-med)/sd;
+  var pct=Math.min(99,Math.max(1,Math.round(cdf(z)*100)));
+  var hs=z<-2?{k:'low2',c:'bad'}:z<-1?{k:'low1',c:'warn'}:z<=1?{k:'typ',c:'good'}:z<=2?{k:'high1',c:'warn'}:{k:'high2',c:'bad'};
+  var bmi=m.w/Math.pow(m.h/100,2),bLow,bHigh,bObese,bm=at(T.bmi,age);
+  if(youth){var q=(Math.min(age,19)-5)/14;bLow=bm*(0.85-0.075*q);bHigh=bm*(1.09+0.11*q);bObese=bm*(1.20+0.20*q)}
+  else{bLow=18.5;bHigh=24.9;bObese=30}
+  var bs=bmi<bLow?{k:'under',c:'warn'}:bmi<=bHigh?{k:'ok',c:'good'}:bmi<bObese?{k:'over',c:'warn'}:{k:'obese',c:'bad'};
+  var hm=Math.pow(m.h/100,2);
+  var adultH=at(T.h,19)+z*at(T.sd,19);
+  var endAge=p.sex==='F'?17:19;
+  var remaining=youth&&age<endAge?Math.max(0,adultH-m.h):0;
+  return {p:p,m:m,age:age,youth:youth,T:T,med:med,sd:sd,z:z,pct:pct,hs:hs,bmi:bmi,bLow:bLow,bHigh:bHigh,bs:bs,
+    kgLow:bLow*hm,kgHigh:bHigh*hm,adultH:adultH,remaining:remaining,growable:remaining>=1,endAge:endAge,
+    vel:youth?velAt(T.vel,age):0};
+};
+function bmr(sex,age,w){var M=sex==='M';
+  if(age<10)return M?22.7*w+495:22.5*w+499;
+  if(age<18)return M?17.5*w+651:12.2*w+746;
+  if(age<30)return M?15.3*w+679:14.7*w+496;
+  if(age<60)return M?11.6*w+879:8.7*w+829;
+  return M?13.5*w+487:10.5*w+596}
+H.plan=function(a,lv){
+  var w=a.m.w,k=bmr(a.p.sex,a.age,w)*H.LV[lv].pal,sk=a.bs.k;
+  if(a.youth){if(sk==='under')k*=1.05}
+  else{if(sk==='under')k*=1.10;else if(sk==='over')k*=0.90;else if(sk==='obese')k*=0.85}
+  k=Math.round(k/50)*50;
+  var pk=a.youth?{easy:1.0,mid:1.1,strong:1.2}[lv]:{easy:1.0,mid:1.3,strong:1.6}[lv];
+  var prot=Math.round(pk*Math.min(w,a.kgHigh)),fat=Math.round(k*0.28/9),carb=Math.round((k-prot*4-fat*9)/4);
+  var ca=a.age<7?600:a.age<10?700:a.age<19?1300:1000;
+  var water=a.youth?(a.age<9?1.6:a.age<14?1.9:2.3):Math.round(w*0.033*10)/10;
+  return {kcal:k,prot:prot,carb:carb,fat:fat,ca:ca,water:water};
+};
+H.recommended=function(a){return a.bs.k==='ok'?'mid':'easy'};
+
+H.PATTERNS={
+  easy:[['cardio',30],['stretch',20],['rest',0],['cardio',30],['strength',25],['sport',45],['rest',0]],
+  mid:[['cardio',40],['strength',40],['stretch',30],['cardio',45],['strength',40],['sport',60],['recover',30]],
+  strong:[['cardio',50],['strength',60],['sport',50],['strength',60],['cardio',50],['sport',75],['stretch',30]]
+};
+/* [name key, grams or null, pieces] ; meals: [meal key, % of daily kcal, items] */
+H.MENU={
+  easy:[
+    ['breakfast',25,[['oat',250],['egg',null,1],['apple',null,1]]],
+    ['snack',10,[['kefir',200],['apricot',30]]],
+    ['lunch',30,[['lentil',300],['rice',120],['cucsalad',150],['nonwg',40]]],
+    ['snack',10,[['tvorog',100],['fruit',150]]],
+    ['dinner',25,[['chicken',120],['steamveg',200],['potato',150]]]
+  ],
+  mid:[
+    ['breakfast',25,[['omelet',null,2],['nonwg',60],['tvorog',80],['fruit',150]]],
+    ['snack',10,[['yogurt',150],['walnut',20],['banana',null,1]]],
+    ['lunch',30,[['shurpa',350],['buckwheat',150],['mixsalad',150],['non',50]]],
+    ['snack',10,[['egg',null,1],['nutsfruit',40],['kefir',200]]],
+    ['dinner',25,[['fish',150],['brownrice',150],['veg',200]]]
+  ],
+  strong:[
+    ['breakfast',25,[['oatnuts',300],['egg',null,3],['apricot',30]]],
+    ['snack',10,[['tvorog',150],['honey',15],['fruit',150]]],
+    ['lunch',30,[['plov',350],['vegsalad',200],['yogurt',150],['non',60]]],
+    ['snack',10,[['egg',null,2],['nuts',30],['banana',null,1]]],
+    ['dinner',25,[['grill',180],['rb',200],['veg',250],['kefir',200]]]
+  ]
+};
+H.simulate=function(a,f,targets){
+  var V=a.T.vel,raw=0,i;
+  for(i=0;i<240;i++)raw+=velAt(V,a.age+i/12)/12;
+  var out=targets.map(function(){return null});
+  if(raw<=0)return out;
+  var s=Math.min(1.5,Math.max(0.6,a.remaining/raw)),cum=0;
+  for(i=1;i<=240;i++){cum+=velAt(V,a.age+(i-1)/12)*s*f/12;
+    for(var k=0;k<targets.length;k++){if(out[k]===null&&cum>=targets[k])out[k]=i}}
+  return out;
+};
+H.gainTargets=function(a){
+  var all=[1,2,3,5,8,10,15],lim=a.remaining*0.85,t=all.filter(function(x){return x<=lim});
+  if(!t.length&&a.remaining>=1)t=[1];
+  return t.slice(0,5);
+};
+H.fmtPhone=function(raw){
+  var d=raw.replace(/\D/g,'');
+  if(d.length===9)d='998'+d;
+  if(d.length<9||d.length>15)return null;
+  if(d.indexOf('998')===0&&d.length===12)return '+998 '+d.slice(3,5)+' '+d.slice(5,8)+' '+d.slice(8,10)+' '+d.slice(10);
+  return '+'+d;
+};
+})();
+
+</script>
+<script>
+(function(){
+'use strict';
+var H=window.HH,A=window.APP={};
+var KEY='hackatone-health-v2';
+function blankWz(){return {step:1,phone:'',first:'',last:'',dob:'',sex:'',w:'',h:''}}
+A.state={lang:null,screen:'landing',profile:null,meas:[],level:null,tab:'overview',confirmReset:false,wz:blankWz(),tg:null,bot:''};
+A.blankWz=blankWz;
+try{var raw=localStorage.getItem(KEY);if(raw){var s=JSON.parse(raw);if(s&&typeof s==='object'){
+  if(s.lang)A.state.lang=s.lang;
+  if(s.profile&&s.meas&&s.meas.length){A.state.profile=s.profile;A.state.meas=s.meas;A.state.level=s.level||null;A.state.tab=s.tab||'overview';A.state.screen='dash'}
+  if(s.wz)A.state.wz=Object.assign(blankWz(),s.wz);
+  if(s.tg&&s.tg.code)A.state.tg=s.tg;if(typeof s.bot==='string')A.state.bot=s.bot;
+}}}catch(e){}
+if(!A.state.lang||!window.LANG[A.state.lang]){
+  var nl=((navigator.language||'en')+'').toLowerCase();
+  A.state.lang=nl.indexOf('ru')===0?'ru':nl.indexOf('uz')===0?'uz':'en';
+}
+A.save=function(){try{localStorage.setItem(KEY,JSON.stringify(A.state))}catch(e){}};
+A.$=function(s){return document.querySelector(s)};
+A.esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+function dict(){return window.LANG[A.state.lang]||window.LANG.en}
+A.t=function(key){
+  var s=dict()[key];if(s==null)s=window.LANG.en[key];if(s==null)return key;
+  var args=arguments;
+  return s.replace(/\{(\d+)\}/g,function(m,i){var v=args[+i+1];return v==null?m:v});
+};
+var plCache={};
+A.tn=function(key,n){
+  var L=dict(),s=L[key];if(s==null)s=window.LANG.en[key];
+  var f=plCache[A.state.lang]||(plCache[A.state.lang]=new Function('n','return '+L.plural));
+  var parts=s.split('|'),i=Math.min(Number(f(n)),parts.length-1);
+  return parts[i].replace('{0}',n);
+};
+A.monthsLabel=function(n){if(n==null)return '-';return n<24?A.tn('mo',n):A.t('yr',(n/12).toFixed(1))};
+A.dateLabel=function(n){
+  var d=new Date();d.setMonth(d.getMonth()+n);
+  try{return d.toLocaleDateString(dict().locale,{month:'short',year:'numeric'})}catch(e){return H.ymd(d)}
+};
+A.lvName=function(l){return A.t('lv.'+l)};
+A.langSwitch=function(){
+  return '<div class="langs" role="group" aria-label="Language">'+[['uz','UZ'],['en','EN'],['ru','RU']].map(function(l){
+    return '<button data-act="lang" data-v="'+l[0]+'" aria-pressed="'+(A.state.lang===l[0])+'">'+l[1]+'</button>'}).join('')+'</div>';
+};
+A.brand='<div class="brand"><i><svg viewBox="0 0 26 26" aria-hidden="true"><g transform="rotate(-45 13 13)"><rect x="10" y="2" width="6" height="16" rx="1" fill="var(--bus)"/><rect x="10" y="2" width="6" height="3" fill="var(--strong)"/><path d="M10 18h6l-3 6z" fill="#E9C9A0"/><path d="M12 22h2l-1 2z" fill="var(--ink)"/></g></svg></i>HackaTone Health</div>';
+
+/* Height chart. pts = [{ag,h}] */
+A.chartSvg=function(a,pts){
+  var t=A.t,T=a.T,W=640,Hh=320,L=46,R=44,Tp=14,B=40;
+  var x=function(g){return L+(g-5)/14*(W-L-R)};
+  var y=function(h){return Hh-B-(Math.min(200,Math.max(100,h))-100)/100*(Hh-Tp-B)};
+  var ages=[];for(var g=5;g<=19.001;g+=0.5)ages.push(g);
+  var line=function(k){return ages.map(function(g,i){return (i?'L':'M')+x(g).toFixed(1)+' '+y(H.at(T.h,g)+k*H.at(T.sd,g)).toFixed(1)}).join('')};
+  var up=ages.map(function(g){return x(g).toFixed(1)+' '+y(H.at(T.h,g)+2*H.at(T.sd,g)).toFixed(1)});
+  var lo=ages.slice().reverse().map(function(g){return x(g).toFixed(1)+' '+y(H.at(T.h,g)-2*H.at(T.sd,g)).toFixed(1)});
+  var s='<svg class="chart" viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="'+A.esc(t('ch.aria'))+'">';
+  for(var h=100;h<=200;h+=20)s+='<line class="ax" x1="'+L+'" x2="'+(W-R)+'" y1="'+y(h)+'" y2="'+y(h)+'"/><text x="'+(L-8)+'" y="'+(y(h)+4)+'" text-anchor="end">'+h+'</text>';
+  for(var ag=5;ag<=19;ag+=2)s+='<text x="'+x(ag)+'" y="'+(Hh-B+18)+'" text-anchor="middle">'+ag+'</text>';
+  s+='<text x="'+((L+W-R)/2)+'" y="'+(Hh-6)+'" text-anchor="middle">'+A.esc(t('ch.age'))+'</text><text x="4" y="10">'+t('u.cm')+'</text>';
+  s+='<path class="band" d="M'+up.concat(lo).join('L')+'Z"/><path class="edge" d="'+line(2)+'"/><path class="edge" d="'+line(-2)+'"/><path class="med" d="'+line(0)+'"/>';
+  s+='<text x="'+(W-R+6)+'" y="'+(y(H.at(T.h,19)+2*H.at(T.sd,19))+4)+'">+2 SD</text><text x="'+(W-R+6)+'" y="'+(y(H.at(T.h,19))+4)+'">'+A.esc(t('ch.median'))+'</text><text x="'+(W-R+6)+'" y="'+(y(H.at(T.h,19)-2*H.at(T.sd,19))+4)+'">-2 SD</text>';
+  pts.forEach(function(q,i){var last=i===pts.length-1;s+='<circle class="pt'+(last?' last':'')+'" cx="'+x(q.ag).toFixed(1)+'" cy="'+y(q.h).toFixed(1)+'" r="'+(last?6:4)+'"/>'});
+  return s+'</svg>';
+};
+A.newCode=function(){var n;try{var u=new Uint32Array(1);crypto.getRandomValues(u);n=100000+(u[0]%900000)}catch(e){n=100000+Math.floor(Math.random()*900000)}return String(n)};
+A.ensureTg=function(){var S=A.state;if(!S.tg||!S.tg.code)S.tg={code:A.newCode(),rem:{workout:true,meals:true,water:false,measure:true},time:'18:00'};return S.tg};
+A.botName=function(){return (A.state.bot||'').replace(/^@/,'').trim()};
+A.tgLink=function(){var b=A.botName();return /^[A-Za-z][A-Za-z0-9_]{3,31}$/.test(b)?'https://t.me/'+b+'?start='+A.state.tg.code:''};
+A.qrHtml=function(){
+  var link=A.tgLink();
+  if(!link)return '<p class="muted small">'+A.t('tg.botneed')+'</p>';
+  var svg='';
+  try{var q=window.qrcode(0,'M');q.addData(link);q.make();svg=q.createSvgTag({cellSize:4,margin:0,scalable:true})}catch(e){}
+  return (svg?'<div class="qr">'+svg+'</div>':'')+'<a class="btn" style="margin-top:12px" target="_blank" rel="noopener" href="'+A.esc(link)+'">'+A.t('tg.open')+'</a><p class="small muted mono" style="margin-top:8px;word-break:break-all">'+A.esc(link)+'</p>';
+};
+A.tgPayload=function(){var S=A.state,tg=S.tg;return JSON.stringify({phone:S.profile&&S.profile.phone,code:tg.code,lang:S.lang,level:S.level,reminders:tg.rem,time:tg.time},null,2)};
+A.measPts=function(a){
+  return A.state.meas.map(function(m){return {ag:H.ageAt(a.p.dob,new Date(m.date+'T00:00:00')),h:m.h}}).filter(function(q){return q.ag>=5&&q.ag<=19});
+};
+})();
+
+</script>
+<script>
+(function(){
+'use strict';
+var H=window.HH,A=window.APP,t=A.t,esc=A.esc,r1=H.r1,ORDER=H.ORDER;
+var D=A.dash={};
+
+D.strip=function(a){
+  var S=A.state,p=a.p,rec=H.recommended(a);
+  return '<header class="top">'+A.brand+'<div class="row">'+A.langSwitch()+'<span class="tag mono">'+esc(p.phone)+'</span>'+
+  '<button class="btn ghost sm" data-act="reset">'+t(S.confirmReset?'btn.reset2':'btn.reset')+'</button></div></header>'+
+  '<div class="profile"><div class="stack" style="gap:6px"><h1>'+esc(p.first)+' '+esc(p.last)+'</h1>'+
+  '<div class="facts"><div class="fact"><span class="label">'+t('prof.age')+'</span><b>'+a.age.toFixed(1)+'</b></div>'+
+  '<div class="fact"><span class="label">'+t('prof.height')+'</span><b>'+a.m.h+' '+t('u.cm')+'</b></div>'+
+  '<div class="fact"><span class="label">'+t('prof.weight')+'</span><b>'+a.m.w+' '+t('u.kg')+'</b></div>'+
+  '<div class="fact"><span class="label">'+t('prof.bmi')+'</span><b>'+a.bmi.toFixed(1)+'</b></div></div></div>'+
+  '<div class="stack" style="gap:8px"><span class="label">'+t('prof.level')+'</span><div class="seg" role="group">'+
+  ORDER.map(function(l){return '<button data-act="level" data-v="'+l+'" aria-pressed="'+(S.level===l)+'"><span class="dot d-'+l+'" style="margin:0"></span>'+A.lvName(l)+'</button>'}).join('')+
+  '</div><p class="small muted">'+t('prof.suggest',A.lvName(rec))+'</p></div></div>'+
+  '<nav class="tabs" role="tablist">'+['overview','training','feeding','ach','tg'].map(function(k){
+    return '<button role="tab" data-act="tab" data-v="'+k+'" aria-selected="'+(S.tab===k)+'">'+t('tab.'+k)+'</button>'}).join('')+'</nav>';
+};
+
+D.tg=function(a){
+  var S=A.state,tg=A.ensureTg(),rem=tg.rem;
+  var chk=function(k){return '<label class="chk" for="r_'+k+'"><input type="checkbox" id="r_'+k+'" data-rem="'+k+'"'+(rem[k]?' checked':'')+'> '+t('tg.r.'+k)+'</label>'};
+  return '<div class="stack"><div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2>'+t('tg.title')+'</h2><p class="muted" style="margin-top:6px;max-width:60ch">'+t('tg.sub')+'</p></div><span class="pill warn">'+t('tg.status')+'</span></div>'+
+  '<div class="tg-grid"><div class="stack"><div><span class="label">'+t('tg.code')+'</span><p class="codebig mono" id="codebig">'+tg.code.replace(/(\d{3})(\d{3})/,'$1 $2')+'</p></div>'+
+  '<div class="row"><button class="btn ghost sm" data-act="copy">'+t('tg.copy')+'</button><button class="btn ghost sm" data-act="regen">'+t('tg.regen')+'</button></div>'+
+  '<label class="f" for="botname">'+t('tg.bot')+'<input id="botname" type="text" value="'+esc(S.bot)+'" placeholder="'+t('tg.botph')+'" autocomplete="off" autocapitalize="off" spellcheck="false"></label>'+
+  '<ol class="steps"><li>'+t('tg.s1')+'</li><li>'+t('tg.s2')+'</li><li>'+t('tg.s3')+'</li></ol></div>'+
+  '<div id="qrbox" class="qrbox">'+A.qrHtml()+'</div></div></div>'+
+  '<div class="card"><h3>'+t('tg.rem')+'</h3><div class="chks">'+['workout','meals','water','measure'].map(chk).join('')+'</div>'+
+  '<label class="f" for="remtime" style="margin-top:14px;max-width:200px">'+t('tg.time')+'<input id="remtime" type="time" value="'+esc(tg.time)+'"></label></div>'+
+  '<div class="card"><h3>'+t('tg.payload')+'</h3><pre class="payload mono" id="payload">'+esc(A.tgPayload())+'</pre></div>'+
+  '<p class="note">'+t('tg.note')+'</p></div>';
+};
+
+D.overview=function(a){
+  var S=A.state;
+  var heightCard='<div class="card"><span class="label">'+t('ov.height')+'</span><div class="row" style="margin-top:8px;justify-content:space-between"><span class="big">'+a.m.h+' '+t('u.cm')+'</span><span class="pill '+a.hs.c+'">'+t('hs.'+a.hs.k)+'</span></div>'+
+  '<dl class="kv"><dt>'+t('ov.median',a.age.toFixed(1))+'</dt><dd>'+r1(a.med)+' '+t('u.cm')+'</dd><dt>'+t('ov.range')+'</dt><dd>'+Math.round(a.med-2*a.sd)+' – '+Math.round(a.med+2*a.sd)+' '+t('u.cm')+'</dd><dt>'+t('ov.pct')+'</dt><dd>P'+a.pct+'</dd></dl>'+
+  (a.hs.c==='bad'?'<p class="note" style="margin-top:12px">'+t('ov.doctor')+'</p>':'')+'</div>';
+  var diff=a.m.w<a.kgLow?t('ov.plus',r1(a.kgLow-a.m.w)):a.m.w>a.kgHigh?t('ov.minus',r1(a.m.w-a.kgHigh)):t('ov.inrange');
+  var weightCard='<div class="card"><span class="label">'+t('ov.weight')+'</span><div class="row" style="margin-top:8px;justify-content:space-between"><span class="big">'+a.bmi.toFixed(1)+'</span><span class="pill '+a.bs.c+'">'+t('bs.'+a.bs.k)+'</span></div>'+
+  '<dl class="kv"><dt>'+t('ov.bmirange')+'</dt><dd>'+r1(a.bLow)+' – '+r1(a.bHigh)+'</dd><dt>'+t('ov.hw',a.m.h)+'</dt><dd>'+r1(a.kgLow)+' – '+r1(a.kgHigh)+' '+t('u.kg')+'</dd><dt>'+t('ov.yourw')+'</dt><dd>'+a.m.w+' '+t('u.kg')+', '+diff+'</dd></dl>'+
+  '<p class="small muted" style="margin-top:12px">'+t(a.youth?'ov.bminote.y':'ov.bminote.a')+'</p></div>';
+  var grow;
+  if(a.growable){
+    grow='<div class="card"><span class="label">'+t('gr.title')+'</span><div class="row" style="margin-top:8px;justify-content:space-between"><span class="big">'+Math.round(a.adultH)+' '+t('u.cm')+'</span><span class="pill good">'+t('gr.still')+'</span></div>'+
+    '<p class="small muted" style="margin-top:4px">'+t('gr.proj')+'</p>'+
+    '<dl class="kv"><dt>'+t('gr.rem')+'</dt><dd>'+t('gr.remv',r1(a.remaining))+'</dd><dt>'+t('gr.vel')+'</dt><dd>'+t('gr.velv',r1(a.vel))+'</dd><dt>'+t('gr.end')+'</dt><dd>'+t('gr.endv',a.endAge)+'</dd></dl>'+
+    '<p class="small muted" style="margin-top:12px">'+t('gr.genes')+'</p></div>';
+  }else{
+    grow='<div class="card"><span class="label">'+t('gr.title')+'</span><div class="row" style="margin-top:8px;justify-content:space-between"><span class="big">'+t('gr.complete')+'</span><span class="pill neutral">'+t(a.youth?'gr.near':'gr.adult')+'</span></div>'+
+    '<p style="margin-top:10px">'+t('gr.closed')+'</p><p class="small muted" style="margin-top:8px">'+t('gr.posture')+'</p></div>';
+  }
+  var sleep=a.age<14?'9–11':a.age<18?'8–10':'7–9';
+  var pl=H.plan(a,S.level);
+  var chart=a.youth?'<div class="card"><div class="row" style="justify-content:space-between"><h3>'+t('ch.title')+'</h3><span class="small muted">'+t('ch.sub')+'</span></div>'+A.chartSvg(a,A.measPts(a))+'</div>':'';
+  var daily='<div class="card"><h3>'+t('dt.title')+'</h3><div class="grid" style="margin-top:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr))">'+
+  '<div><span class="label">'+t('dt.sleep')+'</span><p class="mono" style="font-size:18px">'+sleep+' '+t('u.h')+'</p></div>'+
+  '<div><span class="label">'+t('dt.act')+'</span><p class="mono" style="font-size:18px">'+t(a.youth?'dt.actv.y':'dt.actv.a')+'</p></div>'+
+  '<div><span class="label">'+t('dt.ca')+'</span><p class="mono" style="font-size:18px">'+pl.ca+' '+t('u.mg')+'</p></div>'+
+  '<div><span class="label">'+t('dt.water')+'</span><p class="mono" style="font-size:18px">'+pl.water+' '+t('u.l')+'</p></div></div></div>';
+  return '<div class="stack"><div class="grid">'+heightCard+weightCard+grow+'</div>'+chart+daily+'<p class="note">'+t('ov.note')+'</p></div>';
+};
+
+function detail(type,lv,a){
+  var y=a.youth;
+  if(type==='cardio')return t('dx.cardio.'+(y?'y':'a')+'.'+lv);
+  if(type==='strength'){
+    if(y)return t(lv==='strong'?'dx.strength.y.strong':'dx.strength.y',t('sets.'+lv));
+    return t('dx.strength.a',t('sets.'+lv));
+  }
+  if(type==='stretch')return t(a.growable?'dx.stretch.g':'dx.stretch.n');
+  if(type==='sport')return t(y?'dx.sport.y':'dx.sport.a');
+  if(type==='recover')return t('dx.recover');
+  return t('dx.rest');
+}
+D.training=function(a){
+  var lv=A.state.level,pat=H.PATTERNS[lv],total=0,sessions=0;
+  var rows=pat.map(function(d,i){total+=d[1];if(d[1]>0&&d[0]!=='recover')sessions++;
+    return '<tr><td><b>'+t('d.'+i)+'</b></td><td>'+t('ty.'+d[0])+'</td><td class="num">'+(d[1]?d[1]:'-')+'</td><td>'+detail(d[0],lv,a)+'</td></tr>'}).join('');
+  var who,cls;
+  if(a.youth){who=t('tr.whoy',Math.max(0,Math.ceil((420-total)/7)));cls='neutral'}
+  else{who=t(total<150?'tr.who.low':total<=300?'tr.who.ok':'tr.who.high');cls=total<150?'warn':'good'}
+  var gb='';
+  if(a.growable){var sl=a.age<14?'9–11':'8–10';
+    gb='<div class="card"><h3>'+t('gb.title')+'</h3><ul class="plain"><li>'+t('gb.1',sl)+'</li><li>'+t('gb.2')+'</li><li>'+t('gb.3')+'</li><li>'+t('gb.4')+'</li><li>'+t('gb.5')+'</li></ul></div>';}
+  return '<div class="stack"><div class="card"><div class="row" style="justify-content:space-between"><div><span class="label">'+t('lvtag.'+lv)+'</span><h2>'+t('tr.title',A.lvName(lv))+'</h2></div>'+
+  '<div class="row"><span class="pill neutral mono">'+t('tr.min',total)+'</span><span class="pill neutral mono">'+t('tr.sessions',sessions)+'</span></div></div>'+
+  '<p class="small muted" style="margin-top:10px"><span class="pill '+cls+'" style="margin-right:6px">'+t('tr.who')+'</span>'+who+'</p></div>'+
+  '<div class="tablewrap"><table><thead><tr><th>'+t('tr.day')+'</th><th>'+t('tr.session')+'</th><th class="num">'+t('tr.mins')+'</th><th>'+t('tr.todo')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+gb+
+  '<p class="note">'+t('tr.note')+'</p></div>';
+};
+
+function portion(it,f){
+  var name=t('f.'+it[0]);
+  if(it[1]==null){var n=Math.max(1,Math.round(it[2]*f));return n+' × '+esc(name.charAt(0).toLowerCase()===name.charAt(0)?name:name)}
+  var g=Math.max(5,Math.round(it[1]*f/5)*5);return esc(name)+' <span class="mono muted">'+g+' '+(A.state.lang==='ru'?'г':A.state.lang==='uz'?'g':'g')+'</span>';
+}
+D.feeding=function(a){
+  var lv=A.state.level,pl=H.plan(a,lv),f=pl.kcal/2000;
+  var cmp=ORDER.map(function(l){var q=H.plan(a,l);return '<div class="lv"><span class="dot d-'+l+'"></span><div><b>'+A.lvName(l)+'</b><p class="mono small">'+t('fd.cmpline',q.kcal,q.prot)+'</p></div></div>'}).join('');
+  var rows=H.MENU[lv].map(function(s){return '<tr><td><b>'+t('m.'+s[0])+'</b></td><td class="num">'+Math.round(pl.kcal*s[1]/100)+'</td><td>'+s[2].map(function(it){return portion(it,f)}).join('<br>')+'</td></tr>'}).join('');
+  var adj=a.youth?t(a.bs.k==='under'?'fd.adj.y.under':'fd.adj.y'):t('fd.adj.'+a.bs.k);
+  var stat=function(lab,val,unit){return '<div><span class="label">'+lab+'</span><p class="big">'+val+'</p><p class="small muted">'+unit+'</p></div>'};
+  return '<div class="stack"><div class="card"><div><span class="label">'+t('lvtag.'+lv)+'</span><h2>'+t('fd.title',A.lvName(lv))+'</h2></div>'+
+  '<div class="grid" style="margin-top:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,130px),1fr))">'+
+  stat(t('fd.energy'),pl.kcal,t('u.kcalday'))+stat(t('fd.protein'),pl.prot,t('u.gday'))+stat(t('fd.carbs'),pl.carb,t('u.gday'))+
+  stat(t('fd.fat'),pl.fat,t('u.gday'))+stat(t('fd.calcium'),pl.ca,t('u.mgday'))+stat(t('fd.water'),pl.water,t('u.lday'))+'</div>'+
+  '<p class="small muted" style="margin-top:12px">'+adj+'</p></div>'+
+  '<div class="tablewrap"><table><thead><tr><th>'+t('fd.meal')+'</th><th class="num">'+t('fd.kcal')+'</th><th>'+t('fd.menu')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+  '<div class="card"><h3>'+t('fd.cmp')+'</h3><div class="grid" style="margin-top:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))">'+cmp+'</div></div>'+
+  '<p class="note">'+t('fd.note',H.LV.easy.pal,H.LV.mid.pal,H.LV.strong.pal)+'</p></div>';
+};
+
+D.ach=function(a){
+  var S=A.state,meas=S.meas,first=meas[0],last=meas[meas.length-1],gain=r1(last.h-first.h);
+  var badges=[{n:t('bd.reg'),d:t('bd.regd'),ok:true,m:'1'},{n:t('bd.chk'),d:t('bd.chkd'),ok:meas.length>=2,m:'2'}];
+  if(a.youth)badges.push({n:t('bd.who'),d:t('bd.whod'),ok:Math.abs(a.z)<=2,m:'SD'},{n:t('bd.med'),d:t('bd.medd'),ok:a.z>=0,m:'P50'});
+  if(a.bs.k==='ok')badges.push({n:t('bd.bmi'),d:t('bd.bmid'),ok:true,m:'BMI'});
+  if(a.growable)[1,2,3,5,8].forEach(function(g){badges.push({n:'+'+g+' '+t('u.cm'),d:t('bd.gaind'),ok:gain>=g,m:'+'+g})});
+  var won=badges.filter(function(b){return b.ok}).length;
+  var bhtml=badges.map(function(b){return '<div class="badge'+(b.ok?' on':'')+'"><span class="medal">'+b.m+'</span><b>'+b.n+'</b><span class="small muted">'+b.d+'</span><span class="pill '+(b.ok?'good':'neutral')+'" style="align-self:flex-start">'+t(b.ok?'bd.on':'bd.off')+'</span></div>'}).join('');
+  var th='<th>'+t('ac.th')+'</th>'+ORDER.map(function(l){return '<th><span class="dot d-'+l+'"></span>'+A.lvName(l)+'</th>'}).join('');
+  var cell=function(l,html){return '<td class="lv-'+l+(S.level===l?' sel':'')+' cell">'+html+'</td>'};
+  var tables='';
+  if(a.growable){
+    var tg=H.gainTargets(a),sims=ORDER.map(function(l){return H.simulate(a,H.LV[l].f,tg)});
+    var gr=tg.map(function(g,k){return '<tr><td><b>+'+g+' '+t('u.cm')+'</b><br><span class="small muted">'+t('ac.hgain',r1(last.h))+'</span></td>'+ORDER.map(function(l,j){var mo=sims[j][k];return cell(l,mo==null?'<span class="muted">-</span>':'<b>'+A.monthsLabel(mo)+'</b><br><span class="small muted">'+t('ac.by',A.dateLabel(mo))+'</span>')}).join('')+'</tr>'}).join('');
+    tables+='<div class="stack" style="gap:10px"><div><h2>'+t('ac.ht')+'</h2><p class="muted small" style="margin-top:4px">'+t('ac.hsub')+'</p></div>'+
+    '<div class="tablewrap"><table><thead><tr>'+th+'</tr></thead><tbody>'+gr+'</tbody></table></div><p class="note">'+t('ac.hnote',r1(a.vel))+'</p></div>';
+  }else{
+    tables+='<div class="card"><h2>'+t('ac.done.t')+'</h2><p class="muted" style="margin-top:6px">'+t('ac.done.d')+'</p></div>';
+  }
+  var hab=[['cons',[4,6,8],'un.weeks'],['sleep',[14,21,30],'un.nights'],['menu',[14,21,30],'un.days'],['post',[21,30,66],'un.days'],['who',[4,8,12],'un.weeks']];
+  var hr=hab.map(function(h){return '<tr><td><b>'+t('hb.'+h[0])+'</b><br><span class="small muted">'+t('hb.'+h[0]+'d')+'</span></td>'+ORDER.map(function(l,j){return cell(l,'<b>'+t(h[2],h[1][j])+'</b>')}).join('')+'</tr>'}).join('');
+  if(!a.youth&&a.bs.k!=='ok'){
+    var d=a.bs.k==='under'?a.kgLow-a.m.w:a.m.w-a.kgHigh,rate=a.bs.k==='under'?[0.25,0.35,0.5]:[0.25,0.5,0.75];
+    hr+='<tr><td><b>'+t('hb.bmi')+'</b><br><span class="small muted">'+t(a.bs.k==='under'?'hb.gain':'hb.lose',r1(d))+'</span></td>'+ORDER.map(function(l,j){var wk=Math.max(1,Math.ceil(d/rate[j]));return cell(l,'<b>'+A.monthsLabel(Math.max(1,Math.round(wk/4.345)))+'</b><br><span class="small muted">'+t('hb.rate',rate[j])+'</span>')}).join('')+'</tr>';
+  }
+  tables+='<div class="stack" style="gap:10px"><div><h2>'+t('ac.hab')+'</h2><p class="muted small" style="margin-top:4px">'+t('ac.habsub')+'</p></div><div class="tablewrap"><table><thead><tr>'+th+'</tr></thead><tbody>'+hr+'</tbody></table></div></div>';
+  var hist=meas.slice().reverse().slice(0,6).map(function(m,i){var idx=meas.length-1-i;
+    return '<div><span><span class="mono">'+m.date+'</span> &nbsp; <b class="mono">'+m.h+' '+t('u.cm')+'</b> &nbsp; <span class="muted mono">'+m.w+' '+t('u.kg')+'</span></span>'+(idx>0?'<button class="btn ghost sm" data-act="del" data-v="'+idx+'">'+t('lg.rm')+'</button>':'<span class="small muted">'+t('lg.first')+'</span>')+'</div>'}).join('');
+  var log='<div class="card"><h3>'+t('lg.title')+'</h3><form id="log" class="row" style="margin-top:12px;align-items:flex-end" novalidate>'+
+  '<label class="f" for="ldate" style="flex:1 1 140px">'+t('lg.date')+'<input id="ldate" type="date" value="'+H.ymd(new Date())+'" max="'+H.ymd(new Date())+'"></label>'+
+  '<label class="f" for="lh" style="flex:1 1 110px">'+t('lg.h')+'<input id="lh" type="number" step="0.1" min="80" max="250" inputmode="decimal"></label>'+
+  '<label class="f" for="lw" style="flex:1 1 110px">'+t('lg.w')+'<input id="lw" type="number" step="0.1" min="10" max="300" inputmode="decimal" placeholder="'+t('lg.opt')+'"></label>'+
+  '<button class="btn" type="submit">'+t('lg.add')+'</button></form><p class="err" id="lerr" role="alert"></p><div class="hist">'+hist+'</div></div>';
+  return '<div class="stack"><div class="card"><div class="row" style="justify-content:space-between"><div><span class="label">'+t('ac.badges')+'</span><h2>'+t('ac.unlocked',won,badges.length)+'</h2></div>'+
+  (a.growable?'<div class="fact"><span class="label">'+t('ac.gain')+'</span><b>'+(gain>=0?'+':'')+gain+' '+t('u.cm')+'</b></div>':'')+'</div><div class="badges" style="margin-top:14px">'+bhtml+'</div></div>'+log+tables+'</div>';
+};
+})();
+
+</script>
+<script>
+(function(){
+'use strict';
+var H=window.HH,A=window.APP,t=A.t,esc=A.esc,r1=H.r1,S=A.state,$=A.$;
+var STEPS=['phone','name','about','body','review'];
+
+/* ---------- Landing ---------- */
+function weekTotal(l){return H.PATTERNS[l].reduce(function(s,d){return s+d[1]},0)}
+function landing(){
+  var a={T:H.WHO.M};
+  var pts=[{ag:11,h:141.5},{ag:12,h:147.5},{ag:13,h:154},{ag:14,h:159},{ag:14.5,h:161.5}];
+  var how=[1,2,3,4].map(function(i){return '<div class="card how"><span class="num-chip">'+i+'</span><h3>'+t('how.'+i+'.t')+'</h3><p class="muted">'+t('how.'+i+'.d')+'</p></div>'}).join('');
+  var lv=H.ORDER.map(function(l){return '<div class="card lvcard"><div class="row"><span class="dot d-'+l+'" style="margin:0"></span><span class="label">'+t('lvtag.'+l)+'</span></div>'+
+    '<h3>'+A.lvName(l)+'</h3><p class="big">'+weekTotal(l)+'<span class="small muted"> '+t('u.min')+'/7</span></p><p class="muted small">'+t('lvb.'+l)+'</p></div>'}).join('');
+  var feat=[1,2,3].map(function(i){return '<div><h3>'+t('feat.'+i+'.t')+'</h3><p class="muted" style="margin-top:6px">'+t('feat.'+i+'.d')+'</p></div>'}).join('');
+  return '<header class="top">'+A.brand+'<div class="row">'+A.langSwitch()+'<button class="btn sm" data-act="start">'+t('nav.start')+'</button></div></header>'+
+  '<div class="scene" aria-hidden="true"><svg viewBox="0 0 800 200" preserveAspectRatio="xMidYMid slice"><circle class="sun" cx="720" cy="44" r="22"/><g class="c1"><ellipse class="cloud" cx="80" cy="40" rx="34" ry="12"/><ellipse class="cloud" cx="104" cy="32" rx="20" ry="12"/></g><g class="c2"><ellipse class="cloud" cx="300" cy="28" rx="28" ry="10"/><ellipse class="cloud" cx="318" cy="22" rx="16" ry="9"/></g><rect class="ground" x="0" y="150" width="800" height="50"/><rect class="road" x="0" y="164" width="800" height="28"/><line class="dash" x1="0" y1="178" x2="800" y2="178"/><rect class="board" x="40" y="70" width="150" height="70" rx="6"/><path class="chalk-w" d="M56 118c10-20 18-20 24 0s14 20 24 0 16-20 24 0 14 20 24 0" stroke="var(--chalk)" stroke-width="3" fill="none" stroke-linecap="round"/><text class="chalk" x="58" y="94">A B C · 1 2 3</text><rect class="trunk" x="236" y="122" width="6" height="28"/><circle class="tree" cx="239" cy="112" r="18"/><path class="roof" d="M430 70 520 30 610 70z"/><rect class="wall" x="440" y="70" width="160" height="80"/><circle class="clock" cx="520" cy="62" r="11"/><line class="hand-l" x1="520" y1="62" x2="520" y2="55"/><line class="hand-l mh" x1="520" y1="62" x2="526" y2="62"/><rect class="win" x="452" y="84" width="26" height="22" rx="2"/><rect class="win" x="562" y="84" width="26" height="22" rx="2"/><rect class="win" x="452" y="116" width="26" height="22" rx="2"/><rect class="win" x="562" y="116" width="26" height="22" rx="2"/><rect class="door" x="506" y="110" width="28" height="40" rx="3"/><line class="pole" x1="640" y1="150" x2="640" y2="60"/><g class="flagg"><rect class="flag1" x="641" y="62" width="40" height="9"/><rect class="flag2" x="641" y="71" width="40" height="8"/><rect class="flag3" x="641" y="79" width="40" height="9"/></g><rect class="trunk" x="690" y="124" width="6" height="26"/><circle class="tree" cx="693" cy="114" r="16"/><g class="busg"><rect class="bus" x="0" y="132" width="130" height="40" rx="8"/><rect class="bwin" x="10" y="138" width="20" height="14" rx="2"/><rect class="bwin" x="36" y="138" width="20" height="14" rx="2"/><rect class="bwin" x="62" y="138" width="20" height="14" rx="2"/><rect class="bwin" x="88" y="138" width="20" height="14" rx="2"/><rect class="bwin" x="112" y="138" width="14" height="20" rx="2"/><rect class="stripe" x="0" y="158" width="112" height="3"/><g class="wheel-r"><circle class="wheel" cx="28" cy="174" r="10"/><rect class="hub" x="26" y="166" width="4" height="16"/></g><g class="wheel-r"><circle class="wheel" cx="104" cy="174" r="10"/><rect class="hub" x="102" y="166" width="4" height="16"/></g></g></svg></div>'+
+  '<section class="hero"><div class="stack" style="gap:18px;min-width:0"><span class="label">'+t('land.eyebrow')+'</span><h1 class="hero-h">'+t('land.h1')+'</h1>'+
+  '<p class="muted lead">'+t('land.sub')+'</p><div class="row"><button class="btn" data-act="start">'+t('land.cta')+'</button><button class="btn ghost" data-act="scroll" data-v="how">'+t('land.cta2')+'</button></div></div>'+
+  '<div class="card"><h3>'+t('ch.title')+'</h3>'+A.chartSvg(a,pts)+'<p class="small muted">'+t('land.chartcap')+'</p></div></section>'+
+  '<section id="how" class="sec"><h2>'+t('how.title')+'</h2><div class="grid" style="margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))">'+how+'</div></section>'+
+  '<section class="sec"><h2>'+t('lvl.title')+'</h2><div class="grid" style="margin-top:16px">'+lv+'</div></section>'+
+  '<section class="sec"><h2>'+t('feat.title')+'</h2><div class="grid feat" style="margin-top:16px">'+feat+'</div></section>'+
+  '<section class="cta"><h2>'+t('land.final')+'</h2><button class="btn" data-act="start">'+t('land.cta')+'</button></section>'+
+  '<footer class="disc"><p class="note">'+t('disc')+'</p><p class="small muted" style="margin-top:12px">'+t('foot')+'</p></footer>';
+}
+
+/* ---------- Wizard ---------- */
+function validate(n){
+  var w=S.wz,age,wt,ht;
+  if(n===1)return H.fmtPhone(w.phone||'')?'':'e.phone';
+  if(n===2)return (w.first||'').trim()&&(w.last||'').trim()?'':'e.name';
+  if(n===3){
+    if(!w.dob)return 'e.dob';
+    age=H.ageAt(w.dob,new Date());
+    if(!(age>=0)||age>100)return 'e.old';
+    if(age<5)return 'e.young';
+    return w.sex==='M'||w.sex==='F'?'':'e.sex';
+  }
+  if(n===4){
+    wt=parseFloat(w.w);ht=parseFloat(w.h);
+    if(!(wt>=10&&wt<=300))return 'e.weight';
+    if(!(ht>=80&&ht<=250))return 'e.height';
+    return '';
+  }
+  return validate(1)||validate(2)||validate(3)||validate(4);
+}
+function furthest(){for(var i=1;i<=4;i++)if(validate(i))return i;return 5}
+function firstBad(){for(var i=1;i<=4;i++){var e=validate(i);if(e)return {step:i,err:e}}return null}
+
+function preview(){
+  var w=S.wz;
+  var okAbout=!validate(3),okBody=okAbout&&!validate(4);
+  if(!okAbout)return '<p class="muted">'+t('pv.empty')+'</p>';
+  var p={dob:w.dob,sex:w.sex},age=H.ageAt(w.dob,new Date()),T=H.WHO[w.sex];
+  var med=H.at(T.h,age),sd=H.at(T.sd,age),endAge=w.sex==='F'?17:19;
+  var html='<dl class="kv" style="margin-top:0"><dt>'+t('prof.age')+'</dt><dd>'+age.toFixed(1)+'</dd>'+
+    '<dt>'+t('pv.expect',age.toFixed(1))+'</dt><dd>'+Math.round(med-2*sd)+' – '+Math.round(med+2*sd)+' '+t('u.cm')+'</dd>'+
+    '<dt>'+t('ov.median',age.toFixed(1))+'</dt><dd>'+r1(med)+' '+t('u.cm')+'</dd></dl>'+
+    '<p class="small muted" style="margin-top:10px">'+(age<endAge?t('pv.grow',endAge):t('pv.done'))+'</p>';
+  if(!okBody)return html+'<p class="note" style="margin-top:14px">'+t('pv.need')+'</p>';
+  var a=H.analyze(p,{h:parseFloat(w.h),w:parseFloat(w.w)});
+  html+='<hr class="sep"><div class="row" style="justify-content:space-between"><div><span class="label">'+t('pv.you')+'</span><p class="big">'+a.m.h+' '+t('u.cm')+'</p></div><span class="pill '+a.hs.c+'">'+t('hs.'+a.hs.k)+'</span></div>'+
+    '<div class="row" style="justify-content:space-between;margin-top:12px"><div><span class="label">'+t('pv.bmi')+'</span><p class="big">'+a.bmi.toFixed(1)+'</p></div><span class="pill '+a.bs.c+'">'+t('bs.'+a.bs.k)+'</span></div>'+
+    '<dl class="kv"><dt>'+t('ov.pct')+'</dt><dd>P'+a.pct+'</dd><dt>'+t('pv.healthy')+'</dt><dd>'+r1(a.kgLow)+' – '+r1(a.kgHigh)+' '+t('u.kg')+'</dd></dl>';
+  var rec=H.recommended(a);
+  html+='<div class="row" style="margin-top:12px"><span class="label">'+t('pv.suggest')+'</span><span class="pill neutral"><span class="dot d-'+rec+'" style="display:inline-block;margin:0 6px 0 0;vertical-align:middle"></span>'+A.lvName(rec)+'</span></div>';
+  if(a.youth)html+='<div style="margin-top:14px">'+A.chartSvg(a,[{ag:Math.min(19,a.age),h:a.m.h}])+'</div>';
+  return html;
+}
+
+function fieldsFor(step){
+  var w=S.wz;
+  var inp=function(id,key,type,label,extra){return '<label class="f" for="'+id+'">'+t(label)+'<input id="'+id+'" data-wz="'+key+'" type="'+type+'" value="'+esc(w[key]||'')+'" '+(extra||'')+'></label>'};
+  if(step==='phone')return inp('phone','phone','tel','fl.phone','inputmode="tel" autocomplete="tel" placeholder="+998 90 123 45 67"');
+  if(step==='name')return '<div class="fields">'+inp('first','first','text','fl.first','autocomplete="given-name"')+inp('last','last','text','fl.last','autocomplete="family-name"')+'</div>';
+  if(step==='about')return '<div class="fields">'+inp('dob','dob','date','fl.dob','max="'+H.ymd(new Date())+'"')+
+    '<div class="f"><span>'+t('fl.sex')+'</span><div class="radios"><label for="gM"><input type="radio" name="sex" id="gM" data-wz="sex" value="M"'+(w.sex==='M'?' checked':'')+'> '+t('fl.male')+'</label><label for="gF"><input type="radio" name="sex" id="gF" data-wz="sex" value="F"'+(w.sex==='F'?' checked':'')+'> '+t('fl.female')+'</label></div></div></div>';
+  if(step==='body')return '<div class="fields">'+inp('weight','w','number','fl.weight','inputmode="decimal" step="0.1" min="10" max="300"')+inp('height','h','number','fl.height','inputmode="decimal" step="0.1" min="80" max="250"')+'</div>';
+  var ph=H.fmtPhone(w.phone||'')||w.phone;
+  return '<dl class="kv review"><dt>'+t('fl.phone')+'</dt><dd>'+esc(ph)+'</dd><dt>'+t('fl.first')+'</dt><dd>'+esc(w.first)+'</dd><dt>'+t('fl.last')+'</dt><dd>'+esc(w.last)+'</dd>'+
+    '<dt>'+t('fl.dob')+'</dt><dd>'+esc(w.dob)+'</dd><dt>'+t('fl.sex')+'</dt><dd>'+t(w.sex==='F'?'fl.female':'fl.male')+'</dd><dt>'+t('fl.weight')+'</dt><dd>'+esc(w.w)+'</dd><dt>'+t('fl.height')+'</dt><dd>'+esc(w.h)+'</dd></dl>';
+}
+
+function wizard(){
+  var w=S.wz,step=w.step,key=STEPS[step-1],far=furthest();
+  var stepper=STEPS.map(function(k,i){var n=i+1,st=n===step?'cur':n<step?'done':'todo',can=n<=far||n<step;
+    return '<button type="button" class="stp '+st+'" data-act="goto" data-v="'+n+'"'+(can?'':' disabled')+(n===step?' aria-current="step"':'')+'><span class="num-chip">'+(n<step?'✓':n)+'</span><span class="stp-l">'+t('st.'+k)+'</span></button>'}).join('');
+  return '<header class="top">'+A.brand+'<div class="row">'+A.langSwitch()+'<button class="btn ghost sm" data-act="home">'+t('nav.home')+'</button></div></header>'+
+  '<div class="stack" style="gap:8px;padding-block:6px 18px"><h1>'+t('wz.title')+'</h1><p class="muted" style="max-width:62ch">'+t('wz.sub')+'</p></div>'+
+  '<div class="wz"><form class="card" id="wzf" novalidate><div class="stepper">'+stepper+'</div>'+
+  '<div class="stack" style="gap:6px;margin-top:20px"><span class="label">'+t('wz.step',step,STEPS.length)+'</span><h2>'+t('st.'+key)+'</h2><p class="muted">'+t('st.'+key+'.d')+'</p></div>'+
+  '<div style="margin-top:16px">'+fieldsFor(key)+'</div><p class="err" id="err" role="alert"></p>'+
+  '<div class="row" style="margin-top:6px">'+(step>1?'<button type="button" class="btn ghost" data-act="back">'+t('wz.back')+'</button>':'')+
+  (step<STEPS.length?'<button type="submit" class="btn">'+t('wz.next')+'</button>':'<button type="submit" class="btn">'+t('wz.create')+'</button>')+
+  '<span style="flex:1"></span><button type="button" class="btn ghost sm" data-act="sample">'+t('wz.sample')+'</button><button type="button" class="btn ghost sm" data-act="clear">'+t('wz.clear')+'</button></div></form>'+
+  '<aside class="card pv"><h3>'+t('pv.title')+'</h3><div id="pv" style="margin-top:12px">'+preview()+'</div></aside></div>'+
+  '<footer class="disc"><p class="note">'+t('disc')+'</p></footer>';
+}
+
+/* ---------- Render ---------- */
+function render(focus){
+  var app=$('#app'),html,a;
+  document.documentElement.lang=S.lang;
+  if(S.screen==='dash'&&S.profile){
+    a=H.analyze(S.profile,S.meas[S.meas.length-1]);
+    if(!S.level)S.level=H.recommended(a);
+    var body=S.tab==='training'?A.dash.training(a):S.tab==='feeding'?A.dash.feeding(a):S.tab==='ach'?A.dash.ach(a):S.tab==='tg'?A.dash.tg(a):A.dash.overview(a);
+    html=A.dash.strip(a)+'<main>'+body+'</main>';
+  }else if(S.screen==='register')html=wizard();
+  else html=landing();
+  app.innerHTML=html;
+  if(focus){var f=app.querySelector('#wzf input:not([type=radio])');if(f&&f.type!=='date')f.focus()}
+}
+A.render=render;
+
+function setErr(k){var e=$('#err');if(e)e.textContent=k?t(k):''}
+function next(){
+  var step=S.wz.step,e=validate(step);
+  if(e){setErr(e);return}
+  if(step<STEPS.length){S.wz.step=step+1;A.save();render(true);return}
+  var bad=firstBad();
+  if(bad){S.wz.step=bad.step;A.save();render(true);setErr(bad.err);return}
+  var w=S.wz;
+  S.profile={phone:H.fmtPhone(w.phone),first:w.first.trim(),last:w.last.trim(),dob:w.dob,sex:w.sex};
+  S.meas=[{date:H.ymd(new Date()),h:r1(parseFloat(w.h)),w:r1(parseFloat(w.w))}];
+  S.level=null;S.tab='tg';S.tg=null;S.screen='dash';S.wz=A.blankWz();A.ensureTg();
+  A.save();render();window.scrollTo(0,0);
+}
+
+document.addEventListener('submit',function(e){
+  e.preventDefault();
+  var id=e.target.id;
+  if(id==='wzf')next();
+  else if(id==='log'){
+    var date=$('#ldate').value,h=parseFloat($('#lh').value),w=parseFloat($('#lw').value),err=$('#lerr');
+    if(!date||!(h>=80&&h<=250)){err.textContent=t('lg.err');return}
+    if(date<S.profile.dob){err.textContent=t('lg.errdob');return}
+    var prevW=S.meas[S.meas.length-1].w;
+    S.meas.push({date:date,h:r1(h),w:w>=10&&w<=300?r1(w):prevW});
+    S.meas.sort(function(x,y){return x.date<y.date?-1:x.date>y.date?1:0});
+    A.save();render();
+  }
+});
+function upPayload(){var p=$('#payload');if(p&&S.tg)p.textContent=A.tgPayload()}
+function onInput(e){
+  var el=e.target;
+  if(el.id==='botname'){S.bot=el.value;A.save();var qb=$('#qrbox');if(qb)qb.innerHTML=A.qrHtml();return}
+  var rk=el.getAttribute&&el.getAttribute('data-rem');
+  if(rk&&S.tg){S.tg.rem[rk]=el.checked;A.save();upPayload();return}
+  if(el.id==='remtime'&&S.tg){S.tg.time=el.value;A.save();upPayload();return}
+  var k=el.getAttribute&&el.getAttribute('data-wz');
+  if(!k)return;
+  S.wz[k]=el.value;A.save();
+  var pv=$('#pv');if(pv)pv.innerHTML=preview();
+  var er=$('#err');if(er)er.textContent='';
+}
+document.addEventListener('input',onInput);
+document.addEventListener('change',onInput);
+
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-act]');if(!b)return;
+  var act=b.getAttribute('data-act'),v=b.getAttribute('data-v');
+  if(act==='lang'){S.lang=v;A.save();render()}
+  else if(act==='start'){S.screen='register';A.save();render(true);window.scrollTo(0,0)}
+  else if(act==='home'){S.screen='landing';A.save();render();window.scrollTo(0,0)}
+  else if(act==='scroll'){var el=document.getElementById(v);if(el)el.scrollIntoView({behavior:'smooth'})}
+  else if(act==='goto'){var n=parseInt(v,10);if(n<=Math.max(furthest(),S.wz.step)){S.wz.step=n;A.save();render(true)}}
+  else if(act==='back'){S.wz.step=Math.max(1,S.wz.step-1);A.save();render(true)}
+  else if(act==='clear'){S.wz=A.blankWz();A.save();render(true)}
+  else if(act==='sample'){
+    var d=new Date();d.setFullYear(d.getFullYear()-14);d.setMonth(d.getMonth()-6);
+    S.wz.phone='+998 90 123 45 67';S.wz.first='Aziz';S.wz.last='Karimov';S.wz.dob=H.ymd(d);S.wz.sex='M';S.wz.w='52';S.wz.h='161';
+    A.save();render();
+  }
+  else if(act==='regen'){S.tg.code=A.newCode();A.save();render()}
+  else if(act==='copy'){
+    var sel=function(){var cb=$('#codebig');if(!cb)return;var r=document.createRange();r.selectNodeContents(cb);var sl=window.getSelection();sl.removeAllRanges();sl.addRange(r)};
+    var done=function(){b.textContent=t('tg.copied')};
+    try{navigator.clipboard.writeText(S.tg.code).then(done,sel)}catch(x){sel()}
+  }
+  else if(act==='tab'){S.tab=v;S.confirmReset=false;A.save();render()}
+  else if(act==='level'){S.level=v;S.confirmReset=false;A.save();render()}
+  else if(act==='del'){S.meas.splice(parseInt(v,10),1);A.save();render()}
+  else if(act==='reset'){
+    if(!S.confirmReset){S.confirmReset=true;render()}
+    else{S.profile=null;S.meas=[];S.level=null;S.tab='overview';S.tg=null;S.confirmReset=false;S.wz=A.blankWz();S.screen='landing';A.save();render();window.scrollTo(0,0)}
+  }
+});
+render();
+})();
+
+</script>

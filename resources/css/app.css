@@ -1,0 +1,125 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../../app/**/*.php';
+
+/*
+ * Colour schemes. Status and level colours are shared; each scheme sets neutrals, accent and chart band.
+ *  - claude (default): guests, landing, admins. Warm cream with clay-orange accent.
+ *  - green: male clients (the prototype's palette).
+ *  - pink: female clients.
+ * The scheme is set with data-theme on <body> (App\Support\Theme). Dark mode follows the system.
+ */
+:root {
+    --bg: #FAF9F5; --surface: #FFFFFF; --surface2: #F0EEE6; --ink: #141413; --muted: #6B6A64; --line: #E3E0D6;
+    --accent: #B9583A; --on-accent: #FFFFFF; --band: #F3E3DA;
+    --easy: #2F7FC4; --mid: #C58A0F; --strong: #C2412D;
+    --easy-bg: #E2EEF9; --mid-bg: #FBEFD6; --strong-bg: #F8E1DB;
+    --good: #17724B; --good-bg: #DCF0E5; --warn: #85560A; --warn-bg: #FAEBC9; --bad: #A02D1D; --bad-bg: #F7DCD6;
+}
+[data-theme="green"] {
+    --bg: #F2F5F3; --surface: #FFFFFF; --surface2: #E8EEEA; --ink: #14211C; --muted: #566860; --line: #D3DDD7;
+    --accent: #0E7C61; --on-accent: #FFFFFF; --band: #D9E9E1;
+}
+[data-theme="pink"] {
+    --bg: #FDF6F9; --surface: #FFFFFF; --surface2: #F8E8EF; --ink: #2E1A24; --muted: #7A5F6E; --line: #F0D8E3;
+    --accent: #C93A75; --on-accent: #FFFFFF; --band: #FAE0EB;
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #1F1E1D; --surface: #262624; --surface2: #30302E; --ink: #F0EEE6; --muted: #A6A39A; --line: #3A3936;
+        --accent: #D97757; --on-accent: #1F1E1D; --band: #3A2A23;
+        --easy: #6DB1F1; --mid: #E5B24D; --strong: #EE8070;
+        --easy-bg: #16293A; --mid-bg: #33290F; --strong-bg: #3A1F1A;
+        --good: #6EDBA6; --good-bg: #173A2A; --warn: #EBC066; --warn-bg: #3A2E10; --bad: #F29A8C; --bad-bg: #42201B;
+        color-scheme: dark;
+    }
+    [data-theme="green"] {
+        --bg: #0E1713; --surface: #15231D; --surface2: #1C2D26; --ink: #E6EFEA; --muted: #9AB0A6; --line: #27392F;
+        --accent: #3FCB9F; --on-accent: #06261C; --band: #1D3329;
+    }
+    [data-theme="pink"] {
+        --bg: #1D1218; --surface: #271A21; --surface2: #33232C; --ink: #F6E8EF; --muted: #BFA2B1; --line: #44303B;
+        --accent: #F59AC0; --on-accent: #2A0F1C; --band: #3D2230;
+    }
+}
+
+@theme inline {
+    --color-bg: var(--bg);
+    --color-surface: var(--surface);
+    --color-surface2: var(--surface2);
+    --color-ink: var(--ink);
+    --color-muted: var(--muted);
+    --color-line: var(--line);
+    --color-accent: var(--accent);
+    --color-on-accent: var(--on-accent);
+    --color-easy: var(--easy);
+    --color-mid: var(--mid);
+    --color-strong: var(--strong);
+    --color-easy-bg: var(--easy-bg);
+    --color-mid-bg: var(--mid-bg);
+    --color-strong-bg: var(--strong-bg);
+    --color-good: var(--good);
+    --color-good-bg: var(--good-bg);
+    --color-warn: var(--warn);
+    --color-warn-bg: var(--warn-bg);
+    --color-bad: var(--bad);
+    --color-bad-bg: var(--bad-bg);
+    --color-band: var(--band);
+
+    --font-sans: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Familjen Grotesk', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+@layer base {
+    body { @apply bg-bg text-ink font-sans text-[15px] leading-relaxed antialiased transition-colors duration-300; }
+    h1, h2, h3 { @apply font-display leading-tight text-balance; }
+    h1 { @apply text-3xl font-bold tracking-tight sm:text-4xl; }
+    h2 { @apply text-xl font-semibold sm:text-2xl; }
+    h3 { @apply text-lg font-semibold; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    [x-cloak] { display: none !important; }
+}
+
+@layer components {
+    .btn { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 font-semibold text-on-accent transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50; }
+    .btn-ghost { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-line bg-transparent px-4 py-2.5 font-semibold text-ink transition hover:bg-surface2; }
+    .btn-danger { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-bad px-4 py-2.5 font-semibold text-surface transition hover:opacity-90; }
+    .btn-sm { @apply min-h-9 px-3 py-1.5 text-sm; }
+    .card { @apply min-w-0 rounded-xl border border-line bg-surface p-4 sm:p-5; }
+    .label { @apply text-xs font-semibold tracking-wider text-muted uppercase; }
+    .big { @apply font-mono text-3xl leading-tight font-medium tabular-nums; }
+    .input { @apply min-h-11 w-full min-w-0 rounded-lg border border-line bg-bg px-3 py-2.5 text-ink placeholder:text-muted/70 focus:border-accent focus:outline-none; }
+    .field { @apply flex min-w-0 flex-col gap-1.5 text-sm font-semibold; }
+    .err { @apply text-sm font-normal text-bad; }
+    .note { @apply rounded-lg border border-line bg-surface2 px-4 py-3 text-sm text-muted; }
+    .pill { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap; }
+    .pill-good { @apply bg-good-bg text-good; }
+    .pill-warn { @apply bg-warn-bg text-warn; }
+    .pill-bad { @apply bg-bad-bg text-bad; }
+    .pill-neutral { @apply bg-surface2 text-muted; }
+    .dot { @apply inline-block size-3 shrink-0 rounded-full; }
+    .dot-easy { @apply bg-easy; }
+    .dot-mid { @apply bg-mid; }
+    .dot-strong { @apply bg-strong; }
+    .kv { @apply mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm; }
+    .kv dt { @apply text-muted; }
+    .kv dd { @apply m-0 text-right font-mono; }
+    .tablewrap { @apply overflow-x-auto rounded-xl border border-line bg-surface; }
+    .table { @apply w-full min-w-[560px] border-collapse text-sm; }
+    .table th { @apply bg-surface2 px-3.5 py-2.5 text-left text-xs font-semibold tracking-wide text-muted uppercase; }
+    .table td { @apply border-t border-line px-3.5 py-2.5 align-top; }
+    .num { @apply text-right font-mono whitespace-nowrap tabular-nums; }
+}
+
+/* Height chart (SVG from App\Support\HeightChart) */
+.chart { display: block; width: 100%; height: auto; }
+.chart text { fill: var(--muted); font-size: 11px; font-family: var(--font-mono); }
+.chart .ax { stroke: var(--line); }
+.chart .med { stroke: var(--accent); fill: none; stroke-width: 2; }
+.chart .edge { stroke: var(--muted); fill: none; stroke-width: 1; stroke-dasharray: 4 4; }
+.chart .band { fill: var(--band); }
+.chart .pt { fill: var(--ink); }
+.chart .pt.last { fill: var(--strong); stroke: var(--surface); stroke-width: 2; }

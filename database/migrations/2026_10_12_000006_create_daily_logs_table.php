@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        // What the client logged for a day in the calendar. Missed training days are derived, not stored.
+        Schema::create('daily_logs', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
+            $table->date('log_date');
+            $table->string('level', 10);
+            $table->string('session', 10); // planned session: cardio, strength, stretch, sport, recover, rest
+            $table->unsignedSmallInteger('planned_minutes');
+            $table->boolean('workout_done')->default(false);
+            $table->unsignedSmallInteger('workout_minutes')->nullable();
+            $table->json('meals')->nullable(); // one boolean per meal of the day's menu
+            $table->unsignedSmallInteger('water_ml')->default(0);
+            $table->timestamps();
+
+            $table->unique(['client_id', 'log_date']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('daily_logs');
+    }
+};
