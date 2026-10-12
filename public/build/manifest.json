@@ -1,0 +1,85 @@
+{
+  "_familjen-grotesk-500-normal-BASv1Bog.woff2": {
+    "file": "assets/familjen-grotesk-500-normal-BASv1Bog.woff2",
+    "src": "_familjen-grotesk-500-normal-BASv1Bog.woff2"
+  },
+  "_familjen-grotesk-500-normal-BJWE1t8Q.woff": {
+    "file": "assets/familjen-grotesk-500-normal-BJWE1t8Q.woff",
+    "src": "_familjen-grotesk-500-normal-BJWE1t8Q.woff"
+  },
+  "_familjen-grotesk-600-normal-Cchso0CV.woff": {
+    "file": "assets/familjen-grotesk-600-normal-Cchso0CV.woff",
+    "src": "_familjen-grotesk-600-normal-Cchso0CV.woff"
+  },
+  "_familjen-grotesk-600-normal-DR8FYmV8.woff2": {
+    "file": "assets/familjen-grotesk-600-normal-DR8FYmV8.woff2",
+    "src": "_familjen-grotesk-600-normal-DR8FYmV8.woff2"
+  },
+  "_familjen-grotesk-700-normal-Cqh4U_Q6.woff": {
+    "file": "assets/familjen-grotesk-700-normal-Cqh4U_Q6.woff",
+    "src": "_familjen-grotesk-700-normal-Cqh4U_Q6.woff"
+  },
+  "_familjen-grotesk-700-normal-DP3KK2u2.woff2": {
+    "file": "assets/familjen-grotesk-700-normal-DP3KK2u2.woff2",
+    "src": "_familjen-grotesk-700-normal-DP3KK2u2.woff2"
+  },
+  "_fonts-DoQa-hfR.css": {
+    "file": "assets/fonts-DoQa-hfR.css",
+    "src": "_fonts-DoQa-hfR.css"
+  },
+  "_ibm-plex-mono-400-normal-CvHOgSBP.woff": {
+    "file": "assets/ibm-plex-mono-400-normal-CvHOgSBP.woff",
+    "src": "_ibm-plex-mono-400-normal-CvHOgSBP.woff"
+  },
+  "_ibm-plex-mono-400-normal-DMJ8VG8y.woff2": {
+    "file": "assets/ibm-plex-mono-400-normal-DMJ8VG8y.woff2",
+    "src": "_ibm-plex-mono-400-normal-DMJ8VG8y.woff2"
+  },
+  "_ibm-plex-mono-500-normal-CB9ihrfo.woff": {
+    "file": "assets/ibm-plex-mono-500-normal-CB9ihrfo.woff",
+    "src": "_ibm-plex-mono-500-normal-CB9ihrfo.woff"
+  },
+  "_ibm-plex-mono-500-normal-DSY6xOcd.woff2": {
+    "file": "assets/ibm-plex-mono-500-normal-DSY6xOcd.woff2",
+    "src": "_ibm-plex-mono-500-normal-DSY6xOcd.woff2"
+  },
+  "_public-sans-400-normal-8Rpg0ruU.woff2": {
+    "file": "assets/public-sans-400-normal-8Rpg0ruU.woff2",
+    "src": "_public-sans-400-normal-8Rpg0ruU.woff2"
+  },
+  "_public-sans-400-normal-SBbinRkI.woff": {
+    "file": "assets/public-sans-400-normal-SBbinRkI.woff",
+    "src": "_public-sans-400-normal-SBbinRkI.woff"
+  },
+  "_public-sans-500-normal-NlrCPXnF.woff2": {
+    "file": "assets/public-sans-500-normal-NlrCPXnF.woff2",
+    "src": "_public-sans-500-normal-NlrCPXnF.woff2"
+  },
+  "_public-sans-500-normal-vCxiVFAq.woff": {
+    "file": "assets/public-sans-500-normal-vCxiVFAq.woff",
+    "src": "_public-sans-500-normal-vCxiVFAq.woff"
+  },
+  "_public-sans-600-normal-BR59oU-I.woff": {
+    "file": "assets/public-sans-600-normal-BR59oU-I.woff",
+    "src": "_public-sans-600-normal-BR59oU-I.woff"
+  },
+  "_public-sans-600-normal-Fru-LXNs.woff2": {
+    "file": "assets/public-sans-600-normal-Fru-LXNs.woff2",
+    "src": "_public-sans-600-normal-Fru-LXNs.woff2"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-CDBGVllz.css",
+    "name": "app",
+    "names": [
+      "app.css"
+    ],
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-DoZ8ZDJ6.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  }
+}
