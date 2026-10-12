@@ -16,15 +16,15 @@ class LinkCodeService
      */
     public function issue(Client $client): array
     {
-        $client->linkCodes()->whereNull('used_at')->where('expires_at', '>', now())->update(['expires_at' => now()]);
+        $client->linkCodes()->where('purpose', 'link')->whereNull('used_at')->where('expires_at', '>', now())->update(['expires_at' => now()]);
 
         do {
             $code = (string) random_int(100000, 999999);
             $hash = $this->hash($code);
-        } while (TelegramLinkCode::where('code_hash', $hash)->whereNull('used_at')->where('expires_at', '>', now())->exists());
+        } while (TelegramLinkCode::where('purpose', 'link')->where('code_hash', $hash)->whereNull('used_at')->where('expires_at', '>', now())->exists());
 
         $expires = now()->addMinutes(config('hh.link_code_ttl_minutes'));
-        $client->linkCodes()->create(['code_hash' => $hash, 'expires_at' => $expires]);
+        $client->linkCodes()->create(['purpose' => 'link', 'code_hash' => $hash, 'expires_at' => $expires]);
 
         return ['code' => $code, 'expires_at' => $expires];
     }
@@ -32,7 +32,8 @@ class LinkCodeService
     /** A valid (unused, unexpired) code, without using it. */
     public function find(string $code): ?TelegramLinkCode
     {
-        return TelegramLinkCode::where('code_hash', $this->hash($code))
+        return TelegramLinkCode::where('purpose', 'link')
+            ->where('code_hash', $this->hash($code))
             ->whereNull('used_at')
             ->where('expires_at', '>', now())
             ->first();
@@ -57,6 +58,6 @@ class LinkCodeService
 
     private function hash(string $code): string
     {
-        return hash_hmac('sha256', $code, (string) config('app.key'));
+        return hash_hmac('sha256', 'link:'.$code, (string) config('app.key'));
     }
 }

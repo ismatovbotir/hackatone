@@ -24,9 +24,16 @@ final class Settings
 
     private const CACHE_KEY = 'hh-settings';
 
+    /** Config values as they came from .env, before saved settings replaced them. */
+    private static array $fromEnv = [];
+
     /** Called on boot: copy saved settings into config. */
     public static function apply(): void
     {
+        foreach (self::MAP as $key => $path) {
+            self::$fromEnv[$key] = config($path);
+        }
+
         try {
             $values = Cache::rememberForever(self::CACHE_KEY, fn () => Schema::hasTable('settings')
                 ? Setting::all()->pluck('value', 'key')->all()
@@ -54,6 +61,14 @@ final class Settings
         }
 
         Cache::forget(self::CACHE_KEY);
+    }
+
+    /** The value .env (or config) gives for a setting, ignoring what is saved in the database. */
+    public static function fromEnv(string $key): ?string
+    {
+        $value = array_key_exists($key, self::$fromEnv) ? self::$fromEnv[$key] : config(self::MAP[$key] ?? '');
+
+        return filled($value) ? (string) $value : null;
     }
 
     public static function get(string $key): ?string

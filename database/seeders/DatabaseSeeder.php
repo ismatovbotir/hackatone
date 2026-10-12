@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->seedAdmin();
+        $this->call(TelegramBotSeeder::class);
 
         if (app()->isLocal()) {
             $this->seedDemoClients();

@@ -20,9 +20,11 @@ return new class extends Migration
             $table->unsignedSmallInteger('workout_minutes')->nullable();
             $table->json('meals')->nullable(); // one boolean per meal of the day's menu
             $table->unsignedSmallInteger('water_ml')->default(0);
+            $table->unsignedTinyInteger('points')->default(0); // App\Services\Clients\Points, stored for the leaderboard
             $table->timestamps();
 
             $table->unique(['client_id', 'log_date']);
+            $table->index('log_date'); // leaderboard totals for a month across all clients
         });
     }
 

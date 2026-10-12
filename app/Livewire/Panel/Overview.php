@@ -3,6 +3,7 @@
 namespace App\Livewire\Panel;
 
 use App\Livewire\Panel\Concerns\InteractsWithPlan;
+use App\Livewire\Panel\Concerns\ShowsRating;
 use App\Services\Health\EnergyPlanner;
 use App\Services\Health\HealthAnalyzer;
 use Livewire\Attributes\Layout;
@@ -11,7 +12,7 @@ use Livewire\Component;
 #[Layout('layouts::panel')]
 class Overview extends Component
 {
-    use InteractsWithPlan;
+    use InteractsWithPlan, ShowsRating;
 
     public function render(EnergyPlanner $energy)
     {

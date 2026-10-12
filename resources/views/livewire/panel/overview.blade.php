@@ -2,6 +2,8 @@
 <div>
     @include('livewire.panel.strip')
     <div class="flex flex-col gap-4">
+        @include('livewire.panel.rating')
+
         <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div class="card">
                 <span class="label">{{ t('ov.height') }}</span>

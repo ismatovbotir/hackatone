@@ -4,6 +4,7 @@ namespace App\Livewire\Forms;
 
 use App\Models\Client;
 use App\Models\DailyLog;
+use App\Services\Clients\Points;
 use Livewire\Form;
 
 class DailyLogForm extends Form
@@ -26,7 +27,7 @@ class DailyLogForm extends Form
         $this->resetValidation();
     }
 
-    public function save(Client $client, array $day, string $level, int $glassMl): void
+    public function save(Client $client, array $day, string $level, int $glassMl, int $waterGoalMl): void
     {
         $this->validate([
             'workout_done' => ['boolean'],
@@ -36,14 +37,20 @@ class DailyLogForm extends Form
             'glasses' => ['integer', 'between:0,40'],
         ]);
 
+        $done = $day['minutes'] > 0 && $this->workout_done;
+        $minutes = $done ? $this->workout_minutes : null;
+        $meals = array_values(array_map('boolval', $this->meals));
+        $water = $this->glasses * $glassMl;
+
         $client->dailyLogs()->updateOrCreate(['log_date' => $day['date']->toDateString()], [
             'level' => $level,
             'session' => $day['minutes'] > 0 ? $day['session'] : 'rest',
             'planned_minutes' => $day['minutes'],
-            'workout_done' => $day['minutes'] > 0 && $this->workout_done,
-            'workout_minutes' => $this->workout_done ? $this->workout_minutes : null,
-            'meals' => array_values(array_map('boolval', $this->meals)),
-            'water_ml' => $this->glasses * $glassMl,
+            'workout_done' => $done,
+            'workout_minutes' => $minutes,
+            'meals' => $meals,
+            'water_ml' => $water,
+            'points' => Points::forDay($day['minutes'], $done, $minutes, count(array_filter($meals)), $water, $waterGoalMl),
         ]);
     }
 }

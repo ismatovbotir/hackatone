@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\DateOnly;
 use App\Enums\Level;
 use App\Enums\Sex;
 use Database\Factories\ClientFactory;
@@ -28,12 +29,12 @@ class Client extends Model
     protected function casts(): array
     {
         return [
-            'birth_date' => 'date',
+            'birth_date' => DateOnly::class,
             'sex' => Sex::class,
             'level' => Level::class,
             'reminders' => 'array',
             'telegram_linked_at' => 'datetime',
-            'last_reminded_on' => 'date',
+            'last_reminded_on' => DateOnly::class,
             'measure_reminded_at' => 'datetime',
             'consent_at' => 'datetime',
         ];

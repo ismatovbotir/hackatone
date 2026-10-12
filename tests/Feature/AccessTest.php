@@ -87,4 +87,14 @@ class AccessTest extends TestCase
         $this->actingAs($user->fresh())->get(route('panel.overview'))->assertOk();
         $this->actingAs($user->fresh())->get(route('verification.notice'))->assertRedirect(route('panel.overview'));
     }
+
+    public function test_main_page_is_uzbek_by_default_whatever_the_browser_language(): void
+    {
+        $this->withHeader('Accept-Language', 'ru-RU,ru;q=0.9,en;q=0.8')->get('/')
+            ->assertSee('<html lang="uz">', false);
+
+        // A language picked with the switch is kept.
+        $this->get(route('locale', 'en'));
+        $this->get('/')->assertSee('<html lang="en">', false);
+    }
 }

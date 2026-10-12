@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['code_hash', 'expires_at', 'used_at'])]
+#[Fillable(['purpose', 'code_hash', 'expires_at', 'used_at'])]
 class TelegramLinkCode extends Model
 {
     use MassPrunable;

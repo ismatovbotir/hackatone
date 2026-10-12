@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\DateOnly;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ class Measurement extends Model
     protected function casts(): array
     {
         return [
-            'measured_on' => 'date',
+            'measured_on' => DateOnly::class,
             'height_cm' => 'float',
             'weight_kg' => 'float',
         ];

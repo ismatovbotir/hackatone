@@ -4,6 +4,7 @@ namespace App\Livewire\Panel;
 
 use App\Livewire\Forms\DailyLogForm;
 use App\Livewire\Panel\Concerns\InteractsWithPlan;
+use App\Livewire\Panel\Concerns\ShowsRating;
 use App\Services\Clients\TrainingCalendar;
 use App\Services\Health\ActivityVideos;
 use App\Services\Health\EnergyPlanner;
@@ -18,7 +19,7 @@ use Livewire\Component;
 #[Layout('layouts::panel')]
 class Calendar extends Component
 {
-    use InteractsWithPlan;
+    use InteractsWithPlan, ShowsRating;
 
     /** Month shown, Y-m. */
     #[Url(as: 'm')]
@@ -67,7 +68,8 @@ class Calendar extends Component
         $info = $this->info($this->open, $calendar);
         abort_unless($info['editable'], 403);
 
-        $this->day->save($this->client, $info, $this->level->value, TrainingCalendar::GLASS_ML);
+        $waterGoalMl = (int) round(app(EnergyPlanner::class)->plan($this->analysis, $this->level)->water * 1000);
+        $this->day->save($this->client, $info, $this->level->value, TrainingCalendar::GLASS_ML, $waterGoalMl);
         $this->open = '';
         session()->flash('status', t('cal.saved'));
     }
@@ -76,7 +78,7 @@ class Calendar extends Component
     {
         $d = Carbon::createFromFormat('Y-m-d', $date, config('hh.timezone'))->startOfDay();
 
-        return $calendar->day($this->client, $this->level, $d, $this->client->dailyLogs()->whereDate('log_date', $date)->first());
+        return $calendar->day($this->client, $this->level, $d, $this->client->dailyLogs()->where('log_date', $date)->first());
     }
 
     private function monthDate(): Carbon

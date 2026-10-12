@@ -60,6 +60,7 @@
                 <x-stat :label="t('cal.st.missed')" :value="$summary['missed']" class="[&_.big]:text-bad" />
                 <x-stat :label="t('cal.streak')" :value="$streak" />
             </div>
+            @include('livewire.panel.rating', ['compact' => true])
             <p class="text-sm text-muted">{{ t('cal.sub') }} {{ t('cal.level') }}</p>
         </div>
     </div>

@@ -8,14 +8,37 @@ use App\Models\DailyLog;
 use App\Models\Measurement;
 use App\Models\User;
 use App\Services\Clients\ClientHealth;
+use App\Services\Clients\Leaderboard;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 #[Layout('layouts::panel')]
 class Dashboard extends Component
 {
-    public function render(ClientHealth $health)
+    /** Leaderboard period: "month" or "all". */
+    #[Url(except: 'month')]
+    public string $period = 'month';
+
+    public function setPeriod(string $period): void
     {
+        $this->period = in_array($period, Leaderboard::PERIODS, true) ? $period : 'month';
+    }
+
+    public function render(ClientHealth $health, Leaderboard $leaderboard)
+    {
+        if (! in_array($this->period, Leaderboard::PERIODS, true)) {
+            $this->period = 'month';
+        }
+
+        // Level shown in the ranking: the client's chosen level, or the recommended one, or none.
+        $top = $leaderboard->top($this->period)->map(function ($row) use ($health) {
+            $c = $row['client'];
+            $a = $c->level ? null : $health->analyze($c);
+
+            return $row + ['level' => $c->level ?? ($a ? $health->level($c, $a) : null)];
+        });
+
         $clients = Client::with('latestMeasurement')->get();
         $levels = ['easy' => 0, 'mid' => 0, 'strong' => 0];
         $bmi = ['under' => 0, 'ok' => 0, 'over' => 0, 'obese' => 0];
@@ -42,6 +65,8 @@ class Dashboard extends Component
             'levels' => $levels,
             'bmi' => $bmi,
             'sessions' => DailyLog::where('workout_done', true)->where('log_date', '>=', now()->subDays(7)->toDateString())->count(),
+            'top' => $top,
+            'topMax' => max(1, (int) $top->max('points')),
             'recent' => Client::with('user')->latest()->take(8)->get(),
         ])->title(t('admin.dashboard'));
     }
