@@ -71,8 +71,14 @@
     </form>
 
     <div class="card">
-        <h3>{{ t('set.cron') }}</h3>
+        <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3>{{ t('set.cron') }}</h3>
+            <x-pill :tone="$cronHealthy ? 'good' : 'bad'">
+                {{ $cronLastRun ? t('cron.last', $cronLastRun->locale(\App\Support\Tr::dateLocale())->diffForHumans()) : t('cron.never') }}
+            </x-pill>
+        </div>
         <p class="mt-1 text-sm text-muted">{{ t('set.cron.d') }}</p>
+        <p class="mt-2 text-sm text-muted">{{ t('cron.ping_mode', $cronPing) }}</p>
         <code class="mt-3 block overflow-x-auto rounded-lg border border-line bg-bg p-3 font-mono text-xs whitespace-pre">{{ $cron }}</code>
     </div>
 </div>

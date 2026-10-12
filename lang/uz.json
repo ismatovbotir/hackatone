@@ -601,5 +601,9 @@
   "plogin.change": "Raqamni o‘zgartirish",
   "plogin.resend": "Qayta yuborish",
   "plogin.note": "Agar ro‘yxatdan o‘tishda yoki panelingizda Telegramni ulagan bo‘lsangiz ishlaydi. Aks holda email orqali kiring.",
-  "bot.login_code": "HackaTone Health’ga kirish kodingiz: {0}\nU {1} daqiqa amal qiladi. Agar siz kirishga urinmagan bo‘lsangiz, bu xabarni e’tiborsiz qoldiring."
+  "bot.login_code": "HackaTone Health’ga kirish kodingiz: {0}\nU {1} daqiqa amal qiladi. Agar siz kirishga urinmagan bo‘lsangiz, bu xabarni e’tiborsiz qoldiring.",
+  "cron.ping": "✅ Cron ishlayapti.\nServer vaqti: {0} ({1})",
+  "cron.last": "Cron oxirgi marta: {0}",
+  "cron.never": "Cron hali ishga tushmagan",
+  "cron.ping_mode": "Telegram tekshiruvi (HH_CRON_PING): {0}. minute qiymatini faqat sinov paytida ishlating, keyin hourly yoki off."
 }

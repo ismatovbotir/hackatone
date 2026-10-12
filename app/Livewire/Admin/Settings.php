@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Livewire\Forms\TelegramSettingsForm;
 use App\Services\Telegram\AdminNotifier;
 use App\Services\Telegram\TelegramApi;
+use App\Support\CronHeartbeat;
 use App\Support\Settings as AppSettings;
 use App\Support\Tr;
 use Illuminate\Support\Facades\Http;
@@ -135,6 +136,9 @@ class Settings extends Component
             'hasHfToken' => filled(config('services.huggingface.token')),
             'webhookUrl' => route('telegram.webhook'),
             'cron' => '* * * * * cd '.base_path().' && php artisan schedule:run >> /dev/null 2>&1',
+            'cronLastRun' => CronHeartbeat::lastRun(),
+            'cronHealthy' => CronHeartbeat::healthy(),
+            'cronPing' => config('hh.cron_ping'),
         ])->title(t('admin.settings'));
     }
 }

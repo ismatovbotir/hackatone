@@ -601,5 +601,9 @@
   "plogin.change": "Change number",
   "plogin.resend": "Send again",
   "plogin.note": "Works if you connected Telegram during registration or in your panel. Otherwise sign in with email.",
-  "bot.login_code": "Your HackaTone Health login code: {0}\nIt works for {1} minutes. If you did not try to sign in, ignore this message."
+  "bot.login_code": "Your HackaTone Health login code: {0}\nIt works for {1} minutes. If you did not try to sign in, ignore this message.",
+  "cron.ping": "✅ Cron is working.\nServer time: {0} ({1})",
+  "cron.last": "Last cron run: {0}",
+  "cron.never": "Cron has not run yet",
+  "cron.ping_mode": "Telegram check (HH_CRON_PING): {0}. Use minute only while testing, then hourly or off."
 }

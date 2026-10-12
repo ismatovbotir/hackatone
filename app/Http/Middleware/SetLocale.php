@@ -2,8 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Tr;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Symfony\Component\HttpFoundation\Response;
 
 class SetLocale
@@ -18,6 +20,7 @@ class SetLocale
             ?? config('hh.default_locale');
 
         app()->setLocale(in_array($locale, $locales, true) ? $locale : config('hh.default_locale'));
+        Carbon::setLocale(Tr::dateLocale()); // Carbon's plain "uz" is Cyrillic
 
         return $next($request);
     }

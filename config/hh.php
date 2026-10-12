@@ -21,6 +21,9 @@ return [
     // Largest AI-generated file we accept, in KB (downloaded by the server, so PHP's upload limit does not apply).
     'ai_media_max_kb' => 20480,
 
+    // Telegram message to admins that cron works: "minute" (only while testing), "hourly", "daily" or "off".
+    'cron_ping' => env('HH_CRON_PING', 'off'),
+
     'locales' => ['uz', 'en', 'ru'],
     'default_locale' => 'uz',
 
