@@ -30,8 +30,7 @@
                     </div>
                     <div class="flex flex-col items-start">
                         @if ($link)
-                            <div wire:key="qr-{{ $code['code'] }}" x-data x-init="$el.innerHTML = window.qrSvg(@js($link))"
-                                 class="w-[min(240px,100%)] rounded-xl border border-line bg-white p-3.5 [&_svg]:block [&_svg]:h-auto [&_svg]:w-full"></div>
+                            <x-telegram-qr :link="$link" :code="$code['code']" class="w-[min(240px,100%)] p-3.5" />
                             <a class="btn mt-3 w-full" href="{{ $link }}" target="_blank" rel="noopener">{{ t('tg.open') }}</a>
                         @else
                             <p class="note max-w-xs">{{ t('tg.nobot') }}</p>

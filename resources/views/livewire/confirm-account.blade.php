@@ -40,8 +40,7 @@
                     </div>
                 </div>
                 @if ($link)
-                    <div wire:key="qr-{{ $code['code'] }}" x-data x-init="$el.innerHTML = window.qrSvg(@js($link))"
-                         class="w-[min(220px,100%)] rounded-xl border border-line bg-white p-3 [&_svg]:block [&_svg]:h-auto [&_svg]:w-full"></div>
+                    <x-telegram-qr :link="$link" :code="$code['code']" class="w-[min(220px,100%)] p-3" />
                     <a class="btn w-full" href="{{ $link }}" target="_blank" rel="noopener">{{ t('tg.open') }}</a>
                 @else
                     <p class="note">{{ t('tg.nobot') }}</p>
