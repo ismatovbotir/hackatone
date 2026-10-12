@@ -10,7 +10,7 @@ return new class extends Migration
     {
         // Settings an admin edits in the panel (Telegram bot). Values are encrypted.
         Schema::create('settings', function (Blueprint $table) {
-            $table->string('key')->primary();
+            $table->string('key', 100)->primary();
             $table->text('value')->nullable();
             $table->timestamps();
         });

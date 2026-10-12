@@ -235,4 +235,36 @@ class PanelTest extends TestCase
         Livewire::test(Videos::class)->assertSee(t('vid.ai_off'))->call('generate', 'cardio-adult');
         $this->assertNull(ActivityVideo::find('cardio-adult')?->job_id);
     }
+
+    public function test_mp4_draft_is_published_as_the_gif_made_in_the_browser(): void
+    {
+        Storage::fake('uploads');
+        Storage::disk('uploads')->put('activity/cardio-adult-ai-x.mp4', 'fake mp4');
+        ActivityVideo::create(['key' => 'cardio-adult', 'draft_path' => 'activity/cardio-adult-ai-x.mp4', 'draft_type' => 'mp4']);
+        $this->actingAs(User::factory()->admin()->create());
+
+        // The plain Publish button does nothing for an MP4 draft: it must be converted first.
+        Livewire::test(Videos::class)->call('publishDraft', 'cardio-adult');
+        $this->assertNull(ActivityVideo::find('cardio-adult')->media_path);
+
+        Livewire::test(Videos::class)
+            ->set('gif', UploadedFile::fake()->create('fake.gif', 5, 'image/gif'))->call('publishDraftAsGif', 'cardio-adult')->assertHasErrors('gif')
+            ->set('gif', UploadedFile::fake()->image('activity.gif'))->call('publishDraftAsGif', 'cardio-adult')->assertHasNoErrors();
+
+        $row = ActivityVideo::find('cardio-adult');
+        $this->assertSame('gif', $row->media_type);
+        $this->assertNull($row->draft_path);
+        Storage::disk('uploads')->assertMissing('activity/cardio-adult-ai-x.mp4');
+        Storage::disk('uploads')->assertExists($row->media_path);
+    }
+
+    public function test_uploads_must_be_gif(): void
+    {
+        Storage::fake('uploads');
+        $this->actingAs(User::factory()->admin()->create());
+
+        Livewire::test(Videos::class)
+            ->set('files.sport-youth', UploadedFile::fake()->create('clip.mp4', 50, 'video/mp4'))->call('upload', 'sport-youth')
+            ->assertHasErrors('files.sport-youth');
+    }
 }

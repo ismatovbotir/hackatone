@@ -26,7 +26,7 @@ return new class extends Migration
             $table->timestamp('telegram_linked_at')->nullable();
             $table->date('last_reminded_on')->nullable(); // daily reminder sent for this local date
             $table->timestamp('measure_reminded_at')->nullable();
-            $table->timestamp('consent_at');
+            $table->dateTime('consent_at'); // always set at registration; dateTime so strict MySQL needs no default
             $table->timestamps();
 
             $table->index(['reminder_time', 'telegram_chat_id']);

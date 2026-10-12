@@ -5,66 +5,96 @@ namespace App\Services\Health;
 use App\Enums\Sex;
 
 /**
- * Approximation of the WHO 2007 growth reference, ages 5 to 19, and growth velocity (cm/yr) at ages 5 to 20.
- * Replace with the official WHO tables before any real use.
+ * WHO 2007 growth reference for 5 to 19 years (height-for-age and BMI-for-age), with the LMS method
+ * exactly as in WHO's "Computation of centiles and z-scores" guide. Data: Data/who2007.php.
  */
 final class GrowthReference
 {
-    private const TABLES = [
-        'M' => [
-            'h' => [109.2, 115.5, 121.7, 127.3, 132.6, 137.8, 143.1, 149.1, 156.0, 163.2, 169.0, 172.9, 175.2, 176.1, 176.5],
-            'sd' => [4.7, 5.0, 5.3, 5.6, 5.9, 6.2, 6.7, 7.3, 7.9, 7.6, 7.0, 6.6, 6.4, 6.4, 6.4],
-            'bmi' => [15.3, 15.3, 15.5, 15.8, 16.1, 16.5, 17.0, 17.5, 18.1, 18.8, 19.5, 20.0, 20.5, 20.9, 21.2],
-            'vel' => [6.0, 5.8, 5.6, 5.5, 5.4, 5.5, 6.0, 7.0, 8.2, 7.2, 4.5, 2.5, 1.2, 0.5, 0.2, 0],
-        ],
-        'F' => [
-            'h' => [109.4, 115.1, 121.0, 126.6, 132.5, 138.6, 144.8, 151.2, 156.7, 159.8, 161.2, 162.0, 162.5, 162.9, 163.1],
-            'sd' => [4.6, 4.9, 5.2, 5.6, 6.0, 6.4, 6.6, 6.4, 6.0, 5.9, 5.8, 5.8, 5.8, 5.9, 5.9],
-            'bmi' => [15.2, 15.2, 15.4, 15.8, 16.3, 16.9, 17.5, 18.2, 18.9, 19.5, 20.0, 20.4, 20.7, 20.9, 21.0],
-            'vel' => [6.0, 5.8, 5.6, 5.7, 6.0, 6.8, 7.0, 5.2, 3.0, 1.8, 1.0, 0.5, 0.2, 0, 0, 0],
-        ],
-    ];
+    public const FIRST_MONTH = 61;
+
+    public const LAST_MONTH = 228;
+
+    private static ?array $tables = null;
+
+    /** @return array{0: float, 1: float, 2: float} L, M, S at an age in years, interpolated between months */
+    public static function lms(string $indicator, Sex $sex, float $age): array
+    {
+        $table = self::tables()[$indicator][$sex->value];
+        $months = min(self::LAST_MONTH, max(self::FIRST_MONTH, $age * 12));
+        $i = (int) floor($months);
+        $j = min(self::LAST_MONTH, $i + 1);
+        $t = $months - $i;
+
+        return array_map(fn ($a, $b) => $a + ($b - $a) * $t, $table[$i], $table[$j]);
+    }
 
     public static function heightMedian(Sex $sex, float $age): float
     {
-        return self::at(self::TABLES[$sex->value]['h'], $age);
+        return self::lms('hfa', $sex, $age)[1];
     }
 
+    /** Height-for-age has L = 1, so one SD is simply M x S. */
     public static function heightSd(Sex $sex, float $age): float
     {
-        return self::at(self::TABLES[$sex->value]['sd'], $age);
+        [, $m, $s] = self::lms('hfa', $sex, $age);
+
+        return $m * $s;
+    }
+
+    public static function heightZ(Sex $sex, float $age, float $height): float
+    {
+        return ($height - self::heightMedian($sex, $age)) / self::heightSd($sex, $age);
     }
 
     public static function bmiMedian(Sex $sex, float $age): float
     {
-        return self::at(self::TABLES[$sex->value]['bmi'], $age);
+        return self::lms('bmi', $sex, $age)[1];
     }
 
-    /** Typical growth velocity in cm per year; 0 from age 20. */
+    /** BMI at a given z-score (the LMS centile formula). */
+    public static function bmiAtZ(Sex $sex, float $age, float $z): float
+    {
+        [$l, $m, $s] = self::lms('bmi', $sex, $age);
+
+        return $m * (1 + $l * $s * $z) ** (1 / $l);
+    }
+
+    /** BMI-for-age z-score, with WHO's fixed SD beyond +/-3. */
+    public static function bmiZ(Sex $sex, float $age, float $bmi): float
+    {
+        [$l, $m, $s] = self::lms('bmi', $sex, $age);
+        $z = (($bmi / $m) ** $l - 1) / ($s * $l);
+
+        if ($z > 3) {
+            $sd3 = self::bmiAtZ($sex, $age, 3);
+
+            return 3 + ($bmi - $sd3) / ($sd3 - self::bmiAtZ($sex, $age, 2));
+        }
+        if ($z < -3) {
+            $sd3 = self::bmiAtZ($sex, $age, -3);
+
+            return -3 + ($bmi - $sd3) / (self::bmiAtZ($sex, $age, -2) - $sd3);
+        }
+
+        return $z;
+    }
+
+    /**
+     * Typical growth speed in cm per year: the slope of the WHO median height curve around this age.
+     * 0 from 19 years, where the reference ends.
+     */
     public static function velocity(Sex $sex, float $age): float
     {
-        if ($age >= 20) {
+        if ($age >= 19) {
             return 0.0;
         }
-        $arr = self::TABLES[$sex->value]['vel'];
-        $a = max(5, $age);
-        $i = min(14, (int) floor($a - 5));
-        $t = $a - 5 - $i;
+        $from = max(self::FIRST_MONTH / 12, $age - 0.5);
+        $to = min(self::LAST_MONTH / 12, $from + 1);
 
-        return $arr[$i] + ($arr[$i + 1] - $arr[$i]) * $t;
+        return max(0.0, (self::heightMedian($sex, $to) - self::heightMedian($sex, $from)) / ($to - $from));
     }
 
-    /** Linear interpolation, clamped to ages 5..19. */
-    private static function at(array $arr, float $age): float
-    {
-        $a = min(19, max(5, $age));
-        $i = min(13, (int) floor($a - 5));
-        $t = $a - 5 - $i;
-
-        return $arr[$i] + ($arr[$i + 1] - $arr[$i]) * $t;
-    }
-
-    /** Standard normal CDF (Abramowitz and Stegun approximation, as in the prototype). */
+    /** Standard normal CDF (Abramowitz and Stegun 26.2.17). */
     public static function cdf(float $z): float
     {
         $t = 1 / (1 + 0.2316419 * abs($z));
@@ -72,5 +102,10 @@ final class GrowthReference
         $p = $d * $t * (0.3193815 + $t * (-0.3565638 + $t * (1.781478 + $t * (-1.821256 + $t * 1.330274))));
 
         return $z > 0 ? 1 - $p : $p;
+    }
+
+    private static function tables(): array
+    {
+        return self::$tables ??= require __DIR__.'/Data/who2007.php';
     }
 }

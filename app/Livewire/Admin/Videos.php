@@ -15,8 +15,9 @@ use Livewire\WithFileUploads;
 use Throwable;
 
 /**
- * Example animation per activity: upload a GIF/MP4 (published at once) or generate one with AI.
- * AI results are drafts: an admin must watch and publish them before clients see anything.
+ * Example GIF per activity: upload one (published at once) or generate one with AI.
+ * AI results are drafts (usually MP4): an admin must watch them, and on Publish the admin's browser
+ * converts the draft to a small GIF and uploads it. Clients only ever get GIFs.
  */
 #[Layout('layouts::panel')]
 class Videos extends Component
@@ -25,6 +26,9 @@ class Videos extends Component
 
     /** @var array<string, TemporaryUploadedFile|null> */
     public array $files = [];
+
+    /** GIF made in the browser from an MP4 draft, uploaded on Publish. */
+    public $gif = null;
 
     /** @var array<string, string> key => prompt */
     public array $prompts = [];
@@ -58,13 +62,13 @@ class Videos extends Component
     {
         $this->assertKey($key);
         $this->validate(
-            ["files.$key" => ['required', 'file', 'mimes:gif,mp4', 'max:'.config('hh.media_max_kb')]],
+            ["files.$key" => ['required', 'file', 'mimes:gif', 'max:'.config('hh.media_max_kb')]],
             ["files.$key.*" => t('e.media_file', (int) (config('hh.media_max_kb') / 1024))],
         );
 
         $file = $this->files[$key];
         $type = ActivityMedia::typeOf((string) file_get_contents($file->getRealPath()));
-        if ($type === null) {
+        if ($type !== 'gif') {
             $this->addError("files.$key", t('e.media_file', (int) (config('hh.media_max_kb') / 1024)));
 
             return;
@@ -107,7 +111,22 @@ class Videos extends Component
         }
     }
 
+    /** A GIF draft is published as it is; an MP4 draft goes through publishDraftAsGif. */
     public function publishDraft(string $key): void
+    {
+        $this->assertKey($key);
+        $row = ActivityVideo::find($key);
+        if (! $row?->draft_path || $row->draft_type !== 'gif') {
+            return;
+        }
+
+        $this->publishFile($key, $row->draft_path, $row->draft_type);
+        $row->refresh()->fill(['draft_path' => null, 'draft_type' => null])->save();
+        session()->flash('status', t('vid.published'));
+    }
+
+    /** Publish the GIF the admin's browser made from the MP4 draft, and delete the draft. */
+    public function publishDraftAsGif(string $key): void
     {
         $this->assertKey($key);
         $row = ActivityVideo::find($key);
@@ -115,8 +134,21 @@ class Videos extends Component
             return;
         }
 
-        $this->publishFile($key, $row->draft_path, $row->draft_type);
+        $this->validate(
+            ['gif' => ['required', 'file', 'mimes:gif', 'max:'.config('hh.media_max_kb')]],
+            ['gif.*' => t('e.media_file', (int) (config('hh.media_max_kb') / 1024))],
+        );
+        if (ActivityMedia::typeOf((string) file_get_contents($this->gif->getRealPath())) !== 'gif') {
+            $this->addError('gif', t('e.media_file', (int) (config('hh.media_max_kb') / 1024)));
+
+            return;
+        }
+
+        $path = $this->gif->storeAs('activity', $key.'-'.Str::random(8).'.gif', 'uploads');
+        $this->publishFile($key, $path, 'gif');
+        Storage::disk('uploads')->delete($row->draft_path);
         $row->refresh()->fill(['draft_path' => null, 'draft_type' => null])->save();
+        $this->gif = null;
         session()->flash('status', t('vid.published'));
     }
 

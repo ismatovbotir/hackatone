@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('client_id')->constrained()->cascadeOnDelete();
             // HMAC of the 6-digit code; the plain code is never stored.
             $table->string('code_hash', 64)->index();
-            $table->timestamp('expires_at');
+            $table->dateTime('expires_at'); // always set; dateTime so strict MySQL needs no default
             $table->timestamp('used_at')->nullable();
             $table->timestamps();
         });

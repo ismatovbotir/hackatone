@@ -28,7 +28,7 @@ final class HealthAnalyzer
         $youth = $age < self::YOUTH_UNTIL;
         $median = GrowthReference::heightMedian($sex, $age);
         $sd = GrowthReference::heightSd($sex, $age);
-        $z = ($height - $median) / $sd;
+        $z = GrowthReference::heightZ($sex, $age, $height);
         $pct = (int) min(99, max(1, round(GrowthReference::cdf($z) * 100)));
 
         [$hs, $hc] = match (true) {
@@ -41,12 +41,10 @@ final class HealthAnalyzer
 
         $bmi = $weight / (($height / 100) ** 2);
         if ($youth) {
-            // Approximates -2 SD .. +1 SD of BMI-for-age.
-            $bm = GrowthReference::bmiMedian($sex, $age);
-            $q = (min($age, 19) - 5) / 14;
-            $bLow = $bm * (0.85 - 0.075 * $q);
-            $bHigh = $bm * (1.09 + 0.11 * $q);
-            $bObese = $bm * (1.20 + 0.20 * $q);
+            // WHO 2007 BMI-for-age: healthy -2 SD to +1 SD, overweight above +1 SD, obesity above +2 SD.
+            $bLow = GrowthReference::bmiAtZ($sex, $age, -2);
+            $bHigh = GrowthReference::bmiAtZ($sex, $age, 1);
+            $bObese = GrowthReference::bmiAtZ($sex, $age, 2);
         } else {
             $bLow = 18.5;
             $bHigh = 24.9;
@@ -56,11 +54,12 @@ final class HealthAnalyzer
         [$bs, $bc] = match (true) {
             $bmi < $bLow => ['under', 'warn'],
             $bmi <= $bHigh => ['ok', 'good'],
-            $bmi < $bObese => ['over', 'warn'],
+            $bmi <= $bObese => ['over', 'warn'],
             default => ['obese', 'bad'],
         };
 
         $hm = ($height / 100) ** 2;
+        // Projected adult height keeps the same z-score: adult median + z x adult SD (WHO values at 19 years).
         $adultHeight = GrowthReference::heightMedian($sex, 19) + $z * GrowthReference::heightSd($sex, 19);
         $endAge = $sex->growthEndAge();
         $remaining = $youth && $age < $endAge ? max(0, $adultHeight - $height) : 0.0;

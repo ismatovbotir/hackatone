@@ -47,10 +47,33 @@
                                 @elseif ($item['draft'])
                                     <x-activity-media :media="$item['draft']" :title="t('ty.'.$type)" class="ring-2 ring-warn" />
                                     <p class="text-xs text-warn">{{ t('vid.review') }}</p>
-                                    <div class="flex flex-wrap gap-2">
-                                        <button type="button" class="btn btn-sm" wire:click="publishDraft('{{ $key }}')">{{ t('vid.publish') }}</button>
-                                        <button type="button" class="btn-ghost btn-sm" wire:click="discardDraft('{{ $key }}')">{{ t('vid.discard') }}</button>
-                                    </div>
+                                    @if ($item['draft']['type'] === 'gif')
+                                        <div class="flex flex-wrap gap-2">
+                                            <button type="button" class="btn btn-sm" wire:click="publishDraft('{{ $key }}')">{{ t('vid.publish') }}</button>
+                                            <button type="button" class="btn-ghost btn-sm" wire:click="discardDraft('{{ $key }}')">{{ t('vid.discard') }}</button>
+                                        </div>
+                                    @else
+                                        {{-- MP4 draft: the browser converts it to a small GIF, uploads it, then publishes. --}}
+                                        <div class="flex flex-col gap-2" x-data="{ busy: false, pct: 0, err: '' }">
+                                            <div class="flex flex-wrap gap-2">
+                                                <button type="button" class="btn btn-sm" :disabled="busy"
+                                                    x-on:click="busy = true; err = ''; pct = 0;
+                                                        try {
+                                                            const blob = await window.hhMp4ToGif(@js($item['draft']['src']), { maxBytes: {{ config('hh.media_max_kb') * 1024 }}, onProgress: (p) => pct = Math.round(p * 100) });
+                                                            $wire.upload('gif', new File([blob], 'activity.gif', { type: 'image/gif' }),
+                                                                () => { $wire.publishDraftAsGif('{{ $key }}').then(() => busy = false) },
+                                                                () => { err = @js(t('vid.convert_fail')); busy = false });
+                                                        } catch (e) { err = e.message; busy = false }">
+                                                    <span x-show="! busy">{{ t('vid.publish_gif') }}</span>
+                                                    <span x-show="busy" x-cloak>{{ t('vid.converting') }} <span x-text="pct + '%'"></span></span>
+                                                </button>
+                                                <button type="button" class="btn-ghost btn-sm" wire:click="discardDraft('{{ $key }}')" :disabled="busy">{{ t('vid.discard') }}</button>
+                                            </div>
+                                            <div x-show="busy" x-cloak class="h-1.5 overflow-hidden rounded-full bg-surface2"><div class="h-full bg-accent transition-all" :style="`width: ${pct}%`"></div></div>
+                                            <p x-show="err" x-cloak class="err" x-text="err" role="alert"></p>
+                                            @error('gif')<p class="err">{{ $message }}</p>@enderror
+                                        </div>
+                                    @endif
                                 @else
                                     <div class="grid aspect-video place-items-center rounded-xl border border-dashed border-line p-3 text-center text-sm text-muted">{{ t('vid.ai_empty') }}</div>
                                 @endif
@@ -66,7 +89,7 @@
 
                         <label class="field">{{ t('vid.upload', (int) (config('hh.media_max_kb') / 1024)) }}
                             <div class="flex flex-col gap-2 sm:flex-row">
-                                <input class="input file:mr-3 file:rounded-md file:border-0 file:bg-surface2 file:px-3 file:py-1.5 file:font-semibold" type="file" accept="image/gif,video/mp4" wire:model="files.{{ $key }}">
+                                <input class="input file:mr-3 file:rounded-md file:border-0 file:bg-surface2 file:px-3 file:py-1.5 file:font-semibold" type="file" accept="image/gif" wire:model="files.{{ $key }}">
                                 <button type="button" class="btn-ghost shrink-0" wire:click="upload('{{ $key }}')" wire:loading.attr="disabled" wire:target="files.{{ $key }}">{{ t('vid.upload_btn') }}</button>
                             </div>
                             <span wire:loading wire:target="files.{{ $key }}" class="text-xs font-normal text-muted">{{ t('vid.uploading') }}</span>
