@@ -614,5 +614,16 @@
   "tgapp.outside": "Open this page from our Telegram bot, or sign in on the site.",
   "tgapp.error": "Could not sign in. Close and open the app again.",
   "set.menu.set": "Set app button",
-  "set.menu.need": "Save a bot token first. The site must use HTTPS for a Telegram web app."
+  "set.menu.need": "Save a bot token first. The site must use HTTPS for a Telegram web app.",
+  "cal.reading": "Reading",
+  "cal.pages": "Pages read today",
+  "cal.pages_hint": "+1 point for every {0} pages, up to +{1} a day.",
+  "e.pages": "Enter a number of pages from 0 to 2000.",
+  "mg.title": "Mental growth",
+  "mg.log": "Log reading",
+  "mg.pages_month": "Pages this month",
+  "mg.reading_days": "Reading days",
+  "mg.pages_total": "Pages in total",
+  "mg.days": "{0} reading days",
+  "mg.note": "Reading a little every day helps memory, attention and school results. Log your pages in the Calendar."
 }

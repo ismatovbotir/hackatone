@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['log_date', 'level', 'session', 'planned_minutes', 'workout_done', 'workout_minutes', 'meals', 'water_ml', 'points'])]
+#[Fillable(['log_date', 'level', 'session', 'planned_minutes', 'workout_done', 'workout_minutes', 'meals', 'water_ml', 'pages_read', 'points'])]
 class DailyLog extends Model
 {
     protected function casts(): array

@@ -4,6 +4,20 @@
     <div class="flex flex-col gap-4">
         @include('livewire.panel.rating')
 
+        {{-- Mental growth (reading), next to the physical numbers below. --}}
+        <div class="card">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <h3 class="flex items-center gap-2"><x-icon name="book" class="size-5 text-strong" />{{ t('mg.title') }}</h3>
+                <a class="text-sm font-semibold text-accent underline" href="{{ route('panel.calendar') }}" wire:navigate>{{ t('mg.log') }}</a>
+            </div>
+            <div class="mt-3 grid grid-cols-3 gap-3">
+                <x-stat :label="t('mg.pages_month')" :value="$reading['pages']" />
+                <x-stat :label="t('mg.reading_days')" :value="$reading['days']" />
+                <x-stat :label="t('mg.pages_total')" :value="$reading['total']" />
+            </div>
+            <p class="mt-3 text-sm text-muted">{{ t('mg.note') }}</p>
+        </div>
+
         <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <div class="card">
                 <span class="label">{{ t('ov.height') }}</span>

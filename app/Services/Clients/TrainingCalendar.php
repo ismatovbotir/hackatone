@@ -69,7 +69,7 @@ class TrainingCalendar
         ];
     }
 
-    /** Done and missed counts for the days of a month. */
+    /** Done, missed and planned training days, and pages read, for the days of a month. */
     public function summary(Collection $days): array
     {
         $own = $days->where('in_month', true);
@@ -78,6 +78,8 @@ class TrainingCalendar
             'done' => $own->where('status', 'done')->count(),
             'missed' => $own->where('status', 'missed')->count(),
             'planned' => $own->where('status', 'planned')->count(),
+            'pages' => (int) $own->sum(fn ($d) => $d['log']?->pages_read ?? 0),
+            'reading_days' => $own->filter(fn ($d) => ($d['log']?->pages_read ?? 0) > 0)->count(),
         ];
     }
 

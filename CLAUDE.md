@@ -36,6 +36,7 @@ Validation rules:
 - Protein per kg: adults 1.0 / 1.3 / 1.6, youth 1.0 / 1.1 / 1.2 (Easy / Mid / Strong). Fat 28% of energy, carbs the rest.
 - Weekly training minutes: Easy 150, Mid 285, Strong 375. Youth should reach an average of 60 min a day, so the plan tells them how much free play to add.
 - Height achievement periods use an assumption that is ours, not WHO: the level scales the typical growth pace to 90% (Easy), 100% (Mid), 105% (Strong). Keep the on-screen disclaimer that no programme can promise centimetres.
+- Mental growth (school pupils): the calendar day form starts with "pages read today". Points for one logged day (`App\Services\Clients\Points`, max 40): training done +10, full planned minutes +5, each meal +2 (max 5), water goal +5, reading +1 per 5 pages (max +10). Never rank by height, weight or BMI.
 - This is an educational product. Keep the disclaimer: not medical advice, parent or guardian registers minors.
 
 ## Telegram linking

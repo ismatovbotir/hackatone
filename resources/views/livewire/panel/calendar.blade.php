@@ -40,6 +40,7 @@
                             @endif
                             @if ($ate)<span class="size-1.5 rounded-full bg-mid" title="{{ t('cal.food') }}"></span>@endif
                             @if ($drank)<span class="size-1.5 rounded-full bg-easy" title="{{ t('cal.water') }}"></span>@endif
+                            @if ($log && $log->pages_read > 0)<span class="size-1.5 rounded-full bg-strong" title="{{ t('cal.reading') }}"></span>@endif
                         </span>
                     </button>
                 @endforeach
@@ -51,6 +52,7 @@
                 <span class="flex items-center gap-1.5"><span class="size-3 rounded bg-surface2 ring-1 ring-line"></span>{{ t('cal.st.planned') }}</span>
                 <span class="flex items-center gap-1.5"><span class="size-2 rounded-full bg-mid"></span>{{ t('cal.food') }}</span>
                 <span class="flex items-center gap-1.5"><span class="size-2 rounded-full bg-easy"></span>{{ t('cal.water') }}</span>
+                <span class="flex items-center gap-1.5"><span class="size-2 rounded-full bg-strong"></span>{{ t('cal.reading') }}</span>
             </div>
         </div>
 
@@ -59,6 +61,10 @@
                 <x-stat :label="t('cal.st.done')" :value="$summary['done']" class="[&_.big]:text-good" />
                 <x-stat :label="t('cal.st.missed')" :value="$summary['missed']" class="[&_.big]:text-bad" />
                 <x-stat :label="t('cal.streak')" :value="$streak" />
+            </div>
+            <div class="card flex items-center gap-3">
+                <span class="grid size-10 shrink-0 place-items-center rounded-full bg-strong-bg text-strong"><x-icon name="book" class="size-5" /></span>
+                <x-stat :label="t('mg.pages_month')" :value="$summary['pages']" :unit="t('mg.days', $summary['reading_days'])" />
             </div>
             @include('livewire.panel.rating', ['compact' => true])
             <p class="text-sm text-muted">{{ t('cal.sub') }} {{ t('cal.level') }}</p>
@@ -78,13 +84,24 @@
                         <span class="label">{{ $s['date']->toDateString() === $today ? t('cal.today') : '' }}</span>
                         <h2 id="day-title" class="capitalize">{{ $s['date']->locale(\App\Support\Tr::dateLocale())->translatedFormat('l, j F') }}</h2>
                     </div>
-                    <button type="button" class="btn-ghost btn-sm" wire:click="close" aria-label="{{ t('del.cancel') }}" data-autofocus><x-icon name="x" class="size-4" /></button>
+                    <button type="button" class="btn-ghost btn-sm" wire:click="close" aria-label="{{ t('del.cancel') }}"><x-icon name="x" class="size-4" /></button>
                 </div>
 
                 <div class="flex flex-col gap-5 overflow-y-auto px-5 py-4">
                     @unless ($editable)
                         <p class="note">{{ $s['date']->toDateString() > $today ? t('cal.future') : t('cal.late', \App\Services\Clients\TrainingCalendar::EDIT_DAYS_BACK) }}</p>
                     @endunless
+
+                    {{-- Mental growth: reading comes first --}}
+                    <section class="flex flex-col gap-2.5">
+                        <h3 class="flex items-center gap-2"><x-icon name="book" class="size-5 text-strong" />{{ t('cal.reading') }}</h3>
+                        <label class="field">{{ t('cal.pages') }}
+                            <input class="input text-lg" type="number" min="0" max="2000" inputmode="numeric" placeholder="0"
+                                   wire:model="day.pages_read" @disabled(! $editable) data-autofocus>
+                        </label>
+                        @error('day.pages_read')<p class="err">{{ $message }}</p>@enderror
+                        <p class="text-xs text-muted">{{ t('cal.pages_hint', \App\Services\Clients\Points::PAGES_PER_POINT, \App\Services\Clients\Points::MAX_READING) }}</p>
+                    </section>
 
                     {{-- Training --}}
                     <section class="flex flex-col gap-2.5">

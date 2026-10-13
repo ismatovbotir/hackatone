@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('workout_minutes')->nullable();
             $table->json('meals')->nullable(); // one boolean per meal of the day's menu
             $table->unsignedSmallInteger('water_ml')->default(0);
+            $table->unsignedSmallInteger('pages_read')->default(0); // mental growth: pages read that day
             $table->unsignedTinyInteger('points')->default(0); // App\Services\Clients\Points, stored for the leaderboard
             $table->timestamps();
 

@@ -2,12 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Enums\Level;
 use App\Livewire\Admin\Dashboard;
 use App\Livewire\Panel\Calendar;
 use App\Models\Client;
 use App\Models\User;
 use App\Services\Clients\Leaderboard;
 use App\Services\Clients\Points;
+use App\Services\Clients\TrainingCalendar;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Livewire\Livewire;
@@ -39,6 +41,10 @@ class LeaderboardTest extends TestCase
         $this->assertSame(10, Points::forDay(40, true, 30, 0, 0, 1900));
         $this->assertSame(0, Points::forDay(0, true, 30, 0, 0, 1900)); // no training points on a rest day
         $this->assertSame(10, Points::forDay(40, false, null, 7, 0, 1900)); // meals capped at 5
+        // Reading: +1 per 5 pages, up to +10; a full day with 50+ pages is 40.
+        $this->assertSame(4, Points::forDay(0, false, null, 0, 0, 1900, 23));
+        $this->assertSame(10, Points::forDay(0, false, null, 0, 0, 1900, 300));
+        $this->assertSame(40, Points::forDay(40, true, 40, 5, 2000, 1900, 50));
     }
 
     public function test_top_is_ordered_ranked_and_limited(): void
@@ -125,5 +131,28 @@ class LeaderboardTest extends TestCase
             ->assertDontSee($leader->first_name)
             ->assertDontSee($leader->last_name);
         $this->get(route('panel.calendar'))->assertOk()->assertDontSee($leader->last_name);
+    }
+
+    public function test_pages_read_is_the_first_field_and_counts_everywhere(): void
+    {
+        $client = Client::factory()->withMeasurement(150, 42)->create(['birth_date' => '2014-01-01', 'created_at' => '2026-10-01', 'level' => 'mid']);
+        $this->actingAs($client->user);
+
+        $html = Livewire::test(Calendar::class)->call('openDay', '2026-10-14')->html();
+        $this->assertLessThan(strpos($html, 'day.workout_done'), strpos($html, 'day.pages_read')); // reading comes first
+
+        Livewire::test(Calendar::class)->call('openDay', '2026-10-14')
+            ->set('day.pages_read', 25)->call('saveDay')->assertHasNoErrors();
+        Livewire::test(Calendar::class)->call('openDay', '2026-10-13')
+            ->set('day.pages_read', -3)->call('saveDay')->assertHasErrors('day.pages_read');
+
+        $log = $client->dailyLogs()->first();
+        $this->assertSame(25, $log->pages_read);
+        $this->assertSame(5, $log->points); // reading only: 25 pages = 5 points
+
+        $this->get(route('panel.overview'))->assertSee(t('mg.title'));
+        $this->assertSame(25, app(TrainingCalendar::class)->summary(
+            app(TrainingCalendar::class)->month($client->fresh(), Level::Mid, now(config('hh.timezone')))
+        )['pages']);
     }
 }

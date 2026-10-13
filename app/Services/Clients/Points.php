@@ -3,7 +3,7 @@
 namespace App\Services\Clients;
 
 /**
- * Points a client earns for one logged day (at most 30). Only effort counts:
+ * Points a client earns for one logged day (at most 40). Only effort counts, physical and mental:
  * never height, weight or BMI, so children are not ranked by their bodies.
  */
 final class Points
@@ -18,6 +18,11 @@ final class Points
 
     public const WATER_GOAL = 5;
 
+    /** Reading: +1 for every 5 pages, up to +10 (50 pages). */
+    public const PAGES_PER_POINT = 5;
+
+    public const MAX_READING = 10;
+
     public static function forDay(
         int $plannedMinutes,
         bool $workoutDone,
@@ -25,6 +30,7 @@ final class Points
         int $mealsEaten,
         int $waterMl,
         int $waterGoalMl,
+        int $pagesRead = 0,
     ): int {
         $points = 0;
 
@@ -40,6 +46,8 @@ final class Points
         if ($waterGoalMl > 0 && $waterMl >= $waterGoalMl) {
             $points += self::WATER_GOAL;
         }
+
+        $points += min(self::MAX_READING, intdiv(max(0, $pagesRead), self::PAGES_PER_POINT));
 
         return $points;
     }

@@ -9,6 +9,9 @@ use Livewire\Form;
 
 class DailyLogForm extends Form
 {
+    /** Mental growth: pages read that day (first field in the day form). */
+    public ?int $pages_read = null;
+
     public bool $workout_done = false;
 
     public ?int $workout_minutes = null;
@@ -20,6 +23,7 @@ class DailyLogForm extends Form
 
     public function load(?DailyLog $log, int $plannedMinutes, int $mealCount, int $glassMl): void
     {
+        $this->pages_read = $log?->pages_read ?: null;
         $this->workout_done = (bool) $log?->workout_done;
         $this->workout_minutes = $log?->workout_minutes ?? ($plannedMinutes ?: null);
         $this->meals = array_map(fn ($i) => (bool) ($log?->meals[$i] ?? false), range(0, $mealCount - 1));
@@ -30,12 +34,13 @@ class DailyLogForm extends Form
     public function save(Client $client, array $day, string $level, int $glassMl, int $waterGoalMl): void
     {
         $this->validate([
+            'pages_read' => ['nullable', 'integer', 'between:0,2000'],
             'workout_done' => ['boolean'],
             'workout_minutes' => ['nullable', 'integer', 'between:0,600'],
             'meals' => ['array', 'max:8'],
             'meals.*' => ['boolean'],
             'glasses' => ['integer', 'between:0,40'],
-        ]);
+        ], ['pages_read.*' => t('e.pages')]);
 
         $done = $day['minutes'] > 0 && $this->workout_done;
         $minutes = $done ? $this->workout_minutes : null;
@@ -50,7 +55,8 @@ class DailyLogForm extends Form
             'workout_minutes' => $minutes,
             'meals' => $meals,
             'water_ml' => $water,
-            'points' => Points::forDay($day['minutes'], $done, $minutes, count(array_filter($meals)), $water, $waterGoalMl),
+            'pages_read' => (int) $this->pages_read,
+            'points' => Points::forDay($day['minutes'], $done, $minutes, count(array_filter($meals)), $water, $waterGoalMl, (int) $this->pages_read),
         ]);
     }
 }

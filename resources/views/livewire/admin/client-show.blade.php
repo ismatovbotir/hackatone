@@ -32,10 +32,11 @@
                 <dt>{{ t('fd.protein') }}</dt><dd>{{ $plan->protein }} g</dd>
             </dl>
             <h3 class="mt-5">{{ t('admin.cal') }}</h3>
-            <div class="mt-2 grid grid-cols-3 gap-3">
+            <div class="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <x-stat :label="t('cal.st.done')" :value="$month['done']" class="[&_.big]:text-good" />
                 <x-stat :label="t('cal.st.missed')" :value="$month['missed']" class="[&_.big]:text-bad" />
                 <x-stat :label="t('cal.st.planned')" :value="$month['planned']" />
+                <x-stat :label="t('mg.pages_month')" :value="$month['pages']" />
             </div>
         </div>
     </div>

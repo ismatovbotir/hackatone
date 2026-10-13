@@ -614,5 +614,16 @@
   "tgapp.outside": "Bu sahifani Telegram botimiz orqali oching yoki saytda kiring.",
   "tgapp.error": "Kirib bo‘lmadi. Ilovani yopib, qayta oching.",
   "set.menu.set": "Ilova tugmasini o‘rnatish",
-  "set.menu.need": "Avval bot tokenini saqlang. Telegram ilovasi uchun sayt HTTPS’da bo‘lishi kerak."
+  "set.menu.need": "Avval bot tokenini saqlang. Telegram ilovasi uchun sayt HTTPS’da bo‘lishi kerak.",
+  "cal.reading": "Kitob o‘qish",
+  "cal.pages": "Bugun o‘qilgan sahifalar",
+  "cal.pages_hint": "Har {0} sahifa uchun +1 ball, kuniga +{1} gacha.",
+  "e.pages": "Sahifalar sonini 0 dan 2000 gacha kiriting.",
+  "mg.title": "Aqliy rivojlanish",
+  "mg.log": "O‘qishni kiritish",
+  "mg.pages_month": "Shu oydagi sahifalar",
+  "mg.reading_days": "O‘qish kunlari",
+  "mg.pages_total": "Jami sahifalar",
+  "mg.days": "{0} kun o‘qildi",
+  "mg.note": "Har kuni oz-ozdan o‘qish xotira, diqqat va o‘qishdagi natijalarga yordam beradi. Sahifalarni Kalendarda kiriting."
 }
