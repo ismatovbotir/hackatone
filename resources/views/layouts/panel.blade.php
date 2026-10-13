@@ -7,6 +7,7 @@
             ['admin.clients.*', 'admin.clients', 'users'],
             ['admin.users.*', 'admin.users', 'shield'],
             ['admin.videos', 'admin.videos', 'video'],
+            ['admin.monetisation', 'mon.title', 'coins'],
             ['admin.settings', 'admin.settings', 'cog'],
         ]
         : [

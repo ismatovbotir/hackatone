@@ -61,5 +61,6 @@ Route::middleware(['auth', 'confirmed', 'role:admin'])->prefix('admin')->name('a
     Route::livewire('/clients/{client}', Admin\ClientShow::class)->name('clients.show');
     Route::livewire('/users', Admin\Users::class)->name('users.index');
     Route::livewire('/videos', Admin\Videos::class)->name('videos');
+    Route::livewire('/monetisation', Admin\Monetisation::class)->name('monetisation');
     Route::livewire('/settings', Admin\Settings::class)->name('settings');
 });
