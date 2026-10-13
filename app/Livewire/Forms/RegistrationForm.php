@@ -17,9 +17,11 @@ use Livewire\Form;
  */
 class RegistrationForm extends Form
 {
-    public const STEPS = ['phone', 'name', 'account', 'about', 'body', 'review'];
+    public const STEPS = ['lang', 'phone', 'name', 'account', 'about', 'body', 'review'];
 
     private const SESSION = 'registration';
+
+    public string $lang = '';
 
     public string $phone = '';
 
@@ -46,6 +48,7 @@ class RegistrationForm extends Form
     public function rulesFor(string $step): array
     {
         return match ($step) {
+            'lang' => ['lang' => ['required', Rule::in(config('hh.locales'))]],
             'phone' => ['phone' => ['required', 'string', function (string $attr, mixed $value, Closure $fail) {
                 $digits = Phone::normalize($value);
                 if ($digits === null) {
@@ -84,6 +87,7 @@ class RegistrationForm extends Form
     public function messages(): array
     {
         return [
+            'lang.*' => t('e.lang'),
             'phone.required' => t('e.phone'),
             'first.*' => t('e.name'),
             'last.*' => t('e.name'),
@@ -146,6 +150,7 @@ class RegistrationForm extends Form
     public function payload(): array
     {
         return [
+            'lang' => $this->lang,
             'phone' => Phone::normalize($this->phone),
             'first' => trim($this->first),
             'last' => trim($this->last),
@@ -161,7 +166,7 @@ class RegistrationForm extends Form
     /** Keep answers (never the password) so a page reload does not lose them. */
     public function remember(): void
     {
-        session()->put(self::SESSION.'.data', $this->only(['phone', 'first', 'last', 'email', 'dob', 'sex', 'w', 'h']));
+        session()->put(self::SESSION.'.data', $this->only(['lang', 'phone', 'first', 'last', 'email', 'dob', 'sex', 'w', 'h']));
     }
 
     public function restore(): void

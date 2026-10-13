@@ -72,7 +72,7 @@ class RegisterWizard extends Component
             return null;
         }
 
-        $user = $register->handle($this->form->payload(), app()->getLocale());
+        $user = $register->handle($this->form->payload(), $this->form->lang ?: app()->getLocale());
         $this->form->forget();
 
         if (Confirmation::skipped()) {
@@ -94,6 +94,7 @@ class RegisterWizard extends Component
 
         $female = random_int(0, 1) === 1;
         $this->form->fill([
+            'lang' => app()->getLocale(),
             'phone' => '90'.random_int(1000000, 9999999),
             'first' => $female ? 'Malika' : 'Aziz',
             'last' => $female ? 'Yusupova' : 'Karimov',
@@ -114,6 +115,23 @@ class RegisterWizard extends Component
         session()->put('registration.done', $this->done);
         $this->form->remember();
         $this->step = 'review';
+    }
+
+    /** First step: the language. The page reloads so every label switches at once; answers are kept in the session. */
+    public function selectLang(string $lang)
+    {
+        if (! in_array($lang, config('hh.locales'), true)) {
+            return null;
+        }
+
+        session()->put('locale', $lang);
+        $this->form->lang = $lang;
+        $this->done = array_values(array_unique([...$this->done, 'lang']));
+        session()->put('registration.done', $this->done);
+        $this->form->remember();
+        $this->step = 'phone'; // saved by dehydrate(), so the reloaded page opens on the phone step
+
+        return $this->redirectRoute('register');
     }
 
     public function back(): void

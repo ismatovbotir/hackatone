@@ -41,7 +41,7 @@
   "disc": "Bu o‘quv prototipi, tibbiy maslahat emas. Bolalar va o‘smirlar uchun ro‘yxatdan ota-ona yoki vasiy o‘tishi va rejani shifokor bilan ko‘rib chiqishi kerak.",
   "foot": "HackaTone Health. Ma’lumotlaringizni istalgan vaqtda o‘chirishingiz mumkin.",
   "wz.title": "Ro‘yxatdan o‘tish",
-  "wz.sub": "Beshta qisqa qadam. Panelda javoblaringiz asosida hisoblangan natijalar ko‘rinadi. Orqaga qaytish uchun tugallangan qadamni bosing.",
+  "wz.sub": "Bir necha qisqa qadam. Panelda javoblaringiz asosida hisoblangan natijalar ko‘rinadi. Orqaga qaytish uchun tugallangan qadamni bosing.",
   "wz.step": "{1} dan {0}-qadam",
   "wz.back": "Orqaga",
   "wz.next": "Keyingisi",
@@ -786,5 +786,8 @@
   "apps.r2": "O‘rnatiladigan veb-ilova (PWA)",
   "apps.r2.d": "Har qanday telefonda bosh ekranga qo‘shish, kunni kiritish uchun oflayn ishlash, push-bildirishnomalar.",
   "apps.r3": "iOS va Android ilovalari",
-  "apps.r3.d": "Xuddi shu API asosidagi do‘kon ilovalari: qadam hisoblagich, vidjetlar, ota-onalar uchun oilaviy hisoblar."
+  "apps.r3.d": "Xuddi shu API asosidagi do‘kon ilovalari: qadam hisoblagich, vidjetlar, ota-onalar uchun oilaviy hisoblar.",
+  "st.lang": "Til",
+  "st.lang.d": "Sayt va Telegram eslatmalari tilini tanlang. Keyinroq o‘zgartirishingiz mumkin.",
+  "e.lang": "Tilni tanlang."
 }

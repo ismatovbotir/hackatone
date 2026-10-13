@@ -35,6 +35,18 @@
 
             <div class="mt-4 grid gap-4 sm:grid-cols-2" wire:key="step-{{ $step }}">
                 @switch($step)
+                    @case('lang')
+                        <div class="grid gap-2 sm:col-span-2 sm:grid-cols-3" role="group" aria-label="{{ t('st.lang') }}">
+                            @foreach (['uz' => ['O‘zbekcha', 'UZ'], 'ru' => ['Русский', 'RU'], 'en' => ['English', 'EN']] as $code => [$native, $short])
+                                <button type="button" wire:click="selectLang('{{ $code }}')" aria-pressed="{{ $form->lang === $code ? 'true' : 'false' }}"
+                                        class="flex min-h-16 items-center gap-3 rounded-xl border-2 bg-bg px-4 text-left font-semibold transition hover:border-accent {{ $form->lang === $code ? 'border-accent' : 'border-line' }}">
+                                    <span class="grid size-9 shrink-0 place-items-center rounded-full bg-surface2 font-mono text-xs">{{ $short }}</span>
+                                    <span class="text-base">{{ $native }}</span>
+                                </button>
+                            @endforeach
+                        </div>
+                        @error('form.lang')<p class="err sm:col-span-2">{{ $message }}</p>@enderror
+                        @break
                     @case('phone')
                         <label class="field sm:col-span-2">{{ t('fl.phone') }}
                             <input class="input" type="tel" wire:model.live.debounce.300ms="form.phone" inputmode="tel" autocomplete="tel" placeholder="+998 90 123 45 67" autofocus>
@@ -94,6 +106,7 @@
                         @break
                     @case('review')
                         <dl class="kv sm:col-span-2 !mt-0">
+                            <dt>{{ t('st.lang') }}</dt><dd>{{ ['uz' => 'O‘zbekcha', 'ru' => 'Русский', 'en' => 'English'][$form->lang] ?? '—' }}</dd>
                             <dt>{{ t('fl.phone') }}</dt><dd>{{ \App\Support\Phone::format($form->phone) }}</dd>
                             <dt>{{ t('fl.first') }}</dt><dd>{{ $form->first }}</dd>
                             <dt>{{ t('fl.last') }}</dt><dd>{{ $form->last }}</dd>

@@ -20,6 +20,7 @@ class RegistrationTest extends TestCase
     {
         $c = Livewire::test(RegisterWizard::class);
         $fill = [
+            'lang' => fn ($c) => $c->set('form.lang', 'uz'),
             'phone' => fn ($c) => $c->set('form.phone', '90 123 45 67'),
             'name' => fn ($c) => $c->set('form.first', 'Aziz')->set('form.last', 'Karimov'),
             'account' => fn ($c) => $c->set('form.email', 'Aziz@Example.com')->set('form.password', 'secret123')->set('form.password_confirmation', 'secret123'),
@@ -85,7 +86,7 @@ class RegistrationTest extends TestCase
 
     public function test_phone_and_body_limits(): void
     {
-        $c = Livewire::test(RegisterWizard::class);
+        $c = $this->upTo('phone');
         $c->set('form.phone', '12345678')->call('next')->assertHasErrors('form.phone');
         $c->set('form.phone', '1234567890123456')->call('next')->assertHasErrors('form.phone');
 
@@ -98,7 +99,7 @@ class RegistrationTest extends TestCase
     {
         Client::factory()->create(['phone' => '998901234567']);
 
-        Livewire::test(RegisterWizard::class)
+        $this->upTo('phone')
             ->set('form.phone', '+998 90 123 45 67')->call('next')
             ->assertHasErrors('form.phone');
     }
@@ -160,5 +161,28 @@ class RegistrationTest extends TestCase
             ->assertHasNoErrors();
 
         $this->assertSame(1, User::where('role', 'user')->count());
+    }
+
+    public function test_language_is_the_first_step_and_is_used_for_the_account(): void
+    {
+        Livewire::test(RegisterWizard::class)
+            ->assertSet('step', 'lang')
+            ->call('next')->assertHasErrors('form.lang')
+            ->call('selectLang', 'ru')
+            ->assertRedirect(route('register'));
+
+        $this->assertSame('ru', session('locale'));
+        Livewire::test(RegisterWizard::class)->assertSet('step', 'phone')->assertSet('form.lang', 'ru');
+
+        Notification::fake();
+        $c = Livewire::test(RegisterWizard::class)
+            ->set('form.phone', '901234567')->call('next')
+            ->set('form.first', 'Aziz')->set('form.last', 'Karimov')->call('next')
+            ->set('form.email', 'ru@example.com')->set('form.password', 'secret123')->set('form.password_confirmation', 'secret123')->call('next')
+            ->set('form.dob', now()->subYears(12)->toDateString())->set('form.sex', 'M')->call('next')
+            ->set('form.w', '40')->set('form.h', '150')->call('next')
+            ->set('form.consent', true)->call('next');
+
+        $this->assertSame('ru', User::firstWhere('email', 'ru@example.com')->client->lang);
     }
 }

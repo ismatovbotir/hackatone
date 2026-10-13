@@ -7,7 +7,7 @@
   "btn.reset2": "Yes, delete everything",
   "land.eyebrow": "Health programme built on WHO references",
   "land.h1": "Know your numbers. Train and eat at your level.",
-  "land.sub": "Register in five short steps. We compare your height and weight with WHO ranges for your age, then give you a training week and a feeding menu at Easy, Mid or Strong level.",
+  "land.sub": "Register in a few short steps. We compare your height and weight with WHO ranges for your age, then give you a training week and a feeding menu at Easy, Mid or Strong level.",
   "land.cta": "Start registration",
   "land.cta2": "See how it works",
   "land.chartcap": "Example: a 14-year-old boy against the WHO height band. The line in the middle is the median.",
@@ -41,7 +41,7 @@
   "disc": "This is an educational prototype, not medical advice. For children and teenagers a parent or guardian should register and review the plan with a doctor.",
   "foot": "HackaTone Health. You can delete your data at any time.",
   "wz.title": "Registration",
-  "wz.sub": "Five short steps. The panel shows what we calculate from your answers. Click a finished step to go back.",
+  "wz.sub": "A few short steps. The panel shows what we calculate from your answers. Click a finished step to go back.",
   "wz.step": "Step {0} of {1}",
   "wz.back": "Back",
   "wz.next": "Next",
@@ -786,5 +786,8 @@
   "apps.r2": "Installable web app (PWA)",
   "apps.r2.d": "Add to the home screen on any phone, works offline for logging the day, push notifications.",
   "apps.r3": "Native iOS and Android",
-  "apps.r3.d": "Store apps on the same API: step counter, widgets, family accounts for parents."
+  "apps.r3.d": "Store apps on the same API: step counter, widgets, family accounts for parents.",
+  "st.lang": "Language",
+  "st.lang.d": "Choose the language for the site and for Telegram reminders. You can change it later.",
+  "e.lang": "Choose a language."
 }
