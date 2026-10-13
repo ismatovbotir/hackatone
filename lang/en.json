@@ -649,5 +649,11 @@
   "rep.points": "⭐ Points today: {0}",
   "rep.streak": "🔥 Streak: {0}",
   "rep.rank": "🏆 Rating this month: #{0} of {1}",
-  "rep.unranked": "🏆 Earn points to join this month’s rating"
+  "rep.unranked": "🏆 Earn points to join this month’s rating",
+  "admin.confirmed": "Account confirmed",
+  "admin.not_confirmed": "Not confirmed",
+  "admin.activate": "Activate account",
+  "admin.activate_d": "This user has not confirmed by email or Telegram yet, so they cannot open their panel. You can activate the account by hand.",
+  "admin.activate_confirm": "Activate this account? The user can then sign in and use their panel.",
+  "admin.activated": "Account activated"
 }

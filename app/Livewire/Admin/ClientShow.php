@@ -17,6 +17,12 @@ class ClientShow extends Component
     #[Locked]
     public Client $client;
 
+    public function activate(): void
+    {
+        $this->client->user->activate();
+        session()->flash('status', t('admin.activated'));
+    }
+
     public function delete()
     {
         // Deleting the user removes the profile, measurements, workout logs and link codes.

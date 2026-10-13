@@ -2,8 +2,18 @@
     <a class="text-sm font-semibold text-accent underline" href="{{ route('admin.clients.index') }}" wire:navigate>← {{ t('admin.back') }}</a>
     <div class="flex flex-wrap items-center justify-between gap-3">
         <h1>{{ $client->fullName() }}</h1>
-        <x-pill :tone="$client->isLinked() ? 'good' : 'neutral'">{{ $client->isLinked() ? t('admin.tg.linked') : t('admin.tg.not') }}</x-pill>
+        <div class="flex flex-wrap items-center gap-2">
+            <x-pill :tone="$client->user->isConfirmed() ? 'good' : 'warn'">{{ $client->user->isConfirmed() ? t('admin.confirmed') : t('admin.not_confirmed') }}</x-pill>
+            <x-pill :tone="$client->isLinked() ? 'good' : 'neutral'">{{ $client->isLinked() ? t('admin.tg.linked') : t('admin.tg.not') }}</x-pill>
+        </div>
     </div>
+
+    @unless ($client->user->isConfirmed())
+        <div class="flex flex-col gap-3 rounded-xl border border-warn bg-warn-bg p-4 text-warn sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-sm">{{ t('admin.activate_d') }}</p>
+            <button type="button" class="btn shrink-0" wire:click="activate" wire:confirm="{{ t('admin.activate_confirm') }}">{{ t('admin.activate') }}</button>
+        </div>
+    @endunless
 
     <div class="grid gap-4 md:grid-cols-2">
         <div class="card">

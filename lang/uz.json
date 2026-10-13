@@ -649,5 +649,11 @@
   "rep.points": "⭐ Bugungi ballar: {0}",
   "rep.streak": "🔥 Ketma-ketlik: {0}",
   "rep.rank": "🏆 Shu oydagi reyting: {1} tadan #{0}",
-  "rep.unranked": "🏆 Shu oy reytingiga kirish uchun ball to‘plang"
+  "rep.unranked": "🏆 Shu oy reytingiga kirish uchun ball to‘plang",
+  "admin.confirmed": "Hisob tasdiqlangan",
+  "admin.not_confirmed": "Tasdiqlanmagan",
+  "admin.activate": "Hisobni faollashtirish",
+  "admin.activate_d": "Bu foydalanuvchi hali email yoki Telegram orqali tasdiqlamagan, shuning uchun panelini ocha olmaydi. Hisobni qo‘lda faollashtirishingiz mumkin.",
+  "admin.activate_confirm": "Ushbu hisob faollashtirilsinmi? Shundan so‘ng foydalanuvchi kirib, panelidan foydalana oladi.",
+  "admin.activated": "Hisob faollashtirildi"
 }

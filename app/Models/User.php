@@ -44,6 +44,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasVerifiedEmail() || ($this->client?->telegram_chat_id !== null);
     }
 
+    /** An admin confirms the account by hand (for example when email or Telegram did not work). */
+    public function activate(): void
+    {
+        if (! $this->hasVerifiedEmail()) {
+            $this->markEmailAsVerified();
+        }
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === Role::Admin;

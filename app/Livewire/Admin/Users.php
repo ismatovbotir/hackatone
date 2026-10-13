@@ -23,6 +23,12 @@ class Users extends Component
         $this->resetPage();
     }
 
+    public function activate(int $userId): void
+    {
+        User::findOrFail($userId)->activate();
+        session()->flash('status', t('admin.activated'));
+    }
+
     public function setRole(int $userId, string $role): void
     {
         validator(['role' => $role], ['role' => ['required', Rule::enum(Role::class)]])->validate();

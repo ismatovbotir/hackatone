@@ -16,10 +16,14 @@
                         <b class="truncate">{{ $u->name }}</b>
                         <x-pill :tone="$u->isAdmin() ? 'warn' : 'neutral'">{{ t('admin.role.'.$u->role->value) }}</x-pill>
                         @if ($u->id === auth()->id())<x-pill>{{ t('admin.you') }}</x-pill>@endif
+                        @unless ($u->isConfirmed())<x-pill tone="warn">{{ t('admin.not_confirmed') }}</x-pill>@endunless
                     </div>
                     <p class="truncate text-sm text-muted">{{ $u->email }}</p>
                 </div>
-                <div class="flex shrink-0 gap-2">
+                <div class="flex shrink-0 flex-wrap gap-2">
+                    @unless ($u->isConfirmed())
+                        <button type="button" class="btn btn-sm" wire:click="activate({{ $u->id }})" wire:confirm="{{ t('admin.activate_confirm') }}">{{ t('admin.activate') }}</button>
+                    @endunless
                     @if ($u->client)
                         <a class="btn-ghost btn-sm" href="{{ route('admin.clients.show', $u->client) }}" wire:navigate>{{ t('admin.view') }}</a>
                     @endif
