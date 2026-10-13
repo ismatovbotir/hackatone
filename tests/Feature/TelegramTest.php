@@ -3,9 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\Client;
+use App\Models\User;
 use App\Services\Telegram\AdminNotifier;
 use App\Services\Telegram\LinkCodeService;
 use App\Services\Telegram\UpdateHandler;
+use App\Support\LinkCodeSession;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -230,5 +232,28 @@ class TelegramTest extends TestCase
 
         $this->assertStringContainsString('reminders:send', $commands);
         $this->assertStringNotContainsString('telegram:poll', $commands);
+    }
+
+    public function test_qr_link_is_the_constant_bot_start_link_and_the_bot_asks_for_the_code(): void
+    {
+        $this->fakeTelegram();
+        config(['services.telegram.bot_username' => '@hh_test_bot']);
+        $this->assertSame('https://t.me/hh_test_bot?start=start', LinkCodeSession::botLink());
+
+        // Same link on the confirm step and the Telegram tab, whatever the current code is.
+        $user = Client::factory()->withMeasurement()->create(['user_id' => User::factory()->unverified()])->user;
+        $this->actingAs($user)->get(route('verification.notice'))->assertSee('https://t.me/hh_test_bot?start=start', false);
+
+        // Opening it sends "/start start": the bot starts with the language, and still needs the phone and the code.
+        $client = Client::factory()->withMeasurement()->create(['phone' => '998901234567']);
+        $code = app(LinkCodeService::class)->issue($client)['code'];
+        $bot = app(UpdateHandler::class);
+        $bot->handle($this->update(77, '/start start'));
+        Http::assertSent(fn ($r) => isset($r['reply_markup']['inline_keyboard']));
+        $bot->handle($this->chooseLanguage(77));
+        $bot->handle($this->shareContact(77, '998901234567'));
+        $this->assertNull($client->fresh()->telegram_chat_id);
+        $bot->handle($this->update(77, $code));
+        $this->assertSame(77, (int) $client->fresh()->telegram_chat_id);
     }
 }

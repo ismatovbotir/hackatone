@@ -31,11 +31,15 @@ final class LinkCodeSession
         return $new;
     }
 
-    /** t.me deep link, or null while the bot username is not set. */
-    public static function deepLink(string $code): ?string
+    /**
+     * The bot's link with the Start command, the same for everyone and always valid, so the QR never changes or expires.
+     * Opening it sends "/start": the bot then asks for the language, the phone and the 6-digit code shown on the page.
+     * Null while the bot username is not set.
+     */
+    public static function botLink(): ?string
     {
         $username = ltrim((string) config('services.telegram.bot_username'), '@');
 
-        return preg_match('/^[A-Za-z][A-Za-z0-9_]{3,31}$/', $username) ? "https://t.me/{$username}?start={$code}" : null;
+        return preg_match('/^[A-Za-z][A-Za-z0-9_]{3,31}$/', $username) ? "https://t.me/{$username}?start=start" : null;
     }
 }

@@ -40,7 +40,7 @@
                     </div>
                 </div>
                 @if ($link)
-                    <x-telegram-qr :link="$link" :code="$code['code']" class="w-[min(220px,100%)] p-3" />
+                    <x-telegram-qr :link="$link" class="w-[min(220px,100%)] p-3" />
                     <a class="btn w-full" href="{{ $link }}" target="_blank" rel="noopener">{{ t('tg.open') }}</a>
                 @else
                     <p class="note">{{ t('tg.nobot') }}</p>

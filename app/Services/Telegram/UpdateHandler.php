@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\RateLimiter;
 
 /**
  * Bot conversation that links a Telegram chat to a registered client:
- *   1. /start (optionally with the code from the QR link)
+ *   1. /start (the QR on the site opens the bot with "/start start"; an old "/start 123456" link still works)
  *   2. choose a language (inline buttons)
  *   3. share own phone number (contact button); it must match the phone used at registration
  *   4. send the 6-digit code from the website (skipped if it came with /start)

@@ -30,7 +30,7 @@
                     </div>
                     <div class="flex flex-col items-start">
                         @if ($link)
-                            <x-telegram-qr :link="$link" :code="$code['code']" class="w-[min(240px,100%)] p-3.5" />
+                            <x-telegram-qr :link="$link" class="w-[min(240px,100%)] p-3.5" />
                             <a class="btn mt-3 w-full" href="{{ $link }}" target="_blank" rel="noopener">{{ t('tg.open') }}</a>
                         @else
                             <p class="note max-w-xs">{{ t('tg.nobot') }}</p>

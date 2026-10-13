@@ -62,7 +62,7 @@ class ConfirmAccount extends Component
         return view('livewire.confirm-account', [
             'email' => $user->email,
             'code' => $code,
-            'link' => $code ? LinkCodeSession::deepLink($code['code']) : null,
+            'link' => LinkCodeSession::botLink(),
         ])->title(t('confirm.title'));
     }
 }
