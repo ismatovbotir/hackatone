@@ -27,6 +27,12 @@ return [
     // End-of-day Telegram reminder to fill in today's calendar (local time).
     'evening_time' => env('HH_EVENING_TIME', '20:30'),
 
+    // Telegram sending limits (a bot may send about 30 messages a second): pace and cap per cron run.
+    'telegram' => [
+        'per_second' => 25,
+        'per_run' => 600,
+    ],
+
     'locales' => ['uz', 'en', 'ru'],
     'default_locale' => 'uz',
 

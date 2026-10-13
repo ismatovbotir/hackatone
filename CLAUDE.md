@@ -45,6 +45,12 @@ Current flow (the owner's spec): after registration the confirm page shows the s
 
 Telegram Web App: `/tg` opens inside Telegram (bot menu button, set in Admin > Settings, and an "Open app" button after linking; needs HTTPS). `/tg/auth` checks Telegram's signed initData (HMAC with the bot token, max 24 h old) and signs in the linked client.
 
+Calendar: clients plan today and future days (session, minutes 10-180, reading goal) and fill in results for any day up to today; inside the Telegram web app only today can be changed (`via_telegram` session flag, enforced server-side).
+
+Evening (`reminders:evening`, after HH_EVENING_TIME, once a day): clients who filled in nothing today get a reminder with a "Fill in today" web-app button; clients who did get a text report of the day (pages, training, meals, water, points, streak, rank).
+
+Telegram limits: a bot may send about 30 messages a second and about 1 a second to one chat. Bulk sends go through `SendThrottle` (25/second, 600 per cron run, a 429 pauses all sending for retry_after). Scheduled commands run sequentially; never add `runInBackground()` to Telegram-sending commands.
+
 ### Original brief
 
 At the end of registration the client sees a 6-digit code and a QR code that opens `https://t.me/<bot_username>?start=<code>`.

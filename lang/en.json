@@ -635,7 +635,19 @@
   "e.plan_minutes": "Plan between 10 and 180 minutes.",
   "e.reading_goal": "Set a goal from 1 to 500 pages.",
   "cal.tg_today_only": "In Telegram you can fill in only today. Open the website to change other days.",
-  "tg.r.evening": "End of the day: fill in today",
+  "tg.r.evening": "End of the day: reminder or my results",
   "rem.evening": "Good evening, {0}! How did today go? Fill in today’s pages read, training, meals and water: it takes a minute.",
-  "rem.evening_btn": "Fill in today"
+  "rem.evening_btn": "Fill in today",
+  "rep.title": "🎉 Well done today, {0}! Your day:",
+  "rep.pages": "📖 Pages read: {0}",
+  "rep.pages_goal": "📖 Pages read: {0} of {1}",
+  "rep.training_done": "🏃 Training: {0}, {1} min",
+  "rep.training_not": "🏃 Training ({0}): not done yet",
+  "rep.rest": "🏃 Training: rest day",
+  "rep.meals": "🍽 Meals: {0} of {1}",
+  "rep.water": "💧 Water: {0} of {1} L",
+  "rep.points": "⭐ Points today: {0}",
+  "rep.streak": "🔥 Streak: {0}",
+  "rep.rank": "🏆 Rating this month: #{0} of {1}",
+  "rep.unranked": "🏆 Earn points to join this month’s rating"
 }

@@ -3,6 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\Client;
+use App\Models\DailyLog;
+use App\Services\Telegram\EveningReport;
+use App\Services\Telegram\SendThrottle;
 use App\Services\Telegram\TelegramApi;
 use App\Services\Telegram\WebApp;
 use App\Support\Tr;
@@ -14,15 +17,16 @@ use Illuminate\Support\Facades\Cache;
 use Throwable;
 
 /**
- * End of the day: one Telegram message to linked clients who have not logged anything today, with a button that
- * opens the Telegram web app on today's calendar form. Runs every minute from cron; acts after HH_EVENING_TIME,
- * once per client per day (a missed cron minute is caught up).
+ * End of the day, one Telegram message per linked client (after HH_EVENING_TIME, once a day; a missed cron minute is
+ * caught up):
+ *  - nothing filled in today: a reminder with a button that opens the web app on today's calendar form;
+ *  - already filled in: an achievements report for the day, as text.
  */
 #[Signature('reminders:evening')]
-#[Description('Remind clients in Telegram to fill in today in the calendar')]
+#[Description('Evening Telegram message: reminder to fill in today, or the day\'s achievements report')]
 class SendEveningReminders extends Command
 {
-    public function handle(TelegramApi $api): int
+    public function handle(TelegramApi $api, EveningReport $report): int
     {
         $now = Carbon::now(config('hh.timezone'));
         if (! $api->configured() || $now->format('H:i') < config('hh.evening_time')) {
@@ -31,18 +35,32 @@ class SendEveningReminders extends Command
 
         $today = $now->toDateString();
         $sent = 0;
+        $throttle = SendThrottle::fromConfig();
 
-        Client::query()->whereNotNull('telegram_chat_id')->chunkById(100, function ($clients) use ($api, $today, &$sent) {
+        Client::query()->whereNotNull('telegram_chat_id')->with('latestMeasurement')->chunkById(100, function ($clients) use ($api, $report, $now, $today, $throttle, &$sent) {
             foreach ($clients as $client) {
+                if ($throttle->stop()) {
+                    return false; // Telegram limits: the rest is sent on the next run
+                }
+
                 $key = "evening-reminder:{$client->id}:{$today}";
-                if (! $client->reminderEnabled('evening') || Cache::has($key) || $this->loggedToday($client, $today)) {
+                if (! $client->reminderEnabled('evening') || Cache::has($key)) {
                     continue;
                 }
 
+                $log = $client->dailyLogs()->where('log_date', $today)->first();
+
+                $throttle->wait();
                 try {
-                    $response = $api->sendMessage($client->telegram_chat_id, Tr::get('rem.evening', [$client->first_name], $client->lang), $this->button($client));
+                    $response = $this->filledIn($log)
+                        ? $api->sendMessage($client->telegram_chat_id, $report->compose($client, $log, $now))
+                        : $api->sendMessage($client->telegram_chat_id, Tr::get('rem.evening', [$client->first_name], $client->lang), $this->button($client));
                 } catch (Throwable) {
                     continue; // tried again next minute
+                }
+
+                if (! $throttle->record($response)) {
+                    return false; // 429: pause, retried on a later run
                 }
 
                 if ($response->status() === 403) {
@@ -54,16 +72,14 @@ class SendEveningReminders extends Command
             }
         });
 
-        $this->info("Evening reminders sent: {$sent}.");
+        $this->info("Evening messages sent: {$sent}.");
 
         return self::SUCCESS;
     }
 
-    /** Anything filled in today: training, meals, water or reading. */
-    private function loggedToday(Client $client, string $today): bool
+    /** Anything filled in today: training, meals, water or reading (a plan alone does not count). */
+    private function filledIn(?DailyLog $log): bool
     {
-        $log = $client->dailyLogs()->where('log_date', $today)->first();
-
         return $log !== null && ($log->workout_done || $log->pages_read > 0 || $log->water_ml > 0 || array_filter($log->meals ?? []) !== []);
     }
 

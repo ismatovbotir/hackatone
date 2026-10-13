@@ -635,7 +635,19 @@
   "e.plan_minutes": "10 dan 180 daqiqagacha rejalashtiring.",
   "e.reading_goal": "1 dan 500 sahifagacha maqsad qo‘ying.",
   "cal.tg_today_only": "Telegramda faqat bugungi kunni to‘ldirish mumkin. Boshqa kunlarni o‘zgartirish uchun saytni oching.",
-  "tg.r.evening": "Kun oxirida: bugungi kunni to‘ldirish",
+  "tg.r.evening": "Kun oxirida: eslatma yoki natijalarim",
   "rem.evening": "Xayrli kech, {0}! Bugun qanday o‘tdi? O‘qilgan sahifalar, mashg‘ulot, ovqat va suvni kiriting: bir daqiqa vaqt oladi.",
-  "rem.evening_btn": "Bugunni to‘ldirish"
+  "rem.evening_btn": "Bugunni to‘ldirish",
+  "rep.title": "🎉 Bugun barakalla, {0}! Kuningiz natijalari:",
+  "rep.pages": "📖 O‘qilgan sahifalar: {0}",
+  "rep.pages_goal": "📖 O‘qilgan sahifalar: {0} / {1}",
+  "rep.training_done": "🏃 Mashg‘ulot: {0}, {1} daqiqa",
+  "rep.training_not": "🏃 Mashg‘ulot ({0}): hali bajarilmadi",
+  "rep.rest": "🏃 Mashg‘ulot: dam olish kuni",
+  "rep.meals": "🍽 Ovqatlar: {0} / {1}",
+  "rep.water": "💧 Suv: {0} / {1} l",
+  "rep.points": "⭐ Bugungi ballar: {0}",
+  "rep.streak": "🔥 Ketma-ketlik: {0}",
+  "rep.rank": "🏆 Shu oydagi reyting: {1} tadan #{0}",
+  "rep.unranked": "🏆 Shu oy reytingiga kirish uchun ball to‘plang"
 }

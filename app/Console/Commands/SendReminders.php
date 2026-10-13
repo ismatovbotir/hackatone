@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Client;
 use App\Services\Telegram\ReminderComposer;
+use App\Services\Telegram\SendThrottle;
 use App\Services\Telegram\TelegramApi;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
@@ -31,14 +32,19 @@ class SendReminders extends Command
         $now = Carbon::now(config('hh.timezone'));
         $today = $now->toDateString();
         $sent = $skipped = $failed = 0;
+        $throttle = SendThrottle::fromConfig();
 
         Client::query()
             ->whereNotNull('telegram_chat_id')
             ->where('reminder_time', '<=', $now->format('H:i:s'))
             ->where(fn ($q) => $q->whereNull('last_reminded_on')->orWhere('last_reminded_on', '<', $today))
             ->with('latestMeasurement')
-            ->chunkById(100, function ($clients) use ($api, $composer, $now, $today, &$sent, &$skipped, &$failed) {
+            ->chunkById(100, function ($clients) use ($api, $composer, $now, $today, $throttle, &$sent, &$skipped, &$failed) {
                 foreach ($clients as $client) {
+                    if ($throttle->stop()) {
+                        return false; // Telegram limits: the rest is sent on the next run
+                    }
+
                     ['text' => $text, 'measure' => $measure] = $composer->compose($client, $now);
 
                     if ($text === null) {
@@ -55,12 +61,19 @@ class SendReminders extends Command
                         continue;
                     }
 
+                    $throttle->wait();
                     try {
                         $response = $api->sendMessage($client->telegram_chat_id, $text);
                     } catch (Throwable) {
                         $failed++;
 
                         continue; // Retried on the next run.
+                    }
+
+                    if (! $throttle->record($response)) {
+                        $failed++;
+
+                        return false; // 429: pause, retried on a later run
                     }
 
                     if ($response->status() === 403) {

@@ -6,6 +6,7 @@ use App\Enums\Level;
 use App\Livewire\Panel\Calendar;
 use App\Models\Client;
 use App\Services\Clients\TrainingCalendar;
+use App\Support\Tr;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -73,7 +74,7 @@ class DayPlanAndEveningTest extends TestCase
         Livewire::withQueryParams(['day' => 'today'])->test(Calendar::class)->assertSet('open', '2026-10-14');
     }
 
-    public function test_evening_reminder_is_sent_once_after_the_time_and_only_if_nothing_is_logged(): void
+    public function test_evening_sends_a_reminder_or_the_days_report_once_after_the_time(): void
     {
         config(['services.telegram.bot_token' => '123:test', 'hh.evening_time' => '20:30']);
         Http::fake(['api.telegram.org/*' => Http::response(['ok' => true, 'result' => []])]);
@@ -91,8 +92,13 @@ class DayPlanAndEveningTest extends TestCase
         $this->artisan('reminders:evening');
         $this->artisan('reminders:evening'); // only once a day
 
-        Http::assertSentCount(1);
+        // Nothing filled in: reminder with a button. Filled in: the day's report. Switched off: nothing. Each once.
+        Http::assertSentCount(2);
         Http::assertSent(fn ($r) => (int) $r['chat_id'] === 501
             && str_contains($r['reply_markup']['inline_keyboard'][0][0]['url'] ?? '', 'day=today'));
+        Http::assertSent(fn ($r) => (int) $r['chat_id'] === 502
+            && ! isset($r['reply_markup'])
+            && str_contains($r['text'], Tr::get('rep.pages', [5], $done->lang)));
+        Http::assertNotSent(fn ($r) => (int) $r['chat_id'] === 503);
     }
 }

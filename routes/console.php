@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Schedule;
  * One cron entry that runs every minute (shared hosting):
  *   * * * * * cd /path/to/app && php artisan schedule:run >> /dev/null 2>&1
  * It sends reminders. Bot messages arrive through the webhook, not cron.
+ * Commands run one after another (no runInBackground), so Telegram's ~30 messages/second limit is shared, not
+ * multiplied; each reminder command paces itself and stops after a cap (App\Services\Telegram\SendThrottle).
  */
 Schedule::command('reminders:send')->everyMinute()->withoutOverlapping(10);
 
