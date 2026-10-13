@@ -24,4 +24,12 @@ class PhoneTest extends TestCase
     {
         $this->assertSame('+447700900123', Phone::format('+44 7700 900123'));
     }
+
+    public function test_local_uzbek_formats_match_what_telegram_sends(): void
+    {
+        foreach (['0 90 123 45 67', '8 90 123 45 67', '(090) 123-45-67', '+998 90 123 45 67', '998901234567'] as $typed) {
+            $this->assertSame('998901234567', Phone::normalize($typed), $typed);
+        }
+        $this->assertSame('+998 •• ••• •• 67', Phone::mask('998901234567'));
+    }
 }

@@ -519,7 +519,7 @@
   "bot.share": "Now share your mobile number with the button below. It must be the number you registered with.",
   "bot.share_btn": "📱 Share my phone number",
   "bot.own_number": "Please share your own number with the button, not someone else’s contact.",
-  "bot.phone_mismatch": "This mobile number does not match the registration for this code. Share the number you registered with.",
+  "bot.phone_mismatch": "This number ({1}) does not match the registration. The code was registered with {0}. Share that number, or register again with this one.",
   "confirm.waiting_all": "Waiting for you to finish registration in the bot or by email…",
   "confirm.steps": "In the bot: choose a language, share your phone number, then send this code.",
   "cal.food": "Food",

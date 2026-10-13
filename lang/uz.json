@@ -519,7 +519,7 @@
   "bot.share": "Endi quyidagi tugma orqali telefon raqamingizni yuboring. Bu ro‘yxatdan o‘tgan raqamingiz bo‘lishi kerak.",
   "bot.share_btn": "📱 Raqamimni yuborish",
   "bot.own_number": "Iltimos, boshqa kontaktni emas, tugma orqali o‘z raqamingizni yuboring.",
-  "bot.phone_mismatch": "Bu telefon raqami ushbu kod bo‘yicha ro‘yxatdan o‘tgan raqamga mos kelmaydi. Ro‘yxatdan o‘tgan raqamingizni yuboring.",
+  "bot.phone_mismatch": "Bu raqam ({1}) ro‘yxatdan o‘tgan raqamga mos kelmaydi. Kod {0} raqami bilan ro‘yxatdan o‘tgan. O‘sha raqamni yuboring yoki shu raqam bilan qayta ro‘yxatdan o‘ting.",
   "confirm.waiting_all": "Bot yoki email orqali ro‘yxatdan o‘tishni yakunlashingiz kutilmoqda…",
   "confirm.steps": "Botda: tilni tanlang, telefon raqamingizni yuboring, keyin shu kodni yuboring.",
   "cal.food": "Ovqat",

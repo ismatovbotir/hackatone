@@ -114,7 +114,9 @@ class UpdateHandler
         if ($client->phone !== $state['phone']) {
             // Keep the code unused: the owner may share the right number next.
             $this->forget($chatId, $state, 'phone');
-            $this->api->sendMessage($chatId, Tr::get('bot.phone_mismatch', [], $lang), $this->contactKeyboard($lang));
+            // The person holds the secret code, so showing the last two digits of the registered number is safe
+            // and tells them which number to use.
+            $this->api->sendMessage($chatId, Tr::get('bot.phone_mismatch', [Phone::mask($client->phone), Phone::mask($state['phone'] ?? '')], $lang), $this->contactKeyboard($lang));
 
             return;
         }

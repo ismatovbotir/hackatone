@@ -116,6 +116,8 @@ class TelegramTest extends TestCase
 
         $this->converse(42, '998909999999', $code);
         $this->assertNull($client->fresh()->telegram_chat_id);
+        // The reply names which number the code was registered with (last two digits only).
+        Http::assertSent(fn ($r) => str_contains($r['text'] ?? '', '•• 67') && str_contains($r['text'] ?? '', '•• 99'));
 
         // The owner can still use the same code with the right number.
         $this->converse(43, '998901234567', $code);
@@ -234,5 +236,16 @@ class TelegramTest extends TestCase
         $html = $this->actingAs($user)->get(route('verification.notice'))->getContent();
 
         $this->assertMatchesRegularExpression('~https://t\.me/hh_test_bot\?start=\d{6}~', $html);
+    }
+
+    public function test_fix_phones_command_repairs_local_formats(): void
+    {
+        $old = Client::factory()->withMeasurement()->create(['phone' => '0901234567']);
+
+        $this->artisan('hh:fix-phones')->assertSuccessful();
+        $this->assertSame('0901234567', $old->fresh()->phone); // dry run
+
+        $this->artisan('hh:fix-phones --apply')->assertSuccessful();
+        $this->assertSame('998901234567', $old->fresh()->phone);
     }
 }
