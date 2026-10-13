@@ -8,6 +8,7 @@
             ['admin.users.*', 'admin.users', 'shield'],
             ['admin.videos', 'admin.videos', 'video'],
             ['admin.monetisation', 'mon.title', 'coins'],
+            ['admin.apps', 'apps.title', 'phone'],
             ['admin.settings', 'admin.settings', 'cog'],
         ]
         : [
