@@ -89,7 +89,7 @@ class TelegramTest extends TestCase
         $bot = app(UpdateHandler::class);
 
         $bot->handle($this->update(8, '/start'));
-        Http::assertSent(fn ($r) => ($r['text'] ?? '') === Tr::get('bot.ask_code', [], 'uz')); // no language_code: Uzbek
+        Http::assertSent(fn ($r) => ($r['text'] ?? '') === Tr::get('bot.ask_code', [], 'ru')); // the test user's Telegram app is in Russian
 
         $bot->handle($this->update(8, '123456'));
         Http::assertSent(fn ($r) => ($r['reply_markup']['keyboard'][0][0]['request_contact'] ?? false) === true);

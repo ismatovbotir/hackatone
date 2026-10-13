@@ -27,7 +27,7 @@ To skip the email / Telegram confirmation while developing, set `HH_SKIP_CONFIRM
    * * * * * cd /path/to/app && php artisan schedule:run >> /dev/null 2>&1
    ```
    It only sends daily Telegram reminders to users (`reminders:send`). Bot messages come through the webhook.
-5. In the admin panel, open **Settings**: paste the bot token from @BotFather, **Save** (a webhook secret is created if empty), press **Check token** (fills in the username), then **Set webhook**. The site must be on HTTPS. Add admin chat IDs for registration alerts.
+5. In the admin panel, open **Settings**: paste the bot token from @BotFather, **Save** (a webhook secret is created if empty), press **Check token** (fills in the username), then **Set webhook** and **Set app button** (opens the site as a Telegram web app). The site must be on HTTPS. Add admin chat IDs for registration alerts.
 6. Make `public/uploads` writable (activity GIFs are stored there; no `storage:link` needed). Admin uploads are limited by `HH_MEDIA_MAX_KB` (default 2048) and by PHP's `upload_max_filesize`.
 7. Optional, AI animations: in **Settings → AI animations**, paste a Hugging Face token with the "Make calls to Inference Providers" permission. Then use **Activity videos → Generate with AI**; watch the draft, then **Make GIF and publish** (the browser converts it to a small GIF).
 8. Set real mail settings (`MAIL_*` in `.env`) so verification emails are delivered.
