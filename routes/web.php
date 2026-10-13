@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\TelegramWebAppController;
 use App\Http\Controllers\TelegramWebhookController;
 use App\Livewire\Admin;
 use App\Livewire\ConfirmAccount;
@@ -13,6 +14,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', LandingController::class)->name('home');
 Route::get('/lang/{locale}', LocaleController::class)->name('locale');
+
+// Telegram Web App (Mini App): opened from the bot, signs a linked client in.
+Route::get('/tg', [TelegramWebAppController::class, 'show'])->name('tg.app');
+Route::post('/tg/auth', [TelegramWebAppController::class, 'auth'])->middleware('throttle:20,1')->name('tg.auth');
 
 Route::post('/telegram/webhook', TelegramWebhookController::class)
     ->middleware('throttle:120,1')->name('telegram.webhook');

@@ -44,6 +44,7 @@
             <button type="button" class="btn-ghost" wire:click="testToken" wire:loading.attr="disabled">{{ t('set.test') }}</button>
             <button type="button" class="btn-ghost" wire:click="testAdminAlert" wire:loading.attr="disabled">{{ t('set.admin_ids.test') }}</button>
             <button type="button" class="btn-ghost" wire:click="setWebhook" wire:loading.attr="disabled">{{ t('set.hook.set') }}</button>
+            <button type="button" class="btn-ghost" wire:click="setMenuButton" wire:loading.attr="disabled">{{ t('set.menu.set') }}</button>
             <button type="button" class="btn-ghost" wire:click="deleteWebhook" wire:loading.attr="disabled">{{ t('set.hook.del') }}</button>
         </div>
     </form>

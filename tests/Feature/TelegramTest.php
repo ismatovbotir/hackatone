@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Services\Telegram\AdminNotifier;
 use App\Services\Telegram\LinkCodeService;
 use App\Services\Telegram\UpdateHandler;
-use App\Support\LinkCodeSession;
+use App\Support\Tr;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -33,11 +33,6 @@ class TelegramTest extends TestCase
         return ['update_id' => 1, 'message' => ['chat' => ['id' => $chat, 'type' => 'private'], 'from' => ['id' => $chat, 'language_code' => 'ru'], 'text' => $text]];
     }
 
-    private function chooseLanguage(int $chat, string $lang = 'ru'): array
-    {
-        return ['update_id' => 2, 'callback_query' => ['id' => 'cb1', 'data' => "lang:$lang", 'message' => ['chat' => ['id' => $chat]]]];
-    }
-
     private function shareContact(int $chat, string $phone, ?int $owner = null): array
     {
         return ['update_id' => 3, 'message' => [
@@ -46,19 +41,20 @@ class TelegramTest extends TestCase
         ]];
     }
 
-    /** /start, language, own phone, code: the full bot conversation. */
-    private function converse(int $chat, string $phone, string $code, bool $codeInStart = false): void
+    /** The bot conversation: the code (from the QR link, or typed), then the person's own phone. */
+    private function converse(int $chat, string $phone, string $code, bool $typed = false): void
     {
         $bot = app(UpdateHandler::class);
-        $bot->handle($this->update($chat, $codeInStart ? "/start $code" : '/start'));
-        $bot->handle($this->chooseLanguage($chat));
-        $bot->handle($this->shareContact($chat, $phone));
-        if (! $codeInStart) {
+        if ($typed) {
+            $bot->handle($this->update($chat, '/start'));
             $bot->handle($this->update($chat, $code));
+        } else {
+            $bot->handle($this->update($chat, "/start $code"));
         }
+        $bot->handle($this->shareContact($chat, $phone));
     }
 
-    public function test_full_conversation_links_the_client_once(): void
+    public function test_code_from_the_qr_then_own_phone_links_the_client_once(): void
     {
         $this->fakeTelegram();
         $client = Client::factory()->withMeasurement()->create(['phone' => '998901234567', 'lang' => 'uz']);
@@ -68,7 +64,6 @@ class TelegramTest extends TestCase
 
         $client->refresh();
         $this->assertSame(555, (int) $client->telegram_chat_id);
-        $this->assertSame('ru', $client->lang); // language chosen in the bot
         $this->assertTrue($client->user->isConfirmed());
         Http::assertSent(fn ($r) => str_contains($r['text'] ?? '', $client->first_name));
 
@@ -78,25 +73,25 @@ class TelegramTest extends TestCase
         $this->assertNull($other->fresh()->telegram_chat_id);
     }
 
-    public function test_code_from_the_qr_link_is_used_after_the_phone(): void
+    public function test_typed_code_works_too(): void
     {
         $this->fakeTelegram();
         $client = Client::factory()->withMeasurement()->create(['phone' => '998901234567']);
         $code = app(LinkCodeService::class)->issue($client)['code'];
 
-        $this->converse(42, '998901234567', $code, codeInStart: true);
+        $this->converse(42, '998901234567', substr($code, 0, 3).' '.substr($code, 3), typed: true);
         $this->assertSame(42, (int) $client->fresh()->telegram_chat_id);
     }
 
-    public function test_bot_asks_for_language_then_phone_with_buttons(): void
+    public function test_bot_asks_for_the_code_first_then_the_phone_with_a_contact_button(): void
     {
         $this->fakeTelegram();
         $bot = app(UpdateHandler::class);
 
         $bot->handle($this->update(8, '/start'));
-        Http::assertSent(fn ($r) => isset($r['reply_markup']['inline_keyboard']));
+        Http::assertSent(fn ($r) => ($r['text'] ?? '') === Tr::get('bot.ask_code', [], 'uz')); // no language_code: Uzbek
 
-        $bot->handle($this->chooseLanguage(8, 'uz'));
+        $bot->handle($this->update(8, '123456'));
         Http::assertSent(fn ($r) => ($r['reply_markup']['keyboard'][0][0]['request_contact'] ?? false) === true);
     }
 
@@ -107,10 +102,8 @@ class TelegramTest extends TestCase
         $code = app(LinkCodeService::class)->issue($client)['code'];
         $bot = app(UpdateHandler::class);
 
-        $bot->handle($this->update(42, '/start'));
-        $bot->handle($this->chooseLanguage(42));
-        $bot->handle($this->shareContact(42, '998901234567', owner: 999));
-        $bot->handle($this->update(42, $code));
+        $bot->handle($this->update(42, "/start $code"));
+        $bot->handle($this->shareContact(42, '998901234567', owner: 999)); // a forwarded contact card
 
         $this->assertNull($client->fresh()->telegram_chat_id);
     }
@@ -156,8 +149,6 @@ class TelegramTest extends TestCase
         $this->fakeTelegram();
         $client = Client::factory()->withMeasurement()->create(['phone' => '998901234567']);
         $bot = app(UpdateHandler::class);
-        $bot->handle($this->update(9, '/start'));
-        $bot->handle($this->chooseLanguage(9));
         $bot->handle($this->shareContact(9, '998901234567'));
         for ($i = 0; $i < 5; $i++) {
             $bot->handle($this->update(9, '000000'));
@@ -234,26 +225,14 @@ class TelegramTest extends TestCase
         $this->assertStringNotContainsString('telegram:poll', $commands);
     }
 
-    public function test_qr_link_is_the_constant_bot_start_link_and_the_bot_asks_for_the_code(): void
+    public function test_qr_link_carries_the_secret_code(): void
     {
         $this->fakeTelegram();
         config(['services.telegram.bot_username' => '@hh_test_bot']);
-        $this->assertSame('https://t.me/hh_test_bot?start=start', LinkCodeSession::botLink());
-
-        // Same link on the confirm step and the Telegram tab, whatever the current code is.
         $user = Client::factory()->withMeasurement()->create(['user_id' => User::factory()->unverified()])->user;
-        $this->actingAs($user)->get(route('verification.notice'))->assertSee('https://t.me/hh_test_bot?start=start', false);
 
-        // Opening it sends "/start start": the bot starts with the language, and still needs the phone and the code.
-        $client = Client::factory()->withMeasurement()->create(['phone' => '998901234567']);
-        $code = app(LinkCodeService::class)->issue($client)['code'];
-        $bot = app(UpdateHandler::class);
-        $bot->handle($this->update(77, '/start start'));
-        Http::assertSent(fn ($r) => isset($r['reply_markup']['inline_keyboard']));
-        $bot->handle($this->chooseLanguage(77));
-        $bot->handle($this->shareContact(77, '998901234567'));
-        $this->assertNull($client->fresh()->telegram_chat_id);
-        $bot->handle($this->update(77, $code));
-        $this->assertSame(77, (int) $client->fresh()->telegram_chat_id);
+        $html = $this->actingAs($user)->get(route('verification.notice'))->getContent();
+
+        $this->assertMatchesRegularExpression('~https://t\.me/hh_test_bot\?start=\d{6}~', $html);
     }
 }

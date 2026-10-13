@@ -11,11 +11,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 
 /**
- * Bot conversation that links a Telegram chat to a registered client:
- *   1. /start (the QR on the site opens the bot with "/start start"; an old "/start 123456" link still works)
- *   2. choose a language (inline buttons)
- *   3. share own phone number (contact button); it must match the phone used at registration
- *   4. send the 6-digit code from the website (skipped if it came with /start)
+ * Bot conversation that links a Telegram account to a registered client:
+ *   1. the secret 6-digit code: "/start 123456" from the QR/link on the site, or typed as a message
+ *   2. the mobile number, shared with Telegram's contact button
+ *   3. checks: the shared contact is this Telegram account (contact.user_id = from.id), and the code belongs to the
+ *      client registered with that mobile number. Then the Telegram id is saved; the site sees it and opens the panel.
+ * Before the code identifies the client, messages use the Telegram app language (Uzbek if unknown); after, the client's.
  * Conversation state is kept in the cache per chat for 30 minutes.
  */
 class UpdateHandler
@@ -26,12 +27,6 @@ class UpdateHandler
 
     public function handle(array $update): void
     {
-        if (isset($update['callback_query'])) {
-            $this->onCallback($update['callback_query']);
-
-            return;
-        }
-
         $message = $update['message'] ?? null;
         $chatId = $message['chat']['id'] ?? null;
         if (! $chatId || ($message['chat']['type'] ?? 'private') !== 'private') {
@@ -39,6 +34,7 @@ class UpdateHandler
         }
 
         $state = $this->state($chatId);
+        $state['lang'] = $this->guessLocale($message['from']['language_code'] ?? null);
         $text = trim((string) ($message['text'] ?? ''));
 
         if (isset($message['contact'])) {
@@ -48,44 +44,21 @@ class UpdateHandler
         }
 
         if (preg_match('/^\/start(?:\s+(\d{6}))?/', $text, $m)) {
-            $state = ['lang' => null, 'phone' => null, 'code' => $m[1] ?? null];
-            $this->save($chatId, $state);
-            $this->askLanguage($chatId);
-
-            return;
-        }
-
-        if (preg_match('/^\d{3}\s?\d{3}$/', $text)) {
+            // A new start forgets an earlier half-finished attempt.
+            $state = ['lang' => $state['lang'], 'code' => $m[1] ?? null, 'phone' => null];
+        } elseif (preg_match('/^\d{3}\s?\d{3}$/', $text)) {
             $state['code'] = preg_replace('/\D/', '', $text);
-            $this->save($chatId, $state);
-            $this->next($chatId, $state);
-
-            return;
         }
 
+        $this->save($chatId, $state);
         $this->next($chatId, $state);
-    }
-
-    private function onCallback(array $cb): void
-    {
-        $chatId = $cb['message']['chat']['id'] ?? null;
-        rescue(fn () => $this->api->answerCallback($cb['id']), report: false);
-
-        if ($chatId && preg_match('/^lang:(uz|en|ru)$/', (string) ($cb['data'] ?? ''), $m)) {
-            $state = $this->state($chatId);
-            $state['lang'] = $m[1];
-            $this->save($chatId, $state);
-            $this->next($chatId, $state);
-        }
     }
 
     private function onContact(int $chatId, array $message, array $state): void
     {
-        $lang = $state['lang'] ?? config('hh.default_locale');
-
-        // Only the person's own number proves they own the phone used at registration.
+        // Match 1: the shared contact must be this Telegram account, not someone else's card.
         if (($message['contact']['user_id'] ?? null) !== ($message['from']['id'] ?? false)) {
-            $this->api->sendMessage($chatId, Tr::get('bot.own_number', [], $lang), $this->contactKeyboard($lang));
+            $this->api->sendMessage($chatId, Tr::get('bot.own_number', [], $state['lang']), $this->contactKeyboard($state['lang']));
 
             return;
         }
@@ -95,24 +68,19 @@ class UpdateHandler
         $this->next($chatId, $state);
     }
 
-    /** Ask for whatever is missing, or finish when everything is there. */
+    /** Ask for what is missing (code first, then phone), or finish. */
     private function next(int $chatId, array $state): void
     {
-        if (empty($state['lang'])) {
-            $this->askLanguage($chatId);
+        $lang = $state['lang'];
+
+        if (empty($state['code'])) {
+            $this->api->sendMessage($chatId, Tr::get('bot.ask_code', [], $lang), ['remove_keyboard' => true]);
 
             return;
         }
-        $lang = $state['lang'];
 
         if (empty($state['phone'])) {
             $this->api->sendMessage($chatId, Tr::get('bot.share', [], $lang), $this->contactKeyboard($lang));
-
-            return;
-        }
-
-        if (empty($state['code'])) {
-            $this->api->sendMessage($chatId, Tr::get('bot.send_code', [], $lang), ['remove_keyboard' => true]);
 
             return;
         }
@@ -136,38 +104,45 @@ class UpdateHandler
         $client = $row?->client;
 
         if (! $client) {
-            $this->forgetCode($chatId, $state);
+            $this->forget($chatId, $state, 'code');
             $this->api->sendMessage($chatId, Tr::get('bot.invalid', [], $lang), ['remove_keyboard' => true]);
 
             return;
         }
 
+        // Match 2: the code must belong to the client registered with this mobile number.
         if ($client->phone !== $state['phone']) {
-            // Do not burn the code: the client may share the right number next.
-            $this->forgetCode($chatId, $state);
-            $this->api->sendMessage($chatId, Tr::get('bot.phone_mismatch', [], $lang), ['remove_keyboard' => true]);
+            // Keep the code unused: the owner may share the right number next.
+            $this->forget($chatId, $state, 'phone');
+            $this->api->sendMessage($chatId, Tr::get('bot.phone_mismatch', [], $lang), $this->contactKeyboard($lang));
 
             return;
         }
 
         if (! $this->codes->use($row)) {
-            $this->forgetCode($chatId, $state);
+            $this->forget($chatId, $state, 'code');
             $this->api->sendMessage($chatId, Tr::get('bot.invalid', [], $lang), ['remove_keyboard' => true]);
 
             return;
         }
 
-        $this->link($client, $chatId, $lang);
+        $this->link($client, $chatId);
         RateLimiter::clear($key);
         Cache::forget($this->stateKey($chatId));
 
-        $this->api->sendMessage($chatId, Tr::get('bot.linked', [$client->first_name, substr($client->reminder_time, 0, 5)], $lang), ['remove_keyboard' => true]);
+        $done = Tr::get('bot.linked', [$client->first_name, substr($client->reminder_time, 0, 5)], $client->lang);
+        $this->api->sendMessage($chatId, $done, ['remove_keyboard' => true]);
+        if ($app = WebApp::url()) {
+            $this->api->sendMessage($chatId, Tr::get('bot.app_hint', [], $client->lang), [
+                'inline_keyboard' => [[['text' => Tr::get('bot.open_app', [], $client->lang), 'web_app' => ['url' => $app]]]],
+            ]);
+        }
     }
 
-    private function link(Client $client, int $chatId, string $lang): void
+    private function link(Client $client, int $chatId): void
     {
-        DB::transaction(function () use ($client, $chatId, $lang) {
-            // One Telegram chat belongs to one client.
+        DB::transaction(function () use ($client, $chatId) {
+            // One Telegram account belongs to one client.
             Client::where('telegram_chat_id', $chatId)->whereKeyNot($client->id)
                 ->update(['telegram_chat_id' => null, 'telegram_linked_at' => null]);
 
@@ -175,24 +150,10 @@ class UpdateHandler
             $client->forceFill([
                 'telegram_chat_id' => $chatId,
                 'telegram_linked_at' => now(),
-                // Reminders come in the language chosen in the bot.
-                'lang' => $lang,
                 // Don't send today's reminder straight away if its time has already passed.
                 'last_reminded_on' => $local->format('H:i') >= substr($client->reminder_time, 0, 5) ? $local->toDateString() : null,
             ])->save();
         });
-    }
-
-    private function askLanguage(int $chatId): void
-    {
-        // The language is not known yet, so the question is in all three.
-        $text = collect(config('hh.locales'))->map(fn ($l) => Tr::get('bot.choose_lang', [], $l))->implode("\n");
-
-        $this->api->sendMessage($chatId, $text, ['inline_keyboard' => [[
-            ['text' => 'O‘zbekcha', 'callback_data' => 'lang:uz'],
-            ['text' => 'Русский', 'callback_data' => 'lang:ru'],
-            ['text' => 'English', 'callback_data' => 'lang:en'],
-        ]]]);
     }
 
     private function contactKeyboard(string $lang): array
@@ -204,15 +165,22 @@ class UpdateHandler
         ];
     }
 
-    private function forgetCode(int $chatId, array $state): void
+    private function forget(int $chatId, array $state, string $field): void
     {
-        $state['code'] = null;
+        $state[$field] = null;
         $this->save($chatId, $state);
+    }
+
+    private function guessLocale(?string $code): string
+    {
+        $code = substr((string) $code, 0, 2);
+
+        return in_array($code, config('hh.locales'), true) ? $code : config('hh.default_locale');
     }
 
     private function state(int $chatId): array
     {
-        return Cache::get($this->stateKey($chatId), ['lang' => null, 'phone' => null, 'code' => null]);
+        return Cache::get($this->stateKey($chatId), ['lang' => null, 'code' => null, 'phone' => null]);
     }
 
     private function save(int $chatId, array $state): void

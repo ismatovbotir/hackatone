@@ -38,7 +38,13 @@ Validation rules:
 - Height achievement periods use an assumption that is ours, not WHO: the level scales the typical growth pace to 90% (Easy), 100% (Mid), 105% (Strong). Keep the on-screen disclaimer that no programme can promise centimetres.
 - This is an educational product. Keep the disclaimer: not medical advice, parent or guardian registers minors.
 
-## Telegram linking (to build)
+## Telegram linking
+
+Current flow (the owner's spec): after registration the confirm page shows the secret 6-digit code and a QR / link `https://t.me/<bot>?start=<code>`. In the bot: the code (from /start or typed), then the mobile number via the contact button. Link only if the shared contact is the same Telegram account (`contact.user_id == from.id`) and the code belongs to the client with that mobile number; then save the Telegram id. The confirm page polls and opens the user's panel. No language step: the bot uses the client's site language.
+
+Telegram Web App: `/tg` opens inside Telegram (bot menu button, set in Admin > Settings, and an "Open app" button after linking; needs HTTPS). `/tg/auth` checks Telegram's signed initData (HMAC with the bot token, max 24 h old) and signs in the linked client.
+
+### Original brief
 
 At the end of registration the client sees a 6-digit code and a QR code that opens `https://t.me/<bot_username>?start=<code>`.
 

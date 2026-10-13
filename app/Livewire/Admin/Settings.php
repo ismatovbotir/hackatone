@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Livewire\Forms\TelegramSettingsForm;
 use App\Services\Telegram\AdminNotifier;
 use App\Services\Telegram\TelegramApi;
+use App\Services\Telegram\WebApp;
 use App\Support\CronHeartbeat;
 use App\Support\Settings as AppSettings;
 use App\Support\Tr;
@@ -102,6 +103,20 @@ class Settings extends Component
         $response = rescue(fn () => $api->setWebhook(route('telegram.webhook'), config('services.telegram.webhook_secret')), null, false);
         $ok = (bool) $response?->json('ok');
         $this->result = [$ok ? 'good' : 'bad', t('set.hook.ok', $response?->json('description') ?? t('set.test.fail'))];
+    }
+
+    /** Puts an "Open app" button next to the message field in the bot, opening the Web App. */
+    public function setMenuButton(TelegramApi $api): void
+    {
+        $url = WebApp::url();
+        if (! $api->configured() || ! $url) {
+            $this->result = ['warn', t('set.menu.need')];
+
+            return;
+        }
+
+        $response = rescue(fn () => $api->setMenuButton($url, t('bot.open_app')), null, false);
+        $this->result = [$response?->json('ok') ? 'good' : 'bad', t('set.hook.ok', $response?->json('description') ?? t('set.test.fail'))];
     }
 
     public function deleteWebhook(TelegramApi $api): void

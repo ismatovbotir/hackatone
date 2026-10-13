@@ -52,7 +52,7 @@ class Telegram extends Component
         return view('livewire.panel.telegram', [
             'linked' => $linked,
             'code' => $code,
-            'link' => LinkCodeSession::botLink(),
+            'link' => $code ? LinkCodeSession::deepLink($code['code']) : null,
         ])->title(t('tab.tg'));
     }
 }

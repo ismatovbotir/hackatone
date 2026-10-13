@@ -17,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [SetLocale::class]);
         $middleware->alias(['role' => EnsureRole::class, 'confirmed' => EnsureAccountConfirmed::class]);
-        $middleware->validateCsrfTokens(except: ['telegram/webhook']);
+        $middleware->validateCsrfTokens(except: ['telegram/webhook', 'tg/auth']);
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(fn (Request $request) => $request->user()?->isAdmin() ? route('admin.dashboard') : route('panel.overview'));
     })

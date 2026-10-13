@@ -59,6 +59,14 @@ class TelegramApi
         ]));
     }
 
+    /** The bot's menu button opens the Web App. */
+    public function setMenuButton(string $url, string $text): Response
+    {
+        return $this->http()->post('setChatMenuButton', [
+            'menu_button' => ['type' => 'web_app', 'text' => $text, 'web_app' => ['url' => $url]],
+        ]);
+    }
+
     public function deleteWebhook(): Response
     {
         return $this->http()->post('deleteWebhook');
