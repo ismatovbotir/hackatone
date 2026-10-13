@@ -478,7 +478,6 @@
   "cal.streak": "Streak",
   "cal.streakv": "{0} sessions in a row",
   "cal.month": "This month",
-  "cal.late": "You can fill in days up to {0} days back.",
   "cal.level": "Uses your current level for every day.",
   "admin.cal": "Training this month",
   "admin.videos": "Activity videos",

@@ -16,9 +16,6 @@ use Illuminate\Support\Collection;
  */
 class TrainingCalendar
 {
-    /** How many days back a client may still fill in a day. */
-    public const EDIT_DAYS_BACK = 7;
-
     public const GLASS_ML = 250;
 
     public function __construct(private TrainingPlanner $planner) {}
@@ -65,7 +62,8 @@ class TrainingCalendar
             'minutes' => $minutes,
             'status' => $status,
             'log' => $log,
-            'editable' => $date->lte($today) && $date->gte($today->copy()->subDays(self::EDIT_DAYS_BACK)) && $date->gte($registered),
+            // Any day up to today can be filled in or changed; future days not (nothing to log yet, no points in advance).
+            'editable' => $date->lte($today),
         ];
     }
 

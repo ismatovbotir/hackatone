@@ -94,9 +94,13 @@ class PanelTest extends TestCase
         $this->assertSame('none', $status('2026-09-30'));
     }
 
-    public function test_future_and_old_days_cannot_be_saved(): void
+    public function test_any_past_day_can_be_filled_in_but_not_future_days(): void
     {
-        $this->client();
+        $client = $this->client();
+
+        // A day long ago (even before registration) can be filled in or changed.
+        Livewire::test(Calendar::class)->call('openDay', '2026-08-20')->set('day.pages_read', 12)->call('saveDay')->assertHasNoErrors();
+        $this->assertSame(12, $client->dailyLogs()->where('log_date', '2026-08-20')->first()->pages_read);
 
         Livewire::test(Calendar::class)->call('openDay', '2026-10-20')->call('saveDay')->assertForbidden();
     }

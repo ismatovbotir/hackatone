@@ -89,7 +89,7 @@
 
                 <div class="flex flex-col gap-5 overflow-y-auto px-5 py-4">
                     @unless ($editable)
-                        <p class="note">{{ $s['date']->toDateString() > $today ? t('cal.future') : t('cal.late', \App\Services\Clients\TrainingCalendar::EDIT_DAYS_BACK) }}</p>
+                        <p class="note">{{ t('cal.future') }}</p>
                     @endunless
 
                     {{-- Mental growth: reading comes first --}}
