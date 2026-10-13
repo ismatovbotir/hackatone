@@ -3,7 +3,7 @@
     <div class="card">
         <dl class="kv !mt-0">
             <dt>{{ t('admin.name') }}</dt><dd class="!font-sans">{{ $this->client->fullName() }}</dd>
-            <dt>{{ t('fl.email') }}</dt><dd class="break-all">{{ $user->email }}</dd>
+            <dt>{{ t('fl.email') }}</dt><dd class="break-all">{{ $user->email ?? '—' }}</dd>
             <dt>{{ t('fl.phone') }}</dt><dd>{{ $phone }}</dd>
             <dt>{{ t('fl.dob') }}</dt><dd>{{ $this->client->birth_date->toDateString() }}</dd>
             <dt>{{ t('tab.tg') }}</dt><dd class="!font-sans">{{ $this->client->isLinked() ? t('tg.status.ok') : t('tg.status') }}</dd>

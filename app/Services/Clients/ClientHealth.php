@@ -17,7 +17,12 @@ class ClientHealth
     {
         $m ??= $client->latestMeasurement;
 
-        return $m ? $this->analyzer->analyze($client->sex, $client->birth_date, $m->height_cm, $m->weight_kg) : null;
+        // Telegram sign-ups have no age, gender or measurement until they fill in their profile.
+        if (! $m || ! $client->sex || ! $client->birth_date) {
+            return null;
+        }
+
+        return $this->analyzer->analyze($client->sex, $client->birth_date, $m->height_cm, $m->weight_kg);
     }
 
     public function level(Client $client, BodyAnalysis $a): Level

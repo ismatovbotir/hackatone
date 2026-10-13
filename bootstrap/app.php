@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureAccountConfirmed;
+use App\Http\Middleware\EnsureProfileComplete;
 use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
@@ -16,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [SetLocale::class]);
-        $middleware->alias(['role' => EnsureRole::class, 'confirmed' => EnsureAccountConfirmed::class]);
+        $middleware->alias(['role' => EnsureRole::class, 'confirmed' => EnsureAccountConfirmed::class, 'profile.complete' => EnsureProfileComplete::class]);
         $middleware->validateCsrfTokens(except: ['telegram/webhook', 'tg/auth']);
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(fn (Request $request) => $request->user()?->isAdmin() ? route('admin.dashboard') : route('panel.overview'));

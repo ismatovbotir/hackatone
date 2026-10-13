@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
     'phone', 'first_name', 'last_name', 'birth_date', 'sex', 'lang', 'level',
-    'reminders', 'reminder_time', 'consent_at',
+    'reminders', 'reminder_time', 'consent_at', 'source',
 ])]
 class Client extends Model
 {
@@ -63,6 +63,12 @@ class Client extends Model
     public function linkCodes(): HasMany
     {
         return $this->hasMany(TelegramLinkCode::class);
+    }
+
+    /** Everything the plan needs: age, gender, consent and a first measurement. Telegram sign-ups start without them. */
+    public function isComplete(): bool
+    {
+        return $this->birth_date !== null && $this->sex !== null && $this->consent_at !== null && $this->latestMeasurement !== null;
     }
 
     public function isLinked(): bool

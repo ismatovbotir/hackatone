@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('phone', 15)->unique();
             $table->string('first_name', 100);
             $table->string('last_name', 100);
-            $table->date('birth_date');
-            $table->char('sex', 1); // M or F, picks the WHO curve
+            // birth_date, sex and consent_at are empty for a Telegram registration until the profile form is filled in.
+            $table->date('birth_date')->nullable();
+            $table->char('sex', 1)->nullable(); // M or F, picks the WHO curve
             $table->string('lang', 2)->default('uz');
             $table->string('level', 10)->nullable(); // easy, mid, strong; null = recommended
             $table->json('reminders');
@@ -26,7 +27,8 @@ return new class extends Migration
             $table->timestamp('telegram_linked_at')->nullable();
             $table->date('last_reminded_on')->nullable(); // daily reminder sent for this local date
             $table->timestamp('measure_reminded_at')->nullable();
-            $table->dateTime('consent_at'); // always set at registration; dateTime so strict MySQL needs no default
+            $table->dateTime('consent_at')->nullable(); // set with the profile; dateTime so strict MySQL needs no default
+            $table->string('source', 8)->default('web'); // where the account was created: web or telegram
             $table->timestamps();
 
             $table->index(['reminder_time', 'telegram_chat_id']);

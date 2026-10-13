@@ -36,14 +36,15 @@ class ClientShow extends Component
     {
         $client = $this->client->load(['user', 'measurements']);
         $a = $health->analyze($client, $client->measurements->last());
-        $level = $health->level($client, $a);
+        $level = $a ? $health->level($client, $a) : null;
 
         return view('livewire.admin.client-show', [
             'a' => $a,
             'level' => $level,
-            'plan' => $energy->plan($a, $level),
+            'plan' => $a ? $energy->plan($a, $level) : null,
             'phone' => Phone::format($client->phone),
-            'month' => $calendar->summary($calendar->month($client, $level, $calendar->today())),
+            'complete' => $client->isComplete(),
+            'month' => $level ? $calendar->summary($calendar->month($client, $level, $calendar->today())) : null,
         ])->title($client->fullName());
     }
 }

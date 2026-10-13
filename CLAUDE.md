@@ -18,13 +18,20 @@ The prototype keeps data in the browser only. The Laravel version must move it t
 
 ## Registration flow
 
-Steps: phone, name, about you (date of birth and gender), body (weight and height), review, then Telegram link.
+There are two ways to register. Both end with an account linked to Telegram or confirmed by email.
+
+**1. Website** (`/register`): phone, name, account (email + password), about (date of birth, gender), body (weight, height), review with consent. Then confirm by the email link **or** in Telegram: the page shows the secret 6-digit code and a QR / link `https://t.me/<bot>?start=<code>`; in the bot the client shares their mobile number (contact button). Linked only if the contact is the same Telegram account (`contact.user_id == from.id`) and the code belongs to the client with that number. The page then opens the panel.
+
+**2. Telegram** (plain `/start`): language (inline buttons), mobile number (contact button, own account), full name. The account is created with **no email and no password** (`users.email`, `users.password` nullable; `clients.source = telegram`) and linked to the chat. If the number already belongs to a website account that is not linked, that account is linked instead (Telegram proved the number); if it is linked to another Telegram account, refuse. The bot then offers the web app to **complete the profile**: date of birth, gender, weight, height, consent, and optionally email + password for email sign-in. Until the profile is complete (`Client::isComplete()`), every panel page redirects to `/panel/profile`; reminders, rating, reports and admin statistics skip incomplete profiles; the evening message asks them to finish the profile.
+
+Sign-in: email + password (if set), phone + 6-digit code from the bot, or the Telegram web app. Admins can activate any account by hand.
 
 Validation rules:
-- Phone: 9 to 15 digits. Nine digits are treated as Uzbek and get the +998 prefix. Display as `+998 90 123 45 67`.
+- Phone: 9 to 15 digits. Nine digits, or ten starting with 0 or 8, are Uzbek and get the 998 prefix (Telegram always sends 998...). Display as `+998 90 123 45 67`.
 - Age: 5 to 100 years. Under 5 is refused, use WHO Child Growth Standards with a paediatrician.
 - Weight: 10 to 300 kg. Height: 80 to 250 cm.
 - Gender: male or female (needed to pick the WHO curve).
+- Full name in the bot: letters (any script), spaces, apostrophes, hyphens; 2 to 100 characters.
 
 ## Domain rules (do not change without asking)
 

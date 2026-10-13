@@ -40,13 +40,18 @@ Route::middleware('auth')->group(function () {
 
 // Panel for the "user" role: their own plan.
 Route::middleware(['auth', 'confirmed', 'role:user'])->prefix('panel')->name('panel.')->group(function () {
-    Route::livewire('/', Panel\Overview::class)->name('overview');
-    Route::livewire('/training', Panel\Training::class)->name('training');
-    Route::livewire('/calendar', Panel\Calendar::class)->name('calendar');
-    Route::livewire('/feeding', Panel\Feeding::class)->name('feeding');
-    Route::livewire('/achievements', Panel\Achievements::class)->name('achievements');
-    Route::livewire('/telegram', Panel\Telegram::class)->name('telegram');
-    Route::livewire('/account', Panel\Account::class)->name('account');
+    // Telegram sign-ups add their metrics here first; every other panel page needs a complete profile.
+    Route::livewire('/profile', Panel\CompleteProfile::class)->name('profile');
+
+    Route::middleware('profile.complete')->group(function () {
+        Route::livewire('/', Panel\Overview::class)->name('overview');
+        Route::livewire('/training', Panel\Training::class)->name('training');
+        Route::livewire('/calendar', Panel\Calendar::class)->name('calendar');
+        Route::livewire('/feeding', Panel\Feeding::class)->name('feeding');
+        Route::livewire('/achievements', Panel\Achievements::class)->name('achievements');
+        Route::livewire('/telegram', Panel\Telegram::class)->name('telegram');
+        Route::livewire('/account', Panel\Account::class)->name('account');
+    });
 });
 
 // Panel for the "admin" role.

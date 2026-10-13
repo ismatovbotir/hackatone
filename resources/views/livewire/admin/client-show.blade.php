@@ -19,17 +19,21 @@
         <div class="card">
             <h3>{{ t('admin.profile') }}</h3>
             <dl class="kv">
-                <dt>{{ t('fl.email') }}</dt><dd class="break-all">{{ $client->user->email }}</dd>
+                <dt>{{ t('fl.email') }}</dt><dd class="break-all">{{ $client->user->email ?? '—' }}</dd>
+                <dt>{{ t('admin.source') }}</dt><dd>{{ t('admin.source.'.$client->source) }}</dd>
                 <dt>{{ t('admin.verified') }}</dt><dd>{{ $client->user->hasVerifiedEmail() ? t('admin.yes') : t('admin.no') }}</dd>
                 <dt>{{ t('fl.phone') }}</dt><dd>{{ $phone }}</dd>
-                <dt>{{ t('prof.age') }}</dt><dd>{{ number_format($a->age, 1) }}</dd>
-                <dt>{{ t('fl.sex') }}</dt><dd>{{ t($client->sex->value === 'F' ? 'fl.female' : 'fl.male') }}</dd>
-                <dt>{{ t('prof.level') }}</dt><dd>{{ t('lv.'.$level->value) }}</dd>
+                <dt>{{ t('prof.age') }}</dt><dd>{{ $a ? number_format($a->age, 1) : '—' }}</dd>
+                <dt>{{ t('fl.sex') }}</dt><dd>{{ $client->sex ? t($client->sex->value === 'F' ? 'fl.female' : 'fl.male') : '—' }}</dd>
+                <dt>{{ t('prof.level') }}</dt><dd>{{ $level ? t('lv.'.$level->value) : '—' }}</dd>
                 <dt>Lang</dt><dd>{{ strtoupper($client->lang) }}</dd>
-                <dt>{{ t('admin.consent') }}</dt><dd>{{ $client->consent_at->toDateString() }}</dd>
+                <dt>{{ t('admin.consent') }}</dt><dd>{{ $client->consent_at?->toDateString() ?? '—' }}</dd>
                 <dt>{{ t('admin.registered') }}</dt><dd>{{ $client->created_at->toDateString() }}</dd>
             </dl>
         </div>
+        @if (! $a)
+            <div class="card"><p class="note">{{ t('admin.incomplete') }}</p></div>
+        @else
         <div class="card">
             <h3>{{ t('ov.height') }} · {{ t('ov.weight') }}</h3>
             <div class="mt-3 flex flex-wrap gap-2">
@@ -49,6 +53,7 @@
                 <x-stat :label="t('mg.pages_month')" :value="$month['pages']" />
             </div>
         </div>
+        @endif
     </div>
 
     <div class="card">

@@ -31,7 +31,11 @@ class AdminNotifier
         $locale = config('hh.default_locale');
         $text = Tr::get('notify.new_reg', [
             $client->first_name.' '.mb_substr($client->last_name, 0, 1).'.',
-            Tr::get(HealthAnalyzer::age($client->birth_date) < 18 ? 'notify.minor' : 'notify.adult', [], $locale),
+            Tr::get(match (true) {
+                $client->birth_date === null => 'notify.age_later', // Telegram sign-up: age comes with the profile
+                HealthAnalyzer::age($client->birth_date) < 18 => 'notify.minor',
+                default => 'notify.adult',
+            }, [], $locale),
             strtoupper($client->lang),
             Client::count(),
             route('admin.clients.show', $client),

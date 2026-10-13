@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Services\Telegram\AdminNotifier;
 use App\Services\Telegram\LinkCodeService;
 use App\Services\Telegram\UpdateHandler;
-use App\Support\Tr;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -83,13 +82,13 @@ class TelegramTest extends TestCase
         $this->assertSame(42, (int) $client->fresh()->telegram_chat_id);
     }
 
-    public function test_bot_asks_for_the_code_first_then_the_phone_with_a_contact_button(): void
+    public function test_plain_start_begins_registration_and_a_code_switches_to_confirmation(): void
     {
         $this->fakeTelegram();
         $bot = app(UpdateHandler::class);
 
         $bot->handle($this->update(8, '/start'));
-        Http::assertSent(fn ($r) => ($r['text'] ?? '') === Tr::get('bot.ask_code', [], 'ru')); // the test user's Telegram app is in Russian
+        Http::assertSent(fn ($r) => isset($r['reply_markup']['inline_keyboard'][0][0]['callback_data'])); // language buttons
 
         $bot->handle($this->update(8, '123456'));
         Http::assertSent(fn ($r) => ($r['reply_markup']['keyboard'][0][0]['request_contact'] ?? false) === true);

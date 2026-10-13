@@ -52,9 +52,11 @@ class SendEveningReminders extends Command
 
                 $throttle->wait();
                 try {
-                    $response = $this->filledIn($log)
+                    $response = ! $client->isComplete()
+                        ? $api->sendMessage($client->telegram_chat_id, Tr::get('rem.profile', [$client->first_name], $client->lang), $this->profileButton($client))
+                        : ($this->filledIn($log)
                         ? $api->sendMessage($client->telegram_chat_id, $report->compose($client, $log, $now))
-                        : $api->sendMessage($client->telegram_chat_id, Tr::get('rem.evening', [$client->first_name], $client->lang), $this->button($client));
+                        : $api->sendMessage($client->telegram_chat_id, Tr::get('rem.evening', [$client->first_name], $client->lang), $this->button($client)));
                 } catch (Throwable) {
                     continue; // tried again next minute
                 }
@@ -81,6 +83,15 @@ class SendEveningReminders extends Command
     private function filledIn(?DailyLog $log): bool
     {
         return $log !== null && ($log->workout_done || $log->pages_read > 0 || $log->water_ml > 0 || array_filter($log->meals ?? []) !== []);
+    }
+
+    private function profileButton(Client $client): array
+    {
+        $label = Tr::get('bot.fill_profile', [], $client->lang);
+
+        return WebApp::url()
+            ? ['inline_keyboard' => [[['text' => $label, 'web_app' => ['url' => route('tg.app', ['open' => 'profile'])]]]]]
+            : ['inline_keyboard' => [[['text' => $label, 'url' => route('login')]]]];
     }
 
     private function button(Client $client): array
