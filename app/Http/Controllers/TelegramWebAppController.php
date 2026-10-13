@@ -33,7 +33,13 @@ class TelegramWebAppController extends Controller
         Auth::login($client->user, true);
         $request->session()->regenerate();
         $request->session()->put('locale', $client->lang);
+        // Inside Telegram only today's calendar day can be changed (App\Livewire\Panel\Calendar).
+        $request->session()->put('via_telegram', true);
 
-        return response()->json(['status' => 'ok', 'redirect' => route('panel.overview')]);
+        $redirect = $request->input('open') === 'today'
+            ? route('panel.calendar', ['day' => 'today'])
+            : route('panel.overview');
+
+        return response()->json(['status' => 'ok', 'redirect' => $redirect]);
     }
 }

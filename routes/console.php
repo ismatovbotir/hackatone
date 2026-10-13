@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Schedule;
  */
 Schedule::command('reminders:send')->everyMinute()->withoutOverlapping(10);
 
+// End of the day: "fill in today" with a button to the Telegram web app (after HH_EVENING_TIME, once a day).
+Schedule::command('reminders:evening')->everyMinute()->withoutOverlapping(10);
+
 Schedule::command('model:prune', ['--model' => [TelegramLinkCode::class]])->daily();
 
 // Every run records the time, shown in Admin > Settings ("Last cron run").

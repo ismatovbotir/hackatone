@@ -42,9 +42,19 @@ class TrainingCalendar
         return $days;
     }
 
+    /** The session planned for a day: the client's own plan if they changed it, else the level's weekly pattern. */
+    public function planFor(Level $level, Carbon $date, ?DailyLog $log): array
+    {
+        if ($log?->custom_plan) {
+            return [$log->session, (int) $log->planned_minutes];
+        }
+
+        return $this->planner->day($level, $date->dayOfWeekIso - 1);
+    }
+
     public function day(Client $client, Level $level, Carbon $date, ?DailyLog $log): array
     {
-        [$session, $minutes] = $this->planner->day($level, $date->dayOfWeekIso - 1);
+        [$session, $minutes] = $this->planFor($level, $date, $log);
         $today = $this->today();
         $registered = $client->created_at->copy()->setTimezone(config('hh.timezone'))->startOfDay();
 
@@ -62,8 +72,12 @@ class TrainingCalendar
             'minutes' => $minutes,
             'status' => $status,
             'log' => $log,
-            // Any day up to today can be filled in or changed; future days not (nothing to log yet, no points in advance).
+            'custom' => (bool) $log?->custom_plan,
+            'reading_goal' => $log?->reading_goal,
+            // Results: any day up to today (nothing to log ahead, no points in advance).
             'editable' => $date->lte($today),
+            // The plan: today and later.
+            'plannable' => $date->gte($today),
         ];
     }
 
@@ -83,23 +97,23 @@ class TrainingCalendar
 
     public function streak(Client $client, Level $level): int
     {
-        $done = $client->dailyLogs()->where('workout_done', true)
-            ->where('log_date', '>=', $this->today()->subDays(120)->toDateString())
-            ->pluck('log_date')->map(fn ($d) => $d->toDateString())->flip();
+        $logs = $client->dailyLogs()->where('log_date', '>=', $this->today()->subDays(120)->toDateString())
+            ->get()->keyBy(fn ($l) => $l->log_date->toDateString());
 
         // Training days in a row that were done, walking back from yesterday (today does not break it).
         $streak = 0;
         for ($d = $this->today()->subDay(); $d->gte($client->created_at->copy()->startOfDay()); $d->subDay()) {
-            [, $min] = $this->planner->day($level, $d->dayOfWeekIso - 1);
+            $log = $logs->get($d->toDateString());
+            [, $min] = $this->planFor($level, $d, $log);
             if ($min === 0) {
                 continue;
             }
-            if (! $done->has($d->toDateString())) {
+            if (! $log?->workout_done) {
                 break;
             }
             $streak++;
         }
 
-        return $streak + ($done->has($this->today()->toDateString()) ? 1 : 0);
+        return $streak + ($logs->get($this->today()->toDateString())?->workout_done ? 1 : 0);
     }
 }

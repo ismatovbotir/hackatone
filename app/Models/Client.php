@@ -22,9 +22,9 @@ class Client extends Model
     /** @use HasFactory<ClientFactory> */
     use HasFactory;
 
-    public const REMINDER_KEYS = ['workout', 'meals', 'water', 'measure'];
+    public const REMINDER_KEYS = ['workout', 'meals', 'water', 'measure', 'evening'];
 
-    public const DEFAULT_REMINDERS = ['workout' => true, 'meals' => true, 'water' => false, 'measure' => true];
+    public const DEFAULT_REMINDERS = ['workout' => true, 'meals' => true, 'water' => false, 'measure' => true, 'evening' => true];
 
     protected function casts(): array
     {
@@ -77,6 +77,7 @@ class Client extends Model
 
     public function reminderEnabled(string $key): bool
     {
-        return (bool) ($this->reminders[$key] ?? false);
+        // Keys added later (like "evening") use their default until the client changes them.
+        return (bool) ($this->reminders[$key] ?? self::DEFAULT_REMINDERS[$key] ?? false);
     }
 }

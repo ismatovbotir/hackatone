@@ -4,8 +4,8 @@ namespace App\Services\Telegram;
 
 use App\Models\Client;
 use App\Services\Clients\ClientHealth;
+use App\Services\Clients\TrainingCalendar;
 use App\Services\Health\EnergyPlanner;
-use App\Services\Health\TrainingPlanner;
 use App\Support\Tr;
 use Illuminate\Support\Carbon;
 
@@ -14,7 +14,6 @@ class ReminderComposer
     public function __construct(
         private ClientHealth $health,
         private EnergyPlanner $energy,
-        private TrainingPlanner $training,
     ) {}
 
     /**
@@ -35,7 +34,8 @@ class ReminderComposer
         $lines = [];
 
         if ($client->reminderEnabled('workout')) {
-            [$type, $min] = $this->training->day($level, $localNow->dayOfWeekIso - 1);
+            $today = $client->dailyLogs()->where('log_date', $localNow->toDateString())->first();
+            [$type, $min] = app(TrainingCalendar::class)->planFor($level, $localNow->copy()->startOfDay(), $today);
             $lines[] = $min > 0
                 ? Tr::get('rem.workout', [Tr::get('ty.'.$type, [], $l), $min], $l)
                 : Tr::get('rem.rest', [], $l);

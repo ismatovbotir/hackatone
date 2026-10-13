@@ -88,13 +88,60 @@
                 </div>
 
                 <div class="flex flex-col gap-5 overflow-y-auto px-5 py-4">
-                    @unless ($editable)
-                        <p class="note">{{ t('cal.future') }}</p>
-                    @endunless
+                    {{-- The client's own plan: today and future days. Open for future days, folded for today. --}}
+                    @if ($s['plannable'])
+                        <details class="group rounded-xl border border-line bg-bg p-3" @if (! $editable) open @endif>
+                            <summary class="flex cursor-pointer list-none items-center justify-between gap-2 font-semibold">
+                                <span class="flex items-center gap-2"><x-icon name="calendar" class="size-5 text-accent" />{{ t('plan.title') }}</span>
+                                <span class="flex items-center gap-2">
+                                    @if ($s['custom'])<x-pill tone="warn">{{ t('plan.changed') }}</x-pill>@endif
+                                    <x-icon name="chev-r" class="size-4 transition group-open:rotate-90" />
+                                </span>
+                            </summary>
+                            <div class="mt-3 flex flex-col gap-3">
+                                <div class="grid grid-cols-[1fr_7rem] gap-3">
+                                    <label class="field">{{ t('tr.session') }}
+                                        <select class="input" wire:model.live="plan.session">
+                                            @foreach (\App\Livewire\Forms\DayPlanForm::SESSIONS as $type)
+                                                <option value="{{ $type }}">{{ t('ty.'.$type) }}</option>
+                                            @endforeach
+                                        </select>
+                                    </label>
+                                    <label class="field">{{ t('tr.mins') }}
+                                        <input class="input" type="number" min="10" max="180" inputmode="numeric" wire:model="plan.minutes" @disabled($plan->session === 'rest')>
+                                    </label>
+                                </div>
+                                @error('plan.minutes')<p class="err">{{ $message }}</p>@enderror
+                                <label class="field">{{ t('plan.reading_goal') }}
+                                    <input class="input" type="number" min="1" max="500" inputmode="numeric" placeholder="20" wire:model="plan.reading_goal">
+                                </label>
+                                @error('plan.reading_goal')<p class="err">{{ $message }}</p>@enderror
+                                <div class="flex flex-wrap gap-2">
+                                    <button type="button" class="btn btn-sm" wire:click="savePlan">{{ t('plan.save') }}</button>
+                                    @if ($s['custom'])
+                                        <button type="button" class="btn-ghost btn-sm" wire:click="resetPlan">{{ t('plan.reset') }}</button>
+                                    @endif
+                                </div>
+                                <p class="text-xs text-muted">{{ t('plan.note') }}</p>
+                            </div>
+                        </details>
+                    @endif
 
+                    @if ($s['telegram_locked'] ?? false)
+                        <p class="note">{{ t('cal.tg_today_only') }}</p>
+                    @elseif (! $editable)
+                        <p class="note">{{ t('cal.future') }}</p>
+                    @endif
+
+                    @if ($editable)
                     {{-- Mental growth: reading comes first --}}
                     <section class="flex flex-col gap-2.5">
-                        <h3 class="flex items-center gap-2"><x-icon name="book" class="size-5 text-strong" />{{ t('cal.reading') }}</h3>
+                        <div class="flex items-center justify-between gap-2">
+                            <h3 class="flex items-center gap-2"><x-icon name="book" class="size-5 text-strong" />{{ t('cal.reading') }}</h3>
+                            @if ($s['reading_goal'])
+                                <span class="font-mono text-sm {{ ($day->pages_read ?? 0) >= $s['reading_goal'] ? 'text-good' : 'text-muted' }}">{{ (int) $day->pages_read }} / {{ $s['reading_goal'] }}</span>
+                            @endif
+                        </div>
                         <label class="field">{{ t('cal.pages') }}
                             <input class="input text-lg" type="number" min="0" max="2000" inputmode="numeric" placeholder="0"
                                    wire:model="day.pages_read" @disabled(! $editable) data-autofocus>
@@ -162,6 +209,7 @@
                         </div>
                         <p class="text-xs text-muted">{{ t('cal.glass', \App\Services\Clients\TrainingCalendar::GLASS_ML) }}</p>
                     </section>
+                    @endif
                 </div>
 
                 <div class="flex gap-2 border-t border-line px-5 py-3">

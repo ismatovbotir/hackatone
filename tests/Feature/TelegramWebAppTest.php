@@ -61,4 +61,15 @@ class TelegramWebAppTest extends TestCase
     {
         $this->get(route('tg.app'))->assertOk()->assertSee('telegram-web-app.js', false);
     }
+
+    public function test_open_today_goes_to_the_calendar_and_marks_the_session_as_telegram(): void
+    {
+        config(['services.telegram.bot_token' => self::TOKEN]);
+        $client = Client::factory()->withMeasurement()->create();
+        $client->forceFill(['telegram_chat_id' => 7002])->save();
+
+        $this->postJson(route('tg.auth'), ['init_data' => $this->initData(7002), 'open' => 'today'])
+            ->assertOk()->assertJson(['redirect' => route('panel.calendar', ['day' => 'today'])]);
+        $this->assertTrue(session('via_telegram'));
+    }
 }

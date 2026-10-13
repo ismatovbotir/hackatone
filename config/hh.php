@@ -24,6 +24,9 @@ return [
     // Telegram message to admins that cron works: "minute" (only while testing), "hourly", "daily" or "off".
     'cron_ping' => env('HH_CRON_PING', 'off'),
 
+    // End-of-day Telegram reminder to fill in today's calendar (local time).
+    'evening_time' => env('HH_EVENING_TIME', '20:30'),
+
     'locales' => ['uz', 'en', 'ru'],
     'default_locale' => 'uz',
 

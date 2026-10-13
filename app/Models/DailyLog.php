@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['log_date', 'level', 'session', 'planned_minutes', 'workout_done', 'workout_minutes', 'meals', 'water_ml', 'pages_read', 'points'])]
+#[Fillable(['log_date', 'level', 'session', 'planned_minutes', 'workout_done', 'workout_minutes', 'meals', 'water_ml', 'pages_read', 'points', 'custom_plan', 'reading_goal'])]
 class DailyLog extends Model
 {
     protected function casts(): array
@@ -15,6 +15,7 @@ class DailyLog extends Model
         return [
             'log_date' => DateOnly::class,
             'workout_done' => 'boolean',
+            'custom_plan' => 'boolean',
             'meals' => 'array',
         ];
     }

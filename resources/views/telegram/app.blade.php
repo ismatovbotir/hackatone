@@ -10,7 +10,7 @@
                     const r = await fetch(@js(route('tg.auth')), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                        body: JSON.stringify({ init_data: tg.initData }),
+                        body: JSON.stringify({ init_data: tg.initData, open: new URLSearchParams(location.search).get('open') }),
                     });
                     const data = await r.json();
                     if (data.status === 'ok') { window.location.replace(data.redirect); return; }

@@ -8,7 +8,8 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // What the client logged for a day in the calendar. Missed training days are derived, not stored.
+        // A day in the calendar: the client's own plan for it (optional, can be set ahead) and what they logged.
+        // Missed training days are derived, not stored.
         Schema::create('daily_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('client_id')->constrained()->cascadeOnDelete();
@@ -21,6 +22,8 @@ return new class extends Migration
             $table->json('meals')->nullable(); // one boolean per meal of the day's menu
             $table->unsignedSmallInteger('water_ml')->default(0);
             $table->unsignedSmallInteger('pages_read')->default(0); // mental growth: pages read that day
+            $table->boolean('custom_plan')->default(false); // session and planned_minutes were chosen by the client
+            $table->unsignedSmallInteger('reading_goal')->nullable(); // pages planned for the day
             $table->unsignedTinyInteger('points')->default(0); // App\Services\Clients\Points, stored for the leaderboard
             $table->timestamps();
 

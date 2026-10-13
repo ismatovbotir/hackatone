@@ -3,6 +3,7 @@
 namespace App\Livewire\Panel;
 
 use App\Livewire\Forms\DailyLogForm;
+use App\Livewire\Forms\DayPlanForm;
 use App\Livewire\Panel\Concerns\InteractsWithPlan;
 use App\Livewire\Panel\Concerns\ShowsRating;
 use App\Services\Clients\TrainingCalendar;
@@ -31,10 +32,17 @@ class Calendar extends Component
 
     public DailyLogForm $day;
 
+    public DayPlanForm $plan;
+
     public function mount(TrainingCalendar $calendar): void
     {
         if (! preg_match('/^\d{4}-\d{2}$/', $this->month)) {
             $this->month = $calendar->today()->format('Y-m');
+        }
+
+        // The evening reminder links here with ?day=today to open today's form straight away.
+        if (request()->query('day') === 'today') {
+            $this->openDay($calendar->today()->toDateString(), $calendar, app(MenuPlanner::class), app(EnergyPlanner::class));
         }
     }
 
@@ -52,6 +60,7 @@ class Calendar extends Component
         $meals = $menu->day($this->level, $energy->plan($this->analysis, $this->level)->kcal);
 
         $this->day->load($info['log'], $info['minutes'], count($meals), TrainingCalendar::GLASS_ML);
+        $this->plan->load($info);
         $this->open = $date;
     }
 
@@ -74,11 +83,52 @@ class Calendar extends Component
         session()->flash('status', t('cal.saved'));
     }
 
+    /** Change the plan for today or a future day. Results are still logged on the day itself. */
+    public function savePlan(TrainingCalendar $calendar): void
+    {
+        if ($this->open === '') {
+            return;
+        }
+        $info = $this->info($this->open, $calendar);
+        abort_unless($info['plannable'], 403);
+
+        $this->plan->save($this->client, $info, $this->level->value);
+        session()->flash('status', t('plan.saved'));
+        $this->openDay($this->open, $calendar, app(MenuPlanner::class), app(EnergyPlanner::class));
+    }
+
+    /** Back to the level's weekly pattern for that day (the reading goal is kept). */
+    public function resetPlan(TrainingCalendar $calendar): void
+    {
+        if ($this->open === '') {
+            return;
+        }
+        $info = $this->info($this->open, $calendar);
+        abort_unless($info['plannable'], 403);
+
+        $info['log']?->update(['custom_plan' => false]);
+        $this->openDay($this->open, $calendar, app(MenuPlanner::class), app(EnergyPlanner::class));
+    }
+
     private function info(string $date, TrainingCalendar $calendar): array
     {
         $d = Carbon::createFromFormat('Y-m-d', $date, config('hh.timezone'))->startOfDay();
+        $info = $calendar->day($this->client, $this->level, $d, $this->client->dailyLogs()->where('log_date', $date)->first());
 
-        return $calendar->day($this->client, $this->level, $d, $this->client->dailyLogs()->where('log_date', $date)->first());
+        // Opened from the Telegram web app: only today can be filled in or planned.
+        if ($this->viaTelegram()) {
+            $isToday = $d->equalTo($calendar->today());
+            $info['editable'] = $info['editable'] && $isToday;
+            $info['plannable'] = $info['plannable'] && $isToday;
+            $info['telegram_locked'] = ! $isToday;
+        }
+
+        return $info;
+    }
+
+    private function viaTelegram(): bool
+    {
+        return (bool) session('via_telegram');
     }
 
     private function monthDate(): Carbon

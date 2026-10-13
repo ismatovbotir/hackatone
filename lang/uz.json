@@ -624,5 +624,18 @@
   "mg.reading_days": "O‘qish kunlari",
   "mg.pages_total": "Jami sahifalar",
   "mg.days": "{0} kun o‘qildi",
-  "mg.note": "Har kuni oz-ozdan o‘qish xotira, diqqat va o‘qishdagi natijalarga yordam beradi. Sahifalarni Kalendarda kiriting."
+  "mg.note": "Har kuni oz-ozdan o‘qish xotira, diqqat va o‘qishdagi natijalarga yordam beradi. Sahifalarni Kalendarda kiriting.",
+  "plan.title": "Bu kunni rejalashtirish",
+  "plan.changed": "sizning rejangiz",
+  "plan.reading_goal": "O‘qish maqsadi (sahifa)",
+  "plan.save": "Rejani saqlash",
+  "plan.reset": "Standart rejaga qaytish",
+  "plan.saved": "Reja saqlandi",
+  "plan.note": "Haqiqatda nima qilganingizni o‘sha kuni kiritasiz.",
+  "e.plan_minutes": "10 dan 180 daqiqagacha rejalashtiring.",
+  "e.reading_goal": "1 dan 500 sahifagacha maqsad qo‘ying.",
+  "cal.tg_today_only": "Telegramda faqat bugungi kunni to‘ldirish mumkin. Boshqa kunlarni o‘zgartirish uchun saytni oching.",
+  "tg.r.evening": "Kun oxirida: bugungi kunni to‘ldirish",
+  "rem.evening": "Xayrli kech, {0}! Bugun qanday o‘tdi? O‘qilgan sahifalar, mashg‘ulot, ovqat va suvni kiriting: bir daqiqa vaqt oladi.",
+  "rem.evening_btn": "Bugunni to‘ldirish"
 }

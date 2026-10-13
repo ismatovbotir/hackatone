@@ -624,5 +624,18 @@
   "mg.reading_days": "Reading days",
   "mg.pages_total": "Pages in total",
   "mg.days": "{0} reading days",
-  "mg.note": "Reading a little every day helps memory, attention and school results. Log your pages in the Calendar."
+  "mg.note": "Reading a little every day helps memory, attention and school results. Log your pages in the Calendar.",
+  "plan.title": "Plan this day",
+  "plan.changed": "your plan",
+  "plan.reading_goal": "Reading goal (pages)",
+  "plan.save": "Save plan",
+  "plan.reset": "Back to the standard plan",
+  "plan.saved": "Plan saved",
+  "plan.note": "You fill in what you actually did on the day itself.",
+  "e.plan_minutes": "Plan between 10 and 180 minutes.",
+  "e.reading_goal": "Set a goal from 1 to 500 pages.",
+  "cal.tg_today_only": "In Telegram you can fill in only today. Open the website to change other days.",
+  "tg.r.evening": "End of the day: fill in today",
+  "rem.evening": "Good evening, {0}! How did today go? Fill in today’s pages read, training, meals and water: it takes a minute.",
+  "rem.evening_btn": "Fill in today"
 }
